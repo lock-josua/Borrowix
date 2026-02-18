@@ -99,7 +99,7 @@ export default function Login({
                                 </Button>
                                 <div className="flex items-center">
                                     <div className="flex-1 h-px bg-muted"></div>
-                                    <span className="px-4 text-sm text-muted-foreground text-white-600">----OR----</span>
+                                    <span className="px-4 text-sm text-muted-foreground text-white-600">or</span>
                                     <div className="flex-1 h-px bg-muted"></div>
                                 </div>
                                 <GoogleAuthButton />
