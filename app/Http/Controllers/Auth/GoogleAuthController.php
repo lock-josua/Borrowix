@@ -16,22 +16,35 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function callback()
-    {
-        $googleUser = Socialite::driver('google')->user();
+        public function callback() {
+            // Handle the callback from Google
+            try {
+                $googleUser = Socialite::driver('google')->user();
+            } catch (\Exception $e) {
+                return redirect('/login')->withErrors(['google' => 'Authentication failed.']);
+            }
 
-        $user = User::updateOrCreate(
-            ['google_id' => $googleUser->getId()],
-            [
-                'name' => $googleUser->getName(),
-                'email' => $googleUser->getEmail(),
-                'password' => bcrypt(Str::random(16)),
-            ]
-        );
+            $user = User::where('google_id', $googleUser->getId())
+                        ->orWhere('email', $googleUser->getEmail())
+                        ->first();
 
-        Auth::login($user);
+            if ($user) {
+                $user->update([
+                    'name'      => $googleUser->getName(),
+                    'google_id' => $user->google_id ?? $googleUser->getId(),
+                ]);
+            } else {
+                $user = User::create([
+                    'google_id'         => $googleUser->getId(),
+                    'name'              => $googleUser->getName(),
+                    'email'             => $googleUser->getEmail(),
+                    'password'          => bcrypt(Str::random(16)),
+                    'email_verified_at' => now(),
+                ]);
+            }
 
-        // Redirect back to React app
-        return redirect()->route('dashboard');
-    }
+            Auth::login($user);
+
+            return redirect(config('app.frontend_url') . '/dashboard');
+        }
 }
