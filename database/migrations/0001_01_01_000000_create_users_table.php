@@ -22,11 +22,9 @@ return new class extends Migration
             // Role-based access control
             $table->enum('role', ['super_admin', 'admin', 'staff', 'student'])->default('student');
 
-            // Multi-tenant: null for super_admin, required for all others
-            $table->foreignId('school_id')
-                  ->nullable()
-                  ->constrained('schools')
-                  ->nullOnDelete();
+            // Stored as plain column here — foreign key is added after
+            // schools table is created (see 2026_02_19_000010 migration)
+            $table->unsignedBigInteger('school_id')->nullable();
 
             $table->rememberToken();
             $table->timestamps();

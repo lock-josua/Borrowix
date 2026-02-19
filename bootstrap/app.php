@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\EnsureSchoolIsActive;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\ScopeToSchool;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
+        // Register route middleware aliases
+        $middleware->alias([
+            'role'         => CheckRole::class,
+            'school.active' => EnsureSchoolIsActive::class,
+            'school.scope'  => ScopeToSchool::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
