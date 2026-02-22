@@ -19,8 +19,10 @@ class UserController extends Controller
 
         $users = User::where('school_id', $school->id)
             ->whereIn('role', ['staff', 'student'])
-            ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%")
-                ->orWhere('email', 'like', "%{$request->search}%"))
+            ->when($request->search, fn ($q) => $q->where(function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->search}%")
+                      ->orWhere('email', 'like', "%{$request->search}%");
+            }))
             ->when($request->role, fn ($q) => $q->where('role', $request->role))
             ->latest()
             ->paginate(15)
