@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('discount_value', 10, 2);
 
             // Applies to which plan(s): null = all plans
-            $table->string('applicable_plan')->nullable();
+            $table->string('applicable_plan')->default('all');
 
             $table->integer('max_uses')->nullable();   // null = unlimited
             $table->integer('times_used')->default(0);
