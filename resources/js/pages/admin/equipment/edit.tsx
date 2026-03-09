@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ interface Equipment {
     serial_number: string | null;
     quantity: number;
     status: string;
+    image: string | null;
 }
 
 interface Props {
@@ -32,7 +33,7 @@ export default function EquipmentEdit({ equipment, categories }: Props) {
         { title: equipment.name, href: `/admin/equipment/${equipment.id}/edit` },
     ];
 
-    const { data, setData, patch, processing, errors } = useForm({
+    const { data, setData, processing, errors } = useForm({
         name: equipment.name,
         category_id: equipment.category_id ? String(equipment.category_id) : '',
         description: equipment.description ?? '',
@@ -41,11 +42,19 @@ export default function EquipmentEdit({ equipment, categories }: Props) {
         serial_number: equipment.serial_number ?? '',
         quantity: String(equipment.quantity),
         status: equipment.status,
+        image: null as File | null,
+        remove_image: false,
     });
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        patch(`/admin/equipment/${equipment.id}`);
+        // File uploads require POST with method spoofing (_method)
+        router.post(`/admin/equipment/${equipment.id}`, {
+            ...data,
+            _method: 'patch',
+        }, {
+            forceFormData: true,
+        });
     }
 
     return (
@@ -108,6 +117,43 @@ export default function EquipmentEdit({ equipment, categories }: Props) {
                                         <SelectItem value="retired">Retired</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </Field>
+
+                            <Field label="Image" error={errors.image}>
+                                {/* Display existing image if present */}
+                                {equipment.image && !data.remove_image && (
+                                    <div className="mb-2">
+                                        <img
+                                            src={equipment.image}
+                                            alt={equipment.name}
+                                            className="max-h-32 rounded-lg object-cover border"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="mt-1 text-destructive"
+                                            onClick={() => setData('remove_image', true)}
+                                        >
+                                            Remove Image
+                                        </Button>
+                                    </div>
+                                )}
+                                {/* Image upload field */}
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setData((prev) => ({
+                                                ...prev,
+                                                image: e.target.files![0],
+                                                remove_image: false,
+                                            }));
+                                        }
+                                    }}
+                                    disabled={data.remove_image}
+                                />
                             </Field>
 
                             <div className="flex gap-2 pt-2">
