@@ -28,6 +28,7 @@ export default function EquipmentCreate({ categories }: Props) {
         serial_number: '',
         quantity: '1',
         status: 'available',
+        image: null as File | null,
     });
 
     function handleSubmit(e: React.FormEvent) {
@@ -95,6 +96,18 @@ export default function EquipmentCreate({ categories }: Props) {
                                         <SelectItem value="retired">Retired</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </Field>
+
+                            <Field label="Image" error={errors.image}>
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setData('image', e.target.files[0]);
+                                        }
+                                    }}
+                                />
                             </Field>
 
                             <div className="flex gap-2 pt-2">

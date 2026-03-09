@@ -25,6 +25,7 @@ class Equipment extends Model
         'status',
         'condition_notes',
         'damage_photo',
+        'image',
     ];
 
     // -------------------------------------------------------

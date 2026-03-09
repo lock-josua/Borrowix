@@ -22,6 +22,7 @@ interface Equipment {
     available_quantity: number;
     status: string;
     category: { name: string } | null;
+    image: string | null;
 }
 
 interface Props {
@@ -79,66 +80,98 @@ export default function EquipmentIndex({ equipment, categories, filters }: Props
                     </CardContent>
                 </Card>
 
-                {/* Table */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">{equipment.data.length} items</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="table table-sm w-full">
-                                <thead>
-                                    <tr className="text-muted-foreground">
-                                        <th>Name</th>
-                                        <th>Category</th>
-                                        <th>Quantity</th>
-                                        <th>Available</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {equipment.data.length === 0 ? (
-                                        <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No equipment found.</td></tr>
-                                    ) : (
-                                        equipment.data.map((e) => (
-                                            <tr key={e.id} className="hover">
-                                                <td>
-                                                    <Link href={`/admin/equipment/${e.id}`} className="font-medium hover:underline">
-                                                        {e.name}
-                                                    </Link>
-                                                    {(e.brand || e.model) && <div className="text-xs text-muted-foreground">{[e.brand, e.model].filter(Boolean).join(' · ')}</div>}
-                                                </td>
-                                                <td>{e.category?.name ?? '—'}</td>
-                                                <td>{e.quantity}</td>
-                                                <td>{e.available_quantity}</td>
-                                                <td><span className={`badge badge-sm capitalize ${statusBadge[e.status]}`}>{e.status.replace('_', ' ')}</span></td>
-                                                <td>
-                                                    <div className="flex gap-1">
-                                                        
-                                                        <Link href={`/admin/equipment/${e.id}/edit`}>
-                                                            <Button variant="ghost" size="icon" title="Edit"><Pencil className="size-4" /></Button>
-                                                        </Link>
-                                                        <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(e)} title="Delete">
-                                                            <Trash2 className="size-4 text-destructive" />
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
+                {/* Equipment Grid */}
+                {equipment.data.length === 0 ? (
+                    <Card>
+                        <CardContent className="py-8 text-center text-muted-foreground">
+                            No equipment found.
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {equipment.data.map((e) => (
+                            <Card key={e.id} className="overflow-hidden group">
+                                <div className="relative">
+                                    {/* Image */}
+                                    <div className="h-48 w-full bg-muted overflow-hidden">
+                                        {e.image ? (
+                                            <img
+                                                src={e.image}
+                                                alt={e.name}
+                                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                                                No image
+                                            </div>
+                                        )}
+                                    </div>
+                                    {/* Status Badge */}
+                                    <div className="absolute top-2 left-2">
+                                        <span className={`badge capitalize ${statusBadge[e.status]}`}>
+                                            {e.status.replace('_', ' ')}
+                                        </span>
+                                    </div>
+                                    {/* Action Buttons */}
+                                    <div className="absolute top-2 right-2 flex gap-1">
+                                        <Link href={`/admin/equipment/${e.id}/edit`}>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/80 hover:bg-white">
+                                                <Pencil className="size-4" />
+                                            </Button>
+                                        </Link>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-8 w-8 bg-white/80 hover:bg-white"
+                                            onClick={() => setDeleteTarget(e)}
+                                            title="Delete"
+                                        >
+                                            <Trash2 className="size-4 text-destructive" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                <CardContent className="p-4">
+                                    <Link href={`/admin/equipment/${e.id}`} className="font-medium hover:underline">
+                                        {e.name}
+                                    </Link>
+                                    {(e.brand || e.model) && (
+                                        <div className="text-sm text-muted-foreground">
+                                            {[e.brand, e.model].filter(Boolean).join(' · ')}
+                                        </div>
                                     )}
-                                </tbody>
-                            </table>
-                        </div>
-                        {equipment.last_page > 1 && (
-                            <div className="mt-4 flex justify-center gap-2">
-                                {equipment.prev_page_url && <Link href={equipment.prev_page_url}><Button variant="outline" size="sm">Previous</Button></Link>}
-                                <span className="flex items-center text-sm text-muted-foreground">Page {equipment.current_page} of {equipment.last_page}</span>
-                                {equipment.next_page_url && <Link href={equipment.next_page_url}><Button variant="outline" size="sm">Next</Button></Link>}
-                            </div>
+                                    <div className="mt-2 flex justify-between text-sm text-muted-foreground">
+                                        <span>Category: {e.category?.name ?? '—'}</span>
+                                    </div>
+                                    <div className="mt-2 flex justify-between text-sm">
+                                        <span>Total: {e.quantity}</span>
+                                        <span className={e.available_quantity > 0 ? 'text-green-600' : 'text-destructive'}>
+                                            Available: {e.available_quantity}
+                                        </span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+
+                {/* Pagination */}
+                {equipment.last_page > 1 && (
+                    <div className="flex justify-center gap-2">
+                        {equipment.prev_page_url && (
+                            <Link href={equipment.prev_page_url}>
+                                <Button variant="outline" size="sm">Previous</Button>
+                            </Link>
                         )}
-                    </CardContent>
-                </Card>
+                        <span className="flex items-center text-sm text-muted-foreground">
+                            Page {equipment.current_page} of {equipment.last_page}
+                        </span>
+                        {equipment.next_page_url && (
+                            <Link href={equipment.next_page_url}>
+                                <Button variant="outline" size="sm">Next</Button>
+                            </Link>
+                        )}
+                    </div>
+                )}
             </div>
 
             <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>

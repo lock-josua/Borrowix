@@ -17,6 +17,7 @@ interface Equipment {
     status: string;
     condition_notes: string | null;
     damage_photo: string | null;
+    image: string | null;
     created_at: string;
     updated_at: string;
     category: { id: number; name: string } | null;
@@ -78,6 +79,20 @@ export default function EquipmentShow({ equipment: e }: Props) {
                     <StatCard label="Borrowed"      value={borrowedCount} />
                     <StatCard label="Total Borrows" value={e.borrow_transactions_count} />
                 </div>
+
+                {/* Equipment Image */}
+                {e.image && (
+                    <Card>
+                        <CardHeader><CardTitle className="text-base">Equipment Image</CardTitle></CardHeader>
+                        <CardContent>
+                            <img
+                                src={e.image}
+                                alt={e.name}
+                                className="max-h-64 rounded-lg object-cover border"
+                            />
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Availability bar */}
                 <Card>
