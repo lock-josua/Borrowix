@@ -18,19 +18,19 @@ class DashboardController extends Controller
         $school = app('current_school');
 
         $stats = [
-            'total_equipment'    => Equipment::where('school_id', $school->id)->count(),
+            'total_equipment' => Equipment::where('school_id', $school->id)->count(),
             'available_equipment' => Equipment::where('school_id', $school->id)
-                                        ->where('status', 'available')->count(),
-            'pending_requests'   => BorrowRequest::where('school_id', $school->id)
-                                        ->where('status', 'pending')->count(),
-            'active_loans'       => BorrowTransaction::where('school_id', $school->id)
-                                        ->where('status', 'active')->count(),
-            'overdue_loans'      => BorrowTransaction::where('school_id', $school->id)
-                                        ->where('status', 'overdue')->count(),
-            'total_students'     => User::where('school_id', $school->id)
-                                        ->where('role', 'student')->count(),
-            'total_staff'        => User::where('school_id', $school->id)
-                                        ->where('role', 'staff')->count(),
+                ->where('status', 'available')->count(),
+            'pending_requests' => BorrowRequest::where('school_id', $school->id)
+                ->where('status', 'pending')->count(),
+            'active_loans' => BorrowTransaction::where('school_id', $school->id)
+                ->where('status', 'active')->count(),
+            'overdue_loans' => BorrowTransaction::where('school_id', $school->id)
+                ->where('status', 'overdue')->count(),
+            'total_students' => User::where('school_id', $school->id)
+                ->where('role', 'student')->count(),
+            'total_staff' => User::where('school_id', $school->id)
+                ->where('role', 'staff')->count(),
         ];
 
         $pendingRequests = BorrowRequest::with(['requester', 'equipment'])
@@ -48,10 +48,10 @@ class DashboardController extends Controller
             ->get();
 
         return Inertia::render('admin/dashboard', [
-            'stats'               => $stats,
-            'pendingRequests'     => $pendingRequests,
+            'stats' => $stats,
+            'pendingRequests' => $pendingRequests,
             'overdueTransactions' => $overdueTransactions,
-            'school'              => $school,
+            'school' => $school,
         ]);
     }
 }

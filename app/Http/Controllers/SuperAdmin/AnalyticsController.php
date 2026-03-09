@@ -7,7 +7,6 @@ use App\Models\BorrowTransaction;
 use App\Models\Equipment;
 use App\Models\School;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,18 +36,18 @@ class AnalyticsController extends Controller
 
         // Platform totals
         $totals = [
-            'schools'      => School::count(),
-            'users'        => User::whereNot('role', 'super_admin')->count(),
-            'equipment'    => Equipment::count(),
+            'schools' => School::count(),
+            'users' => User::whereNot('role', 'super_admin')->count(),
+            'equipment' => Equipment::count(),
             'transactions' => BorrowTransaction::count(),
-            'overdue'      => BorrowTransaction::where('status', 'overdue')->count(),
+            'overdue' => BorrowTransaction::where('status', 'overdue')->count(),
         ];
 
         return Inertia::render('super-admin/analytics/index', [
-            'schoolsGrowth'     => $schoolsGrowth,
+            'schoolsGrowth' => $schoolsGrowth,
             'borrowingActivity' => $borrowingActivity,
-            'topSchools'        => $topSchools,
-            'totals'            => $totals,
+            'topSchools' => $topSchools,
+            'totals' => $totals,
         ]);
     }
 }

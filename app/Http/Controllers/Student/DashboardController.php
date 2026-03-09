@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -28,15 +28,15 @@ class DashboardController extends Controller
             ->get();
 
         $stats = [
-            'active_loans'    => $activeLoans->count(),
+            'active_loans' => $activeLoans->count(),
             'pending_requests' => $pendingRequests->count(),
-            'overdue_loans'    => BorrowTransaction::where('borrower_id', $user->id)
-                                    ->where('status', 'overdue')->count(),
+            'overdue_loans' => BorrowTransaction::where('borrower_id', $user->id)
+                ->where('status', 'overdue')->count(),
         ];
 
         return Inertia::render('student/dashboard', [
-            'stats'           => $stats,
-            'activeLoans'     => $activeLoans,
+            'stats' => $stats,
+            'activeLoans' => $activeLoans,
             'pendingRequests' => $pendingRequests,
         ]);
     }

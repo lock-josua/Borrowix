@@ -16,7 +16,7 @@ class SubscriptionController extends Controller
         $school->load('subscription');
 
         return Inertia::render('admin/subscription/index', [
-            'school'       => $school,
+            'school' => $school,
             'subscription' => $school->subscription,
         ]);
     }
@@ -39,7 +39,7 @@ class SubscriptionController extends Controller
         $school = app('current_school');
 
         $school->subscription()->update([
-            'status'      => 'canceled',
+            'status' => 'canceled',
             'canceled_at' => now(),
         ]);
 

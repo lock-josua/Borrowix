@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Auth;
 
 class SchoolController extends Controller
 {
@@ -47,8 +47,8 @@ class SchoolController extends Controller
         ]);
 
         $school->update([
-            'status'             => 'suspended',
-            'suspension_reason'  => $request->reason,
+            'status' => 'suspended',
+            'suspension_reason' => $request->reason,
         ]);
 
         // Lock out all school users by invalidating their sessions
@@ -62,7 +62,7 @@ class SchoolController extends Controller
     public function reactivate(School $school): RedirectResponse
     {
         $school->update([
-            'status'            => 'active',
+            'status' => 'active',
             'suspension_reason' => null,
         ]);
 

@@ -37,8 +37,6 @@ Route::prefix('admin')
         // Equipment — full CRUD
         Route::resource('/equipment', EquipmentController::class)
             ->names('equipment');
-        Route::post('/equipment/{equipment}/generate-qr', [EquipmentController::class, 'generateQr'])
-            ->name('equipment.generateQr');
 
         // Categories
         Route::resource('/categories', CategoryController::class)

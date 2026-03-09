@@ -16,11 +16,11 @@ class DashboardController extends Controller
 
         $stats = [
             'available_equipment' => Equipment::where('school_id', $school->id)
-                                        ->where('status', 'available')->count(),
-            'active_loans'        => BorrowTransaction::where('school_id', $school->id)
-                                        ->where('status', 'active')->count(),
-            'overdue_loans'       => BorrowTransaction::where('school_id', $school->id)
-                                        ->where('status', 'overdue')->count(),
+                ->where('status', 'available')->count(),
+            'active_loans' => BorrowTransaction::where('school_id', $school->id)
+                ->where('status', 'active')->count(),
+            'overdue_loans' => BorrowTransaction::where('school_id', $school->id)
+                ->where('status', 'overdue')->count(),
         ];
 
         // Transactions due today or already overdue — staff needs to action these
@@ -33,8 +33,8 @@ class DashboardController extends Controller
             ->get();
 
         return Inertia::render('staff/dashboard', [
-            'stats'               => $stats,
-            'urgentTransactions'  => $urgentTransactions,
+            'stats' => $stats,
+            'urgentTransactions' => $urgentTransactions,
         ]);
     }
 }

@@ -27,9 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register route middleware aliases
         $middleware->alias([
-            'role'         => CheckRole::class,
+            'role' => CheckRole::class,
             'school.active' => EnsureSchoolIsActive::class,
-            'school.scope'  => ScopeToSchool::class,
+            'school.scope' => ScopeToSchool::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

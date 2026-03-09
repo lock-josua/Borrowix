@@ -16,15 +16,15 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         // $this->call(UserSeeder::class);
         // $this->call(SuperAdminSeeder::class);
-        // $this->call(SchoolSeeder::class); 
-        
+        // $this->call(SchoolSeeder::class);
+
         $this->call([
-            
+
             SuperAdminSeeder::class,
-            SchoolSeeder::class,  
+            SchoolSeeder::class,
             EquipmentSeeder::class,
-            
+
         ]);
-      
+
     }
 }

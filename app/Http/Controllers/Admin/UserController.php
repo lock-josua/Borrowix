@@ -21,7 +21,7 @@ class UserController extends Controller
             ->whereIn('role', ['staff', 'student'])
             ->when($request->search, fn ($q) => $q->where(function ($query) use ($request) {
                 $query->where('name', 'like', "%{$request->search}%")
-                      ->orWhere('email', 'like', "%{$request->search}%");
+                    ->orWhere('email', 'like', "%{$request->search}%");
             }))
             ->when($request->role, fn ($q) => $q->where('role', $request->role))
             ->latest()
@@ -29,7 +29,7 @@ class UserController extends Controller
             ->withQueryString();
 
         return Inertia::render('admin/users/index', [
-            'users'   => $users,
+            'users' => $users,
             'filters' => $request->only(['search', 'role']),
         ]);
     }
@@ -44,17 +44,17 @@ class UserController extends Controller
         $school = app('current_school');
 
         $validated = $request->validate([
-            'name'  => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'role'  => ['required', 'in:staff,student'],
+            'role' => ['required', 'in:staff,student'],
         ]);
 
         User::create([
-            'name'              => $validated['name'],
-            'email'             => $validated['email'],
-            'role'              => $validated['role'],
-            'school_id'         => $school->id,
-            'password'          => Hash::make('password123'), // temporary password
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+            'school_id' => $school->id,
+            'password' => Hash::make('password123'), // temporary password
             'email_verified_at' => now(),
         ]);
 

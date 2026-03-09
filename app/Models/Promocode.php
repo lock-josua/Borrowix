@@ -26,8 +26,8 @@ class PromoCode extends Model
     {
         return [
             'discount_value' => 'decimal:2',
-            'is_active'      => 'boolean',
-            'expires_at'     => 'datetime',
+            'is_active' => 'boolean',
+            'expires_at' => 'datetime',
         ];
     }
 

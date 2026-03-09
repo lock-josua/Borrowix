@@ -27,9 +27,9 @@ class BorrowRequest extends Model
     protected function casts(): array
     {
         return [
-            'borrow_date'          => 'datetime',
+            'borrow_date' => 'datetime',
             'expected_return_date' => 'datetime',
-            'processed_at'         => 'datetime',
+            'processed_at' => 'datetime',
         ];
     }
 

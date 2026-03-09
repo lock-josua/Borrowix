@@ -29,8 +29,8 @@ class BorrowTransaction extends Model
     protected function casts(): array
     {
         return [
-            'issued_at'   => 'datetime',
-            'due_date'    => 'datetime',
+            'issued_at' => 'datetime',
+            'due_date' => 'datetime',
             'returned_at' => 'datetime',
             'fine_amount' => 'decimal:2',
         ];

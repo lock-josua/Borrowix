@@ -15,12 +15,12 @@ class SuperAdminSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'superadmin@borrowix.com'],
+            ['email' => 'superadmin@gmail.com'],
             [
-                'name'              => 'Super Admin',
-                'password'          => Hash::make('superadmin123'),
-                'role'              => 'super_admin',
-                'school_id'         => null,
+                'name' => 'Super Admin',
+                'password' => Hash::make('superadmin123'),
+                'role' => 'super_admin',
+                'school_id' => null,
                 'email_verified_at' => now(),
             ]
         );

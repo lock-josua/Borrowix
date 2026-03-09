@@ -23,7 +23,7 @@ class PromoCodeFactory extends Factory
     {
         $discountTypes = ['percentage', 'fixed'];
         $plans = ['free', 'basic', 'pro'];
-        
+
         return [
             'code' => $this->faker->unique()->lexify('??????'),
             'description' => $this->faker->sentence,

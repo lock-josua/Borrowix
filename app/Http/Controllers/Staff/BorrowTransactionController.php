@@ -19,15 +19,14 @@ class BorrowTransactionController extends Controller
         $transactions = BorrowTransaction::with(['borrower', 'equipment'])
             ->where('school_id', $school->id)
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) =>
-                $q->where('name', 'like', "%{$request->search}%")))
+            ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
         return Inertia::render('staff/transactions/index', [
             'transactions' => $transactions,
-            'filters'      => $request->only(['status', 'search']),
+            'filters' => $request->only(['status', 'search']),
         ]);
     }
 
@@ -52,9 +51,9 @@ class BorrowTransactionController extends Controller
         ]);
 
         $borrowTransaction->update([
-            'status'                 => 'returned',
-            'returned_at'            => now(),
-            'returned_to'            => Auth::id(),
+            'status' => 'returned',
+            'returned_at' => now(),
+            'returned_to' => Auth::id(),
             'return_condition_notes' => $request->return_condition_notes,
         ]);
 

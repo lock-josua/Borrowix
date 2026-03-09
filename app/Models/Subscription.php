@@ -31,12 +31,12 @@ class Subscription extends Model
     protected function casts(): array
     {
         return [
-            'trial_ends_at'        => 'datetime',
+            'trial_ends_at' => 'datetime',
             'current_period_start' => 'datetime',
-            'current_period_end'   => 'datetime',
-            'canceled_at'          => 'datetime',
+            'current_period_end' => 'datetime',
+            'canceled_at' => 'datetime',
             'grace_period_ends_at' => 'datetime',
-            'discount_amount'      => 'decimal:2',
+            'discount_amount' => 'decimal:2',
         ];
     }
 

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,15 +19,14 @@ class BorrowTransactionController extends Controller
         $transactions = BorrowTransaction::with(['borrower', 'equipment', 'issuedBy'])
             ->where('school_id', $school->id)
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) =>
-                $q->where('name', 'like', "%{$request->search}%")))
+            ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
         return Inertia::render('admin/transactions/index', [
             'transactions' => $transactions,
-            'filters'      => $request->only(['status', 'search']),
+            'filters' => $request->only(['status', 'search']),
         ]);
     }
 
@@ -50,17 +49,17 @@ class BorrowTransactionController extends Controller
 
         $request->validate([
             'return_condition_notes' => ['nullable', 'string', 'max:500'],
-            'fine_amount'            => ['nullable', 'numeric', 'min:0'],
-            'fine_reason'            => ['nullable', 'string', 'max:255'],
+            'fine_amount' => ['nullable', 'numeric', 'min:0'],
+            'fine_reason' => ['nullable', 'string', 'max:255'],
         ]);
 
         $borrowTransaction->update([
-            'status'                 => 'returned',
-            'returned_at'            => now(),
-            'returned_to'            => Auth::id(),
+            'status' => 'returned',
+            'returned_at' => now(),
+            'returned_to' => Auth::id(),
             'return_condition_notes' => $request->return_condition_notes,
-            'fine_amount'            => $request->fine_amount ?? 0,
-            'fine_reason'            => $request->fine_reason,
+            'fine_amount' => $request->fine_amount ?? 0,
+            'fine_reason' => $request->fine_reason,
         ]);
 
         // Return quantity back to equipment

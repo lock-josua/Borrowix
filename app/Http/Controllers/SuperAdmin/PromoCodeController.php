@@ -28,13 +28,13 @@ class PromoCodeController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'code'             => ['required', 'string', 'unique:promo_codes,code', 'max:50'],
-            'description'      => ['nullable', 'string', 'max:255'],
-            'discount_type'    => ['required', 'in:percentage,fixed'],
-            'discount_value'   => ['required', 'numeric', 'min:1'],
-            'applicable_plan'  => ['in:all,free,basic,pro'],
-            'max_uses'         => ['nullable', 'integer', 'min:1'],
-            'expires_at'       => ['nullable', 'date', 'after:today'],
+            'code' => ['required', 'string', 'unique:promo_codes,code', 'max:50'],
+            'description' => ['nullable', 'string', 'max:255'],
+            'discount_type' => ['required', 'in:percentage,fixed'],
+            'discount_value' => ['required', 'numeric', 'min:1'],
+            'applicable_plan' => ['in:all,free,basic,pro'],
+            'max_uses' => ['nullable', 'integer', 'min:1'],
+            'expires_at' => ['nullable', 'date', 'after:today'],
         ]);
 
         // Convert "all" to null for database storage
@@ -59,13 +59,13 @@ class PromoCodeController extends Controller
     public function update(Request $request, PromoCode $promoCode): RedirectResponse
     {
         $validated = $request->validate([
-            'description'     => ['nullable', 'string', 'max:255'],
-            'discount_type'   => ['required', 'in:percentage,fixed'],
-            'discount_value'  => ['required', 'numeric', 'min:1'],
+            'description' => ['nullable', 'string', 'max:255'],
+            'discount_type' => ['required', 'in:percentage,fixed'],
+            'discount_value' => ['required', 'numeric', 'min:1'],
             'applicable_plan' => ['in:all,free,basic,pro'],
-            'max_uses'        => ['nullable', 'integer', 'min:1'],
-            'is_active'       => ['required', 'boolean'],
-            'expires_at'      => ['nullable', 'date'],
+            'max_uses' => ['nullable', 'integer', 'min:1'],
+            'is_active' => ['required', 'boolean'],
+            'expires_at' => ['nullable', 'date'],
         ]);
 
         $promoCode->update($validated);

@@ -23,7 +23,6 @@ class Equipment extends Model
         'quantity',
         'available_quantity',
         'status',
-        'qr_code',
         'condition_notes',
         'damage_photo',
     ];

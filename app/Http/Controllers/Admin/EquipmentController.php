@@ -28,15 +28,15 @@ class EquipmentController extends Controller
         $categories = Category::where('school_id', $school->id)->get(['id', 'name']);
 
         return Inertia::render('admin/equipment/index', [
-            'equipment'  => $equipment,
+            'equipment' => $equipment,
             'categories' => $categories,
-            'filters'    => $request->only(['search', 'category', 'status']),
+            'filters' => $request->only(['search', 'category', 'status']),
         ]);
     }
 
     public function create(): Response
     {
-        $school     = app('current_school');
+        $school = app('current_school');
         $categories = Category::where('school_id', $school->id)->get(['id', 'name']);
 
         return Inertia::render('admin/equipment/create', [
@@ -49,19 +49,19 @@ class EquipmentController extends Controller
         $school = app('current_school');
 
         $validated = $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
-            'category_id'   => ['nullable', 'exists:categories,id'],
-            'description'   => ['nullable', 'string'],
-            'brand'         => ['nullable', 'string', 'max:100'],
-            'model'         => ['nullable', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'category_id' => ['nullable', 'exists:categories,id'],
+            'description' => ['nullable', 'string'],
+            'brand' => ['nullable', 'string', 'max:100'],
+            'model' => ['nullable', 'string', 'max:100'],
             'serial_number' => ['nullable', 'string', 'max:100'],
-            'quantity'      => ['required', 'integer', 'min:1'],
-            'status'        => ['required', 'in:available,under_repair,retired'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'status' => ['required', 'in:available,under_repair,retired'],
         ]);
 
-        Equipment::create([
+        $equipment = Equipment::create([
             ...$validated,
-            'school_id'          => $school->id,
+            'school_id' => $school->id,
             'available_quantity' => $validated['quantity'],
         ]);
 
@@ -74,11 +74,12 @@ class EquipmentController extends Controller
     {
         $this->authorizeSchool($equipment);
 
-        $equipment->load('category');
-        $equipment->loadCount('borrowTransactions');
+        $freshEquipment = Equipment::with('category')
+            ->withCount('borrowTransactions')
+            ->find($equipment->id);
 
         return Inertia::render('admin/equipment/show', [
-            'equipment' => $equipment,
+            'equipment' => $freshEquipment,
         ]);
     }
 
@@ -86,11 +87,11 @@ class EquipmentController extends Controller
     {
         $this->authorizeSchool($equipment);
 
-        $school     = app('current_school');
+        $school = app('current_school');
         $categories = Category::where('school_id', $school->id)->get(['id', 'name']);
 
         return Inertia::render('admin/equipment/edit', [
-            'equipment'  => $equipment,
+            'equipment' => $equipment,
             'categories' => $categories,
         ]);
     }
@@ -100,14 +101,14 @@ class EquipmentController extends Controller
         $this->authorizeSchool($equipment);
 
         $validated = $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
-            'category_id'   => ['nullable', 'exists:categories,id'],
-            'description'   => ['nullable', 'string'],
-            'brand'         => ['nullable', 'string', 'max:100'],
-            'model'         => ['nullable', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'category_id' => ['nullable', 'exists:categories,id'],
+            'description' => ['nullable', 'string'],
+            'brand' => ['nullable', 'string', 'max:100'],
+            'model' => ['nullable', 'string', 'max:100'],
             'serial_number' => ['nullable', 'string', 'max:100'],
-            'quantity'      => ['required', 'integer', 'min:1'],
-            'status'        => ['required', 'in:available,under_repair,retired'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'status' => ['required', 'in:available,under_repair,retired'],
         ]);
 
         $equipment->update($validated);
@@ -120,7 +121,6 @@ class EquipmentController extends Controller
     public function destroy(Equipment $equipment): RedirectResponse
     {
         $this->authorizeSchool($equipment);
-
         $equipment->delete();
 
         return redirect()
@@ -130,6 +130,6 @@ class EquipmentController extends Controller
 
     private function authorizeSchool(Equipment $equipment): void
     {
-        abort_if($equipment->school_id !== app('current_school')->id, 403, 'Unauthorized.');
+        abort_if($equipment->school_id !== app('current_school')->id, 403);
     }
 }

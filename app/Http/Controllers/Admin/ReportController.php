@@ -16,7 +16,7 @@ class ReportController extends Controller
         $school = app('current_school');
 
         $from = $request->from ?? now()->startOfMonth()->toDateString();
-        $to   = $request->to   ?? now()->toDateString();
+        $to = $request->to ?? now()->toDateString();
 
         // Transactions within date range
         $transactions = BorrowTransaction::with(['borrower', 'equipment'])
@@ -47,17 +47,17 @@ class ReportController extends Controller
 
         $summary = [
             'total_transactions' => $transactions->count(),
-            'returned'           => $transactions->where('status', 'returned')->count(),
-            'overdue'            => $transactions->where('status', 'overdue')->count(),
-            'active'             => $transactions->where('status', 'active')->count(),
+            'returned' => $transactions->where('status', 'returned')->count(),
+            'overdue' => $transactions->where('status', 'overdue')->count(),
+            'active' => $transactions->where('status', 'active')->count(),
         ];
 
         return Inertia::render('admin/reports/index', [
             'transactions' => $transactions,
             'topEquipment' => $topEquipment,
             'topBorrowers' => $topBorrowers,
-            'summary'      => $summary,
-            'filters'      => ['from' => $from, 'to' => $to],
+            'summary' => $summary,
+            'filters' => ['from' => $from, 'to' => $to],
         ]);
     }
 }

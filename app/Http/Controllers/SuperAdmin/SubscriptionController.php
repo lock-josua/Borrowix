@@ -23,7 +23,7 @@ class SubscriptionController extends Controller
 
         return Inertia::render('super-admin/subscriptions/index', [
             'subscriptions' => $subscriptions,
-            'breakdown'     => $breakdown,
+            'breakdown' => $breakdown,
         ]);
     }
 
@@ -36,7 +36,7 @@ class SubscriptionController extends Controller
             ->get(['plan', 'status', 'billing_cycle', 'current_period_start', 'current_period_end', 'created_at']);
 
         return Inertia::render('super-admin/subscriptions/show', [
-            'school'         => $school,
+            'school' => $school,
             'paymentHistory' => $paymentHistory,
         ]);
     }

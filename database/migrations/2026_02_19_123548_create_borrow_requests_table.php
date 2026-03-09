@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-     public function up(): void
+    public function up(): void
     {
         Schema::create('borrow_requests', function (Blueprint $table) {
             $table->id();
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->datetime('expected_return_date');
 
             $table->enum('status', ['pending', 'approved', 'rejected', 'canceled'])
-                  ->default('pending');
+                ->default('pending');
 
             // Admin/staff who processed the request
             $table->foreignId('processed_by')->nullable()->constrained('users')->nullOnDelete();

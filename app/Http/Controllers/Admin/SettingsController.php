@@ -24,9 +24,9 @@ class SettingsController extends Controller
         $school = app('current_school');
 
         $validated = $request->validate([
-            'name'           => ['required', 'string', 'max:255'],
-            'email'          => ['required', 'email', 'max:255'],
-            'address'        => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'address' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['nullable', 'string', 'max:20'],
         ]);
 

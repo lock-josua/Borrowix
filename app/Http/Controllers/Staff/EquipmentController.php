@@ -24,7 +24,7 @@ class EquipmentController extends Controller
 
         return Inertia::render('staff/equipment/index', [
             'equipment' => $equipment,
-            'filters'   => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status']),
         ]);
     }
 

@@ -104,7 +104,9 @@ export default function EquipmentIndex({ equipment, categories, filters }: Props
                                         equipment.data.map((e) => (
                                             <tr key={e.id} className="hover">
                                                 <td>
-                                                    <div className="font-medium">{e.name}</div>
+                                                    <Link href={`/admin/equipment/${e.id}`} className="font-medium hover:underline">
+                                                        {e.name}
+                                                    </Link>
                                                     {(e.brand || e.model) && <div className="text-xs text-muted-foreground">{[e.brand, e.model].filter(Boolean).join(' · ')}</div>}
                                                 </td>
                                                 <td>{e.category?.name ?? '—'}</td>
@@ -113,10 +115,11 @@ export default function EquipmentIndex({ equipment, categories, filters }: Props
                                                 <td><span className={`badge badge-sm capitalize ${statusBadge[e.status]}`}>{e.status.replace('_', ' ')}</span></td>
                                                 <td>
                                                     <div className="flex gap-1">
+                                                        
                                                         <Link href={`/admin/equipment/${e.id}/edit`}>
-                                                            <Button variant="ghost" size="icon"><Pencil className="size-4" /></Button>
+                                                            <Button variant="ghost" size="icon" title="Edit"><Pencil className="size-4" /></Button>
                                                         </Link>
-                                                        <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(e)}>
+                                                        <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(e)} title="Delete">
                                                             <Trash2 className="size-4 text-destructive" />
                                                         </Button>
                                                     </div>

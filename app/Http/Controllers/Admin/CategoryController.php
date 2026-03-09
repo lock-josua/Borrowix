@@ -30,7 +30,7 @@ class CategoryController extends Controller
         $school = app('current_school');
 
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -49,7 +49,7 @@ class CategoryController extends Controller
         $this->authorizeSchool($category);
 
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 

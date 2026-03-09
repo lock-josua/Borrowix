@@ -28,7 +28,7 @@ return new class extends Migration
             $table->unsignedInteger('available_quantity')->default(1);
 
             $table->enum('status', ['available', 'borrowed', 'under_repair', 'reserved', 'retired'])
-                  ->default('available');
+                ->default('available');
 
             // QR code (Basic+ plan)
             $table->string('qr_code')->nullable()->unique();

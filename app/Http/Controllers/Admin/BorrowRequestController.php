@@ -20,15 +20,14 @@ class BorrowRequestController extends Controller
         $requests = BorrowRequest::with(['requester', 'equipment'])
             ->where('school_id', $school->id)
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when($request->search, fn ($q) => $q->whereHas('requester', fn ($q) =>
-                $q->where('name', 'like', "%{$request->search}%")))
+            ->when($request->search, fn ($q) => $q->whereHas('requester', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
         return Inertia::render('admin/requests/index', [
             'requests' => $requests,
-            'filters'  => $request->only(['status', 'search']),
+            'filters' => $request->only(['status', 'search']),
         ]);
     }
 
@@ -56,22 +55,22 @@ class BorrowRequestController extends Controller
 
         // Approve the request
         $borrowRequest->update([
-            'status'       => 'approved',
+            'status' => 'approved',
             'processed_by' => Auth::id(),
-            'remarks'      => $request->remarks,
+            'remarks' => $request->remarks,
             'processed_at' => now(),
         ]);
 
         // Create the active transaction
         BorrowTransaction::create([
-            'school_id'         => $borrowRequest->school_id,
+            'school_id' => $borrowRequest->school_id,
             'borrow_request_id' => $borrowRequest->id,
-            'borrower_id'       => $borrowRequest->user_id,
-            'equipment_id'      => $borrowRequest->equipment_id,
-            'issued_by'         => Auth::id(),
-            'issued_at'         => now(),
-            'due_date'          => $borrowRequest->expected_return_date,
-            'status'            => 'active',
+            'borrower_id' => $borrowRequest->user_id,
+            'equipment_id' => $borrowRequest->equipment_id,
+            'issued_by' => Auth::id(),
+            'issued_at' => now(),
+            'due_date' => $borrowRequest->expected_return_date,
+            'status' => 'active',
         ]);
 
         // Decrement available quantity
@@ -98,9 +97,9 @@ class BorrowRequestController extends Controller
         ]);
 
         $borrowRequest->update([
-            'status'       => 'rejected',
+            'status' => 'rejected',
             'processed_by' => Auth::id(),
-            'remarks'      => $request->remarks,
+            'remarks' => $request->remarks,
             'processed_at' => now(),
         ]);
 

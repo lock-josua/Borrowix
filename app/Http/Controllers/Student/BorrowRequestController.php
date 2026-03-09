@@ -7,9 +7,9 @@ use App\Models\BorrowRequest;
 use App\Models\Equipment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Auth;
 
 class BorrowRequestController extends Controller
 {
@@ -45,9 +45,9 @@ class BorrowRequestController extends Controller
         $school = app('current_school');
 
         $validated = $request->validate([
-            'equipment_id'         => ['required', 'exists:equipment,id'],
-            'purpose'              => ['required', 'string', 'max:500'],
-            'borrow_date'          => ['required', 'date', 'after_or_equal:now'],
+            'equipment_id' => ['required', 'exists:equipment,id'],
+            'purpose' => ['required', 'string', 'max:500'],
+            'borrow_date' => ['required', 'date', 'after_or_equal:now'],
             'expected_return_date' => ['required', 'date', 'after:borrow_date'],
         ]);
 
@@ -61,8 +61,8 @@ class BorrowRequestController extends Controller
         BorrowRequest::create([
             ...$validated,
             'school_id' => $school->id,
-            'user_id'   => Auth::id(),
-            'status'    => 'pending',
+            'user_id' => Auth::id(),
+            'status' => 'pending',
         ]);
 
         return redirect()
