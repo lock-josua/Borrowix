@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Enums\BorrowRequestStatus;
+use App\Enums\EquipmentStatus;
 use App\Models\BorrowRequest;
 use App\Models\Equipment;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +19,7 @@ class BorrowRequestController extends Controller
     {
         $requests = BorrowRequest::with('equipment')
             ->where('user_id', Auth::id())
+            // users only see their own, school constraint enforced elsewhere if needed
             ->latest()
             ->paginate(15);
 
@@ -27,10 +30,8 @@ class BorrowRequestController extends Controller
 
     public function create(): Response
     {
-        $school = app('current_school');
-
-        $equipment = Equipment::where('school_id', $school->id)
-            ->where('status', 'available')
+        $equipment = Equipment::forCurrentSchool()
+            ->where('status', EquipmentStatus::Available)
             ->where('available_quantity', '>', 0)
             ->with('category')
             ->get(['id', 'name', 'brand', 'model', 'available_quantity', 'category_id']);
@@ -52,8 +53,8 @@ class BorrowRequestController extends Controller
         ]);
 
         // Make sure the equipment belongs to the student's school
-        $equipment = Equipment::where('id', $validated['equipment_id'])
-            ->where('school_id', $school->id)
+        $equipment = Equipment::forCurrentSchool()
+            ->where('id', $validated['equipment_id'])
             ->firstOrFail();
 
         abort_if(! $equipment->isAvailable(), 422, 'This equipment is not available for borrowing.');
@@ -62,7 +63,7 @@ class BorrowRequestController extends Controller
             ...$validated,
             'school_id' => $school->id,
             'user_id' => Auth::id(),
-            'status' => 'pending',
+            'status' => BorrowRequestStatus::Pending,
         ]);
 
         return redirect()
@@ -87,7 +88,7 @@ class BorrowRequestController extends Controller
 
         abort_if(! $borrowRequest->isPending(), 422, 'Only pending requests can be canceled.');
 
-        $borrowRequest->update(['status' => 'canceled']);
+        $borrowRequest->update(['status' => BorrowRequestStatus::Canceled]);
 
         return redirect()
             ->route('student.requests.index')

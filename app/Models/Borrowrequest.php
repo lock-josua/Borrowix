@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
+use App\Enums\BorrowRequestStatus;
 
 class BorrowRequest extends Model
 {
@@ -30,7 +32,17 @@ class BorrowRequest extends Model
             'borrow_date' => 'datetime',
             'expected_return_date' => 'datetime',
             'processed_at' => 'datetime',
+            'status' => BorrowRequestStatus::class,
         ];
+    }
+
+    // -------------------------------------------------------
+    // Scopes
+    // -------------------------------------------------------
+
+    public function scopeForCurrentSchool(Builder $query): void
+    {
+        $query->where('school_id', app('current_school')->id);
     }
 
     // -------------------------------------------------------
@@ -70,21 +82,21 @@ class BorrowRequest extends Model
 
     public function isPending(): bool
     {
-        return $this->status === 'pending';
+        return $this->status === BorrowRequestStatus::Pending;
     }
 
     public function isApproved(): bool
     {
-        return $this->status === 'approved';
+        return $this->status === BorrowRequestStatus::Approved;
     }
 
     public function isRejected(): bool
     {
-        return $this->status === 'rejected';
+        return $this->status === BorrowRequestStatus::Rejected;
     }
 
     public function isCanceled(): bool
     {
-        return $this->status === 'canceled';
+        return $this->status === BorrowRequestStatus::Canceled;
     }
 }

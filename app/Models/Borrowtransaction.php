@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
+use App\Enums\BorrowTransactionStatus;
 
 class BorrowTransaction extends Model
 {
@@ -33,7 +35,17 @@ class BorrowTransaction extends Model
             'due_date' => 'datetime',
             'returned_at' => 'datetime',
             'fine_amount' => 'decimal:2',
+            'status' => BorrowTransactionStatus::class,
         ];
+    }
+
+    // -------------------------------------------------------
+    // Scopes
+    // -------------------------------------------------------
+
+    public function scopeForCurrentSchool(Builder $query): void
+    {
+        $query->where('school_id', app('current_school')->id);
     }
 
     // -------------------------------------------------------
@@ -79,18 +91,18 @@ class BorrowTransaction extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return $this->status === BorrowTransactionStatus::Active;
     }
 
     public function isReturned(): bool
     {
-        return $this->status === 'returned';
+        return $this->status === BorrowTransactionStatus::Returned;
     }
 
     public function isOverdue(): bool
     {
-        return $this->status === 'overdue'
-            || ($this->status === 'active' && now()->isAfter($this->due_date));
+        return $this->status === BorrowTransactionStatus::Overdue
+            || ($this->status === BorrowTransactionStatus::Active && now()->isAfter($this->due_date));
     }
 
     public function hasFine(): bool

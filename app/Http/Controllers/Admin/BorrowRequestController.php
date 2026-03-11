@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\BorrowRequestStatus;
+use App\Enums\BorrowTransactionStatus;
+use App\Enums\EquipmentStatus;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use Illuminate\Http\RedirectResponse;
@@ -15,11 +18,9 @@ class BorrowRequestController extends Controller
 {
     public function index(Request $request): Response
     {
-        $school = app('current_school');
-
         $requests = BorrowRequest::with(['requester', 'equipment'])
-            ->where('school_id', $school->id)
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->forCurrentSchool()
+            ->when($request->status, fn ($q) => $q->where('status', BorrowRequestStatus::from($request->status)))
             ->when($request->search, fn ($q) => $q->whereHas('requester', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
             ->paginate(15)
@@ -55,7 +56,7 @@ class BorrowRequestController extends Controller
 
         // Approve the request
         $borrowRequest->update([
-            'status' => 'approved',
+            'status' => BorrowRequestStatus::Approved,
             'processed_by' => Auth::id(),
             'remarks' => $request->remarks,
             'processed_at' => now(),
@@ -70,7 +71,7 @@ class BorrowRequestController extends Controller
             'issued_by' => Auth::id(),
             'issued_at' => now(),
             'due_date' => $borrowRequest->expected_return_date,
-            'status' => 'active',
+            'status' => BorrowTransactionStatus::Active,
         ]);
 
         // Decrement available quantity
@@ -78,7 +79,7 @@ class BorrowRequestController extends Controller
 
         // Update equipment status if fully borrowed
         if ($borrowRequest->equipment->fresh()->available_quantity === 0) {
-            $borrowRequest->equipment->update(['status' => 'borrowed']);
+            $borrowRequest->equipment->update(['status' => EquipmentStatus::Borrowed]);
         }
 
         return redirect()
@@ -97,7 +98,7 @@ class BorrowRequestController extends Controller
         ]);
 
         $borrowRequest->update([
-            'status' => 'rejected',
+            'status' => BorrowRequestStatus::Rejected,
             'processed_by' => Auth::id(),
             'remarks' => $request->remarks,
             'processed_at' => now(),

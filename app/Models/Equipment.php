@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
+use App\Enums\EquipmentStatus;
 
 class Equipment extends Model
 {
@@ -27,6 +29,22 @@ class Equipment extends Model
         'damage_photo',
         'image',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => EquipmentStatus::class,
+        ];
+    }
+
+    // -------------------------------------------------------
+    // Scopes
+    // -------------------------------------------------------
+
+    public function scopeForCurrentSchool(Builder $query): void
+    {
+        $query->where('school_id', app('current_school')->id);
+    }
 
     // -------------------------------------------------------
     // Relationships
@@ -63,11 +81,11 @@ class Equipment extends Model
 
     public function isUnderRepair(): bool
     {
-        return $this->status === 'under_repair';
+        return $this->status === EquipmentStatus::UnderRepair;
     }
 
     public function isRetired(): bool
     {
-        return $this->status === 'retired';
+        return $this->status === EquipmentStatus::Retired;
     }
 }

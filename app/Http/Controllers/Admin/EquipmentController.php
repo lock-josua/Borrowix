@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\EquipmentStatus;
 use App\Models\Category;
 use App\Models\Equipment;
 use Illuminate\Http\RedirectResponse;
@@ -15,13 +16,11 @@ class EquipmentController extends Controller
 {
     public function index(Request $request): Response
     {
-        $school = app('current_school');
-
-        $equipment = Equipment::where('school_id', $school->id)
+        $equipment = Equipment::forCurrentSchool()
             ->with('category')
             ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%"))
             ->when($request->category, fn ($q) => $q->where('category_id', $request->category))
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->when($request->status, fn ($q) => $q->where('status', EquipmentStatus::from($request->status)))
             ->latest()
             ->paginate(15)
             ->withQueryString()
@@ -39,7 +38,7 @@ class EquipmentController extends Controller
                 ];
             });
 
-        $categories = Category::where('school_id', $school->id)->get(['id', 'name']);
+        $categories = Category::forCurrentSchool()->get(['id', 'name']);
 
         return Inertia::render('admin/equipment/index', [
             'equipment' => $equipment,
@@ -50,8 +49,7 @@ class EquipmentController extends Controller
 
     public function create(): Response
     {
-        $school = app('current_school');
-        $categories = Category::where('school_id', $school->id)->get(['id', 'name']);
+        $categories = Category::forCurrentSchool()->get(['id', 'name']);
 
         return Inertia::render('admin/equipment/create', [
             'categories' => $categories,
@@ -209,8 +207,7 @@ class EquipmentController extends Controller
     {
         $this->authorizeSchool($equipment);
 
-        $school = app('current_school');
-        $categories = Category::where('school_id', $school->id)->get(['id', 'name']);
+        $categories = Category::forCurrentSchool()->get(['id', 'name']);
 
         $equipment->image = $this->resolveImageUrl($equipment->image);
 

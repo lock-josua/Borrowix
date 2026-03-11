@@ -13,9 +13,7 @@ class CategoryController extends Controller
 {
     public function index(): Response
     {
-        $school = app('current_school');
-
-        $categories = Category::where('school_id', $school->id)
+        $categories = Category::forCurrentSchool()
             ->withCount('equipment')
             ->latest()
             ->get();

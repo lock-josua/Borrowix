@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\BorrowTransactionStatus;
+use App\Enums\EquipmentStatus;
 use App\Models\BorrowTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,11 +16,9 @@ class BorrowTransactionController extends Controller
 {
     public function index(Request $request): Response
     {
-        $school = app('current_school');
-
         $transactions = BorrowTransaction::with(['borrower', 'equipment', 'issuedBy'])
-            ->where('school_id', $school->id)
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->forCurrentSchool()
+            ->when($request->status, fn ($q) => $q->where('status', BorrowTransactionStatus::from($request->status)))
             ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
             ->paginate(15)
@@ -54,7 +54,7 @@ class BorrowTransactionController extends Controller
         ]);
 
         $borrowTransaction->update([
-            'status' => 'returned',
+            'status' => BorrowTransactionStatus::Returned,
             'returned_at' => now(),
             'returned_to' => Auth::id(),
             'return_condition_notes' => $request->return_condition_notes,
@@ -67,8 +67,8 @@ class BorrowTransactionController extends Controller
         $equipment->increment('available_quantity');
 
         // Set status back to available if it was borrowed
-        if ($equipment->fresh()->available_quantity > 0 && $equipment->status === 'borrowed') {
-            $equipment->update(['status' => 'available']);
+        if ($equipment->fresh()->available_quantity > 0 && $equipment->status === EquipmentStatus::Borrowed) {
+            $equipment->update(['status' => EquipmentStatus::Available]);
         }
 
         return redirect()

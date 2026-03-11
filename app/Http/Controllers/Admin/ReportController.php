@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\BorrowTransactionStatus;
 use App\Models\BorrowTransaction;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
@@ -13,21 +14,19 @@ class ReportController extends Controller
 {
     public function index(Request $request): Response
     {
-        $school = app('current_school');
-
         $from = $request->from ?? now()->startOfMonth()->toDateString();
         $to = $request->to ?? now()->toDateString();
 
         // Transactions within date range
         $transactions = BorrowTransaction::with(['borrower', 'equipment'])
-            ->where('school_id', $school->id)
+            ->forCurrentSchool()
             ->whereBetween('issued_at', [$from, $to])
             ->latest('issued_at')
             ->get();
 
         // Most borrowed equipment
         $topEquipment = BorrowTransaction::selectRaw('equipment_id, count(*) as total')
-            ->where('school_id', $school->id)
+            ->forCurrentSchool()
             ->whereBetween('issued_at', [$from, $to])
             ->groupBy('equipment_id')
             ->orderByDesc('total')
@@ -37,7 +36,7 @@ class ReportController extends Controller
 
         // Most active borrowers
         $topBorrowers = BorrowTransaction::selectRaw('borrower_id, count(*) as total')
-            ->where('school_id', $school->id)
+            ->forCurrentSchool()
             ->whereBetween('issued_at', [$from, $to])
             ->groupBy('borrower_id')
             ->orderByDesc('total')
@@ -47,9 +46,9 @@ class ReportController extends Controller
 
         $summary = [
             'total_transactions' => $transactions->count(),
-            'returned' => $transactions->where('status', 'returned')->count(),
-            'overdue' => $transactions->where('status', 'overdue')->count(),
-            'active' => $transactions->where('status', 'active')->count(),
+            'returned' => $transactions->where('status', BorrowTransactionStatus::Returned)->count(),
+            'overdue' => $transactions->where('status', BorrowTransactionStatus::Overdue)->count(),
+            'active' => $transactions->where('status', BorrowTransactionStatus::Active)->count(),
         ];
 
         return Inertia::render('admin/reports/index', [

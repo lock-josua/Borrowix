@@ -15,9 +15,7 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
-        $school = app('current_school');
-
-        $users = User::where('school_id', $school->id)
+        $users = User::forCurrentSchool()
             ->whereIn('role', ['staff', 'student'])
             ->when($request->search, fn ($q) => $q->where(function ($query) use ($request) {
                 $query->where('name', 'like', "%{$request->search}%")

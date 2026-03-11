@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\BorrowRequestStatus;
+use App\Enums\BorrowTransactionStatus;
+use App\Enums\EquipmentStatus;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use App\Models\Equipment;
@@ -18,31 +21,31 @@ class DashboardController extends Controller
         $school = app('current_school');
 
         $stats = [
-            'total_equipment' => Equipment::where('school_id', $school->id)->count(),
-            'available_equipment' => Equipment::where('school_id', $school->id)
-                ->where('status', 'available')->count(),
-            'pending_requests' => BorrowRequest::where('school_id', $school->id)
-                ->where('status', 'pending')->count(),
-            'active_loans' => BorrowTransaction::where('school_id', $school->id)
-                ->where('status', 'active')->count(),
-            'overdue_loans' => BorrowTransaction::where('school_id', $school->id)
-                ->where('status', 'overdue')->count(),
-            'total_students' => User::where('school_id', $school->id)
+            'total_equipment' => Equipment::forCurrentSchool()->count(),
+            'available_equipment' => Equipment::forCurrentSchool()
+                ->where('status', EquipmentStatus::Available)->count(),
+            'pending_requests' => BorrowRequest::forCurrentSchool()
+                ->where('status', BorrowRequestStatus::Pending)->count(),
+            'active_loans' => BorrowTransaction::forCurrentSchool()
+                ->where('status', BorrowTransactionStatus::Active)->count(),
+            'overdue_loans' => BorrowTransaction::forCurrentSchool()
+                ->where('status', BorrowTransactionStatus::Overdue)->count(),
+            'total_students' => User::forCurrentSchool()
                 ->where('role', 'student')->count(),
-            'total_staff' => User::where('school_id', $school->id)
+            'total_staff' => User::forCurrentSchool()
                 ->where('role', 'staff')->count(),
         ];
 
         $pendingRequests = BorrowRequest::with(['requester', 'equipment'])
-            ->where('school_id', $school->id)
-            ->where('status', 'pending')
+            ->forCurrentSchool()
+            ->where('status', BorrowRequestStatus::Pending)
             ->latest()
             ->take(5)
             ->get();
 
         $overdueTransactions = BorrowTransaction::with(['borrower', 'equipment'])
-            ->where('school_id', $school->id)
-            ->where('status', 'overdue')
+            ->forCurrentSchool()
+            ->where('status', BorrowTransactionStatus::Overdue)
             ->latest()
             ->take(5)
             ->get();
