@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
+import AdminLayout from '@/layouts/AdminLayout';
+import SuperAdminLayout from '@/layouts/SuperAdminLayout';
+import StaffLayout from '@/layouts/StaffLayout';
+import StudentLayout from '@/layouts/StudentLayout';
 import SettingsLayout from '@/layouts/settings/layout';
 import type { BreadcrumbItem } from '@/types';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
@@ -29,8 +33,24 @@ export default function Profile({
 }) {
     const { auth } = usePage().props;
 
+    // Determine the appropriate layout based on user role
+    const Layout = (() => {
+        switch (auth.user.role) {
+            case 'admin':
+                return AdminLayout;
+            case 'super_admin':
+                return SuperAdminLayout;
+            case 'staff':
+                return StaffLayout;
+            case 'student':
+                return StudentLayout;
+            default:
+                return AppLayout;
+        }
+    })();
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <Layout breadcrumbs={breadcrumbs}>
             <Head title="Profile settings" />
 
             <h1 className="sr-only">Profile Settings</h1>
@@ -145,6 +165,6 @@ export default function Profile({
 
                 <DeleteUser />
             </SettingsLayout>
-        </AppLayout>
+        </Layout>
     );
 }

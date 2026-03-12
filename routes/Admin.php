@@ -66,12 +66,6 @@ Route::prefix('admin')
         Route::get('/reports/export', [ReportController::class, 'export'])
             ->name('reports.export');
 
-        // Settings
-        Route::get('/settings', [SettingsController::class, 'index'])
-            ->name('settings.index');
-        Route::patch('/settings', [SettingsController::class, 'update'])
-            ->name('settings.update');
-
         // Subscription
         Route::get('/subscription', [SubscriptionController::class, 'index'])
             ->name('subscription.index');

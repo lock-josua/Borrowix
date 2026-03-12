@@ -11,7 +11,6 @@ import {
     ArrowLeftRight,
     Users,
     BarChart3,
-    Settings,
     CreditCard,
     Tag,
 } from 'lucide-react';
@@ -38,7 +37,6 @@ const navItems = [
     { title: 'Users',        href: '/admin/users',        icon: Users },
     { title: 'Reports',      href: '/admin/reports',      icon: BarChart3 },
     { title: 'Subscription', href: '/admin/subscription', icon: CreditCard },
-    { title: 'Settings',     href: '/admin/settings',     icon: Settings },
 ];
 
 interface Props extends PropsWithChildren {
