@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Enums\BorrowTransactionStatus;
+use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
@@ -19,14 +19,12 @@ class ReportController extends Controller
 
         // Transactions within date range
         $transactions = BorrowTransaction::with(['borrower', 'equipment'])
-            ->forCurrentSchool()
             ->whereBetween('issued_at', [$from, $to])
             ->latest('issued_at')
             ->get();
 
         // Most borrowed equipment
         $topEquipment = BorrowTransaction::selectRaw('equipment_id, count(*) as total')
-            ->forCurrentSchool()
             ->whereBetween('issued_at', [$from, $to])
             ->groupBy('equipment_id')
             ->orderByDesc('total')
@@ -36,7 +34,6 @@ class ReportController extends Controller
 
         // Most active borrowers
         $topBorrowers = BorrowTransaction::selectRaw('borrower_id, count(*) as total')
-            ->forCurrentSchool()
             ->whereBetween('issued_at', [$from, $to])
             ->groupBy('borrower_id')
             ->orderByDesc('total')

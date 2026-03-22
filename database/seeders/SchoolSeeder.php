@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\School;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -10,35 +10,57 @@ use Illuminate\Support\Facades\Hash;
 class SchoolSeeder extends Seeder
 {
     /**
-     * Creates a demo school with a School Admin account for development.
+     * Creates a demo tenant in the central DB, registers its subdomain,
+     * then seeds the admin user into the tenant's own database.
      */
     public function run(): void
     {
-        $school = School::updateOrCreate(
-            ['slug' => 'demo-school'],
+        // Create tenant in central DB.
+        // If 'demo-school' already exists, firstOrCreate skips Tenant::create()
+        // and the TenantCreated event does NOT fire (no duplicate DB creation).
+        /** @var Tenant|\Stancl\Tenancy\Database\Concerns\TenantRun $tenant */
+        $tenant = Tenant::firstOrCreate(
+            ['id' => 'demo-school'],
             [
-                'name' => 'Demo School',
-                'email' => 'admin@demoschool.com',
-                'address' => '123 Main Street, Cagayan de Oro City',
+                'school_email'   => 'admin@demoschool.com',
+                'admin_email'    => 'admin@demoschool.com',
                 'contact_number' => '09123456789',
-                'plan' => 'free',
-                'status' => 'active',
+                // These go into the data JSON column:
+                'school_name'    => 'Demo School',
+                'plan'           => 'free',
+                'status'         => 'active',
+                'address'        => '123 Main Street, Cagayan de Oro City',
             ]
         );
 
-        // School Admin
-        User::updateOrCreate(
-            ['email' => 'admin@demoschool.com'],
-            [
-                'name' => 'School Admin',
-                'password' => Hash::make('admin123'),
-                'role' => 'admin',
-                'school_id' => $school->id,
-                'email_verified_at' => now(),
-            ]
-        );
+        // Register the subdomain: "demo-school" → demo-school.huwam.test
+        $tenant->domains()->firstOrCreate(['domain' => 'demo-school']);
 
-        $this->command->info("School created: {$school->name}");
-        $this->command->info('School Admin: admin@demoschool.com / admin123');
+        // Create the tenant database if it doesn't exist
+        if (! $tenant->database()->manager()->databaseExists($tenant->database()->getName())) {
+            $tenant->database()->manager()->createDatabase($tenant);
+            $this->command->info('Created tenant database: ' . $tenant->database()->getName());
+        }
+
+        // Run tenant migrations
+        $this->command->info('Running tenant migrations...');
+        \Illuminate\Support\Facades\Artisan::call('tenants:migrate', ['--tenants' => $tenant->id]);
+
+        // Seed admin user inside the tenant's database using $tenant->run()
+        $tenant->run(function () {
+            User::updateOrCreate(
+                ['email' => 'admin@demoschool.com'],
+                [
+                    'name'              => 'School Admin',
+                    'password'          => Hash::make('admin123'),
+                    'role'              => 'admin',
+                    'email_verified_at' => now(),
+                ]
+            );
+        });
+
+        $this->command->info('Demo School created.');
+        $this->command->info('Access at: http://demo-school.localhost');
+        $this->command->info('Login: admin@demoschool.com / admin123');
     }
 }

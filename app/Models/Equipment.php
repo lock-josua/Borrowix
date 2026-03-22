@@ -2,20 +2,19 @@
 
 namespace App\Models;
 
+use App\Enums\EquipmentStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
-use App\Enums\EquipmentStatus;
 
 class Equipment extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'school_id',
+        // school_id REMOVED
         'category_id',
         'name',
         'description',
@@ -32,28 +31,11 @@ class Equipment extends Model
 
     protected function casts(): array
     {
-        return [
-            'status' => EquipmentStatus::class,
-        ];
+        return ['status' => EquipmentStatus::class];
     }
 
-    // -------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------
-
-    public function scopeForCurrentSchool(Builder $query): void
-    {
-        $query->where('school_id', app('current_school')->id);
-    }
-
-    // -------------------------------------------------------
-    // Relationships
-    // -------------------------------------------------------
-
-    public function school(): BelongsTo
-    {
-        return $this->belongsTo(School::class);
-    }
+    // school() REMOVED
+    // scopeForCurrentSchool() REMOVED
 
     public function category(): BelongsTo
     {
@@ -69,10 +51,6 @@ class Equipment extends Model
     {
         return $this->hasMany(BorrowTransaction::class);
     }
-
-    // -------------------------------------------------------
-    // Status Helper Methods
-    // -------------------------------------------------------
 
     public function isAvailable(): bool
     {

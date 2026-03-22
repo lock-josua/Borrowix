@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Models\School;
 use App\Models\Subscription;
+use App\Models\Tenant;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -12,9 +12,24 @@ class SubscriptionController extends Controller
 {
     public function index(): Response
     {
-        $subscriptions = Subscription::with('school')
-            ->latest()
-            ->paginate(15);
+        $subscriptions = Subscription::with('tenant')->latest()->paginate(15)
+            ->through(fn ($subscription) => [
+                'id' => $subscription->id,
+                'plan' => $subscription->plan,
+                'status' => $subscription->status,
+                'billing_cycle' => $subscription->billing_cycle,
+                'current_period_end' => $subscription->current_period_end,
+                'discount_amount' => $subscription->discount_amount,
+                'created_at' => $subscription->created_at,
+                'school' => [
+                    'id' => $subscription->tenant->id,
+                    'name' => $subscription->tenant->school_name ?? $subscription->tenant->id,
+                    'email' => $subscription->tenant->school_email,
+                ],
+                'promo_code' => $subscription->promoCode
+                    ? ['code' => $subscription->promoCode->code]
+                    : null,
+            ]);
 
         $breakdown = Subscription::selectRaw('plan, count(*) as total')
             ->groupBy('plan')
@@ -27,16 +42,15 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    public function show(School $school): Response
+    public function show(Tenant $tenant): Response
     {
-        $school->load('subscription');
-
-        $paymentHistory = $school->subscription()
+        $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->first();
+        $paymentHistory = Subscription::where('tenant_id', $tenant->id)
             ->latest()
             ->get(['plan', 'status', 'billing_cycle', 'current_period_start', 'current_period_end', 'created_at']);
 
         return Inertia::render('super-admin/subscriptions/show', [
-            'school' => $school,
+            'school' => $tenant,
             'paymentHistory' => $paymentHistory,
         ]);
     }

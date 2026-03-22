@@ -10,8 +10,27 @@ class Subscription extends Model
 {
     use HasFactory;
 
+    /**
+     * Always use the central database connection.
+     * The subscriptions table lives in the central DB,
+     * not in any tenant database.
+     */
+    protected $connection = 'mysql';
+
+    public const PLANS = ['free', 'basic', 'pro'];
+
+    public const STATUSES = ['active', 'trialing', 'past_due', 'canceled', 'paused'];
+
+    public const BILLING_CYCLES = ['monthly', 'annual'];
+
+    public const PRICES = [
+        'free' => ['monthly' => 0, 'annual' => 0],
+        'basic' => ['monthly' => 499, 'annual' => 4_990],
+        'pro' => ['monthly' => 999, 'annual' => 9_990],
+    ];
+
     protected $fillable = [
-        'school_id',
+        'tenant_id',  // was school_id — now references tenants table
         'plan',
         'status',
         'billing_cycle',
@@ -40,23 +59,15 @@ class Subscription extends Model
         ];
     }
 
-    // -------------------------------------------------------
-    // Relationships
-    // -------------------------------------------------------
-
-    public function school(): BelongsTo
+    public function tenant(): BelongsTo
     {
-        return $this->belongsTo(School::class);
+        return $this->belongsTo(Tenant::class);
     }
 
     public function promoCode(): BelongsTo
     {
         return $this->belongsTo(PromoCode::class);
     }
-
-    // -------------------------------------------------------
-    // Status Helper Methods
-    // -------------------------------------------------------
 
     public function isActive(): bool
     {

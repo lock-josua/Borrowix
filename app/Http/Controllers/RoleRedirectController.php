@@ -10,11 +10,12 @@ class RoleRedirectController extends Controller
     public function redirect(Request $request): RedirectResponse
     {
         return match ($request->user()->role) {
-            'super_admin' => redirect()->route('super-admin.dashboard'),
-            'admin' => redirect()->route('admin.dashboard'),
-            'staff' => redirect()->route('staff.dashboard'),
-            'student' => redirect()->route('student.dashboard'),
-            default => redirect()->route('login'),
+            'super_admin' => redirect('/super-admin/dashboard'),
+            'admin' => redirect('/admin/dashboard'),
+            'staff' => redirect('/staff/dashboard'),
+            'student' => redirect('/student/dashboard'),
+            default => redirect('/login'),
         };
     }
+
 }

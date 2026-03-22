@@ -6,7 +6,7 @@ use App\Http\Controllers\Staff\EquipmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('staff')
-    ->middleware(['auth', 'verified', 'role:staff', 'school.active', 'school.scope'])
+    ->middleware(['auth', 'verified', 'role:staff'])
     ->name('staff.')
     ->group(function () {
 

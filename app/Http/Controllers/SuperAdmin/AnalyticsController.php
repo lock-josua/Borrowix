@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Models\BorrowTransaction;
-use App\Models\Equipment;
-use App\Models\School;
-use App\Models\User;
+use App\Models\Subscription;
+use App\Models\Tenant;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,40 +13,90 @@ class AnalyticsController extends Controller
 {
     public function index(): Response
     {
-        // Schools growth — count of new schools per month for the last 6 months
-        $schoolsGrowth = School::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(*) as total')
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
-
-        // Borrowing activity — transactions per month for the last 6 months
-        $borrowingActivity = BorrowTransaction::selectRaw('DATE_FORMAT(issued_at, "%Y-%m") as month, count(*) as total')
-            ->where('issued_at', '>=', now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
-
-        // Top 5 most active schools by transaction count
-        $topSchools = School::withCount('borrowTransactions')
-            ->orderByDesc('borrow_transactions_count')
-            ->take(5)
-            ->get(['id', 'name', 'plan']);
-
-        // Platform totals
-        $totals = [
-            'schools' => School::count(),
-            'users' => User::whereNot('role', 'super_admin')->count(),
-            'equipment' => Equipment::count(),
-            'transactions' => BorrowTransaction::count(),
-            'overdue' => BorrowTransaction::where('status', 'overdue')->count(),
-        ];
+        [$schoolsGrowth, $planBreakdown, $statusBreakdown, $billingBreakdown, $discountStats, $revenue] = $this->gatherAnalytics();
 
         return Inertia::render('super-admin/analytics/index', [
             'schoolsGrowth' => $schoolsGrowth,
-            'borrowingActivity' => $borrowingActivity,
-            'topSchools' => $topSchools,
-            'totals' => $totals,
+            'totals' => [
+                'schools' => Tenant::count(),
+            ],
+            'planBreakdown' => $planBreakdown,
+            'statusBreakdown' => $statusBreakdown,
+            'billingBreakdown' => $billingBreakdown,
+            'discountStats' => $discountStats,
+            'revenue' => $revenue,
         ]);
+    }
+
+    private function gatherAnalytics(): array
+    {
+        $schoolsGrowth = $this->getSchoolsGrowth();
+        $planBreakdown = $this->getGroupedCounts('plan');
+        $statusBreakdown = $this->getGroupedCounts('status');
+        $billingBreakdown = $this->getGroupedCounts('billing_cycle');
+        $discountStats = $this->getDiscountStats();
+        $revenue = $this->getRevenueEstimate($planBreakdown);
+
+        return [$schoolsGrowth, $planBreakdown, $statusBreakdown, $billingBreakdown, $discountStats, $revenue];
+    }
+
+    private function getSchoolsGrowth(): array
+    {
+        return Tenant::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(*) as total')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month')
+            ->map(fn ($total, $month) => ['month' => $month, 'total' => (int) $total])
+            ->values()
+            ->toArray();
+    }
+
+    private function getGroupedCounts(string $column): array
+    {
+        return Subscription::select($column, DB::raw('count(*) as total'))
+            ->whereNotNull($column)
+            ->groupBy($column)
+            ->pluck('total', $column)
+            ->toArray();
+    }
+
+    private function getDiscountStats(): array
+    {
+        $withDiscount = Subscription::where('discount_amount', '>', 0)->count();
+        $totalActive = Subscription::where('status', 'active')->count();
+
+        return [
+            'with_discount' => $withDiscount,
+            'total_active' => $totalActive,
+        ];
+    }
+
+    private function getRevenueEstimate(array $planBreakdown): array
+    {
+        $monthly = 0;
+        $annual = 0;
+
+        $monthlySubscriptions = Subscription::where('status', 'active')
+            ->select('plan', 'billing_cycle', DB::raw('count(*) as total'))
+            ->groupBy('plan', 'billing_cycle')
+            ->get();
+
+        foreach ($monthlySubscriptions as $row) {
+            $price = Subscription::PRICES[$row->plan][$row->billing_cycle] ?? 0;
+            $total = $price * $row->total;
+
+            if ($row->billing_cycle === 'monthly') {
+                $monthly += $total;
+            } else {
+                $annual += $total;
+            }
+        }
+
+        return [
+            'monthly_recurring' => $monthly,
+            'annual_recurring' => $annual,
+            'projected_yearly' => $monthly * 12 + $annual,
+        ];
     }
 }

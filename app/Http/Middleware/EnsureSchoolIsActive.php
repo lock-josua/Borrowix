@@ -10,33 +10,30 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureSchoolIsActive
 {
     /**
-     * Handle an incoming request.
+     * Check if the current tenant's school is active.
      *
-     * Blocks access if the user's school has been suspended or deleted.
-     * Super admins are always allowed through — they have no school.
+     * Uses tenant() helper from the tenancy package to get the current Tenant model.
+     * The status is stored in the `data` JSON column on the Tenant model.
+     *
+     * This middleware should only be applied to tenant routes (inside routes/Admin.php etc.).
+     * Super admin routes on the central domain will have tenant() return null, which
+     * means they always pass through.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $tenant = tenant();
 
-        // Super admins don't belong to a school — always allow
-        if (! $user || $user->isSuperAdmin()) {
+        // No tenant context means this is a central domain request (super_admin) — allow
+        if (! $tenant) {
             return $next($request);
         }
 
-        $school = $user->school;
+        // Read status from the data JSON column.
+        // tenant()->status works because the Tenant model's data column
+        // is automatically decoded — attributes are accessible as properties.
+        $status = $tenant->status ?? 'active';
 
-        // School no longer exists (deleted)
-        if (! $school) {
-            Auth::logout();
-
-            return redirect()->route('login')->withErrors([
-                'email' => 'Your school account no longer exists. Please contact support.',
-            ]);
-        }
-
-        // School is suspended by super admin
-        if ($school->isSuspended()) {
+        if ($status === 'suspended') {
             Auth::logout();
 
             return redirect()->route('login')->withErrors([

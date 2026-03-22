@@ -30,8 +30,7 @@ class BorrowRequestController extends Controller
 
     public function create(): Response
     {
-        $equipment = Equipment::forCurrentSchool()
-            ->where('status', EquipmentStatus::Available)
+        $equipment = Equipment::where('status', EquipmentStatus::Available)
             ->where('available_quantity', '>', 0)
             ->with('category')
             ->get(['id', 'name', 'brand', 'model', 'available_quantity', 'category_id']);
@@ -43,8 +42,6 @@ class BorrowRequestController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $school = app('current_school');
-
         $validated = $request->validate([
             'equipment_id' => ['required', 'exists:equipment,id'],
             'purpose' => ['required', 'string', 'max:500'],
@@ -52,16 +49,12 @@ class BorrowRequestController extends Controller
             'expected_return_date' => ['required', 'date', 'after:borrow_date'],
         ]);
 
-        // Make sure the equipment belongs to the student's school
-        $equipment = Equipment::forCurrentSchool()
-            ->where('id', $validated['equipment_id'])
-            ->firstOrFail();
+        $equipment = Equipment::where('id', $validated['equipment_id'])->firstOrFail();
 
         abort_if(! $equipment->isAvailable(), 422, 'This equipment is not available for borrowing.');
 
         BorrowRequest::create([
             ...$validated,
-            'school_id' => $school->id,
             'user_id' => Auth::id(),
             'status' => BorrowRequestStatus::Pending,
         ]);

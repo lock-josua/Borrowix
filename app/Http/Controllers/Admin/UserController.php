@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,8 +17,7 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
-        $users = User::forCurrentSchool()
-            ->whereIn('role', ['staff', 'student'])
+        $users = User::whereIn('role', ['staff', 'student'])
             ->when($request->search, fn ($q) => $q->where(function ($query) use ($request) {
                 $query->where('name', 'like', "%{$request->search}%")
                     ->orWhere('email', 'like', "%{$request->search}%");
@@ -39,8 +40,6 @@ class UserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $school = app('current_school');
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
@@ -51,19 +50,19 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
-            'school_id' => $school->id,
-            'password' => Hash::make('password123'), // temporary password
+            'password' => Hash::make(Str::random(32)),
             'email_verified_at' => now(),
         ]);
 
+        Password::sendResetLink(['email' => $validated['email']]);
+
         return redirect()
             ->route('admin.users.index')
-            ->with('success', "{$validated['name']} has been added.");
+            ->with('success', "{$validated['name']} has been added. A password setup email has been sent.");
     }
 
     public function show(User $user): Response
     {
-        $this->authorizeSchool($user);
 
         $user->loadCount(['borrowRequests', 'borrowTransactions']);
 
@@ -74,7 +73,6 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        $this->authorizeSchool($user);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -91,20 +89,11 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-        $this->authorizeSchool($user);
 
         $user->delete();
 
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'User removed.');
-    }
-
-    // Prevent admins from managing users that belong to other schools
-    private function authorizeSchool(User $user): void
-    {
-        $school = app('current_school');
-
-        abort_if($user->school_id !== $school->id, 403, 'Unauthorized.');
     }
 }

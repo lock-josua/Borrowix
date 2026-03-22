@@ -17,9 +17,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface RecentSchool {
-    id: number;
+    id: string;
     name: string;
-    email: string;
+    school_email: string;
     plan: string;
     status: string;
     created_at: string;
@@ -163,7 +163,7 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
                                                 <tr key={school.id} className="hover">
                                                     <td>
                                                         <div className="font-medium">{school.name}</div>
-                                                        <div className="text-xs text-muted-foreground">{school.email}</div>
+                                                        <div className="text-xs text-muted-foreground">{school.school_email}</div>
                                                     </td>
                                                     <td>
                                                         <span className={`rounded px-2 py-0.5 text-xs font-semibold capitalize ${planColor[school.plan]}`}>
@@ -200,10 +200,11 @@ function StatCard({
     sub,
 }: {
     title: string;
-    value: number;
+    value: number | undefined | null;
     icon: React.ReactNode;
     sub?: string;
 }) {
+    const safeValue = value ?? 0;
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -213,7 +214,7 @@ function StatCard({
                 {icon}
             </CardHeader>
             <CardContent>
-                <div className="text-3xl font-bold">{value.toLocaleString()}</div>
+                <div className="text-3xl font-bold">{safeValue.toLocaleString()}</div>
                 {sub && (
                     <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
                 )}

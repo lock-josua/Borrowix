@@ -13,8 +13,7 @@ class CategoryController extends Controller
 {
     public function index(): Response
     {
-        $categories = Category::forCurrentSchool()
-            ->withCount('equipment')
+        $categories = Category::withCount('equipment')
             ->latest()
             ->get();
 
@@ -25,17 +24,12 @@ class CategoryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $school = app('current_school');
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 
-        Category::create([
-            ...$validated,
-            'school_id' => $school->id,
-        ]);
+        Category::create($validated);
 
         return redirect()
             ->route('admin.categories.index')
@@ -44,7 +38,6 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category): RedirectResponse
     {
-        $this->authorizeSchool($category);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -60,7 +53,6 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
-        $this->authorizeSchool($category);
 
         // Unlink equipment from this category before deleting
         $category->equipment()->update(['category_id' => null]);
@@ -69,10 +61,5 @@ class CategoryController extends Controller
         return redirect()
             ->route('admin.categories.index')
             ->with('success', 'Category deleted.');
-    }
-
-    private function authorizeSchool(Category $category): void
-    {
-        abort_if($category->school_id !== app('current_school')->id, 403, 'Unauthorized.');
     }
 }

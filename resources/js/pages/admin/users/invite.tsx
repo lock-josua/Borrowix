@@ -61,7 +61,7 @@ export default function InviteUser() {
                                 </Select>
                                 {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
                             </div>
-                            <p className="text-xs text-muted-foreground">Default password will be <code>password123</code>. User should change it on first login.</p>
+                            <p className="text-xs text-muted-foreground">The invited user will receive an email to set their own password.</p>
                             <div className="flex gap-2 pt-2">
                                 <Button type="submit" disabled={processing}>{processing ? 'Adding...' : 'Add User'}</Button>
                                 <Link href="/admin/users"><Button variant="outline" type="button">Cancel</Button></Link>

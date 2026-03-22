@@ -13,8 +13,7 @@ class EquipmentController extends Controller
 {
     public function index(Request $request): Response
     {
-        $equipment = Equipment::forCurrentSchool()
-            ->with('category')
+        $equipment = Equipment::with('category')
             ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%"))
             ->when($request->status, fn ($q) => $q->where('status', EquipmentStatus::from($request->status)))
             ->latest()
@@ -29,8 +28,6 @@ class EquipmentController extends Controller
 
     public function show(Equipment $equipment): Response
     {
-        abort_if($equipment->school_id !== app('current_school')->id, 403);
-
         $equipment->load('category');
 
         return Inertia::render('staff/equipment/show', [

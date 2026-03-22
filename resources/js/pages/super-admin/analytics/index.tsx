@@ -1,6 +1,13 @@
 import { Head } from '@inertiajs/react';
-import { School, Users, Package, ArrowLeftRight, AlertTriangle } from 'lucide-react';
+import { School, CreditCard, TrendingUp, Percent } from 'lucide-react';
+import { Bar, BarChart, Pie, PieChart, XAxis, YAxis, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+    type ChartConfig,
+} from '@/components/ui/chart';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -14,38 +21,63 @@ interface MonthlyData {
     total: number;
 }
 
-interface TopSchool {
-    id: number;
-    name: string;
-    plan: string;
-    borrow_transactions_count: number;
+interface DiscountStats {
+    with_discount: number;
+    total_active: number;
+}
+
+interface Revenue {
+    monthly_recurring: number;
+    annual_recurring: number;
+    projected_yearly: number;
 }
 
 interface Totals {
     schools: number;
-    users: number;
-    equipment: number;
-    transactions: number;
-    overdue: number;
 }
 
 interface Props {
     schoolsGrowth: MonthlyData[];
-    borrowingActivity: MonthlyData[];
-    topSchools: TopSchool[];
     totals: Totals;
+    planBreakdown: Record<string, number>;
+    statusBreakdown: Record<string, number>;
+    billingBreakdown: Record<string, number>;
+    discountStats: DiscountStats;
+    revenue: Revenue;
 }
 
-const planBadge: Record<string, string> = {
-    free: 'badge-ghost',
-    basic: 'badge-info',
-    pro: 'badge-warning',
-};
+const schoolGrowthChartConfig = {
+    total: { label: 'New Schools', color: 'var(--chart-1)' },
+} satisfies ChartConfig;
 
-export default function Analytics({ schoolsGrowth, borrowingActivity, topSchools, totals }: Props) {
-    const maxBorrowing = Math.max(...borrowingActivity.map((d) => d.total), 1);
-    const maxGrowth = Math.max(...schoolsGrowth.map((d) => d.total), 1);
+const planChartConfig = {
+    free: { label: 'Free', color: 'var(--chart-3)' },
+    basic: { label: 'Basic', color: 'var(--chart-2)' },
+    pro: { label: 'Pro', color: 'var(--chart-1)' },
+} satisfies ChartConfig;
 
+const statusChartConfig = {
+    active: { label: 'Active', color: 'var(--chart-2)' },
+    trialing: { label: 'Trialing', color: 'var(--chart-4)' },
+    past_due: { label: 'Past Due', color: 'var(--chart-3)' },
+    canceled: { label: 'Canceled', color: 'var(--chart-5)' },
+    paused: { label: 'Paused', color: 'var(--chart-1)' },
+} satisfies ChartConfig;
+
+const billingChartConfig = {
+    monthly: { label: 'Monthly', color: 'var(--chart-1)' },
+    annual: { label: 'Annual', color: 'var(--chart-2)' },
+} satisfies ChartConfig;
+
+export default function Analytics({
+    schoolsGrowth,
+    totals,
+    planBreakdown,
+    statusBreakdown,
+    billingBreakdown,
+    discountStats,
+    revenue,
+}: Props) {
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Analytics" />
@@ -54,92 +86,256 @@ export default function Analytics({ schoolsGrowth, borrowingActivity, topSchools
                 <div>
                     <h1 className="text-2xl font-bold">Platform Analytics</h1>
                     <p className="text-sm text-muted-foreground">
-                        Platform-wide usage and growth metrics.
+                        Platform-wide usage, subscriptions, and revenue metrics.
                     </p>
                 </div>
 
-                {/* Totals */}
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                    {[
-                        { label: 'Schools',      value: totals.schools,      icon: <School className="size-4 text-primary" /> },
-                        { label: 'Users',        value: totals.users,        icon: <Users className="size-4 text-secondary" /> },
-                        { label: 'Equipment',    value: totals.equipment,    icon: <Package className="size-4 text-accent" /> },
-                        { label: 'Transactions', value: totals.transactions, icon: <ArrowLeftRight className="size-4 text-info" /> },
-                        { label: 'Overdue',      value: totals.overdue,      icon: <AlertTriangle className="size-4 text-error" /> },
-                    ].map((s) => (
-                        <Card key={s.label}>
-                            <CardHeader className="flex flex-row items-center justify-between pb-1">
-                                <CardTitle className="text-xs text-muted-foreground">{s.label}</CardTitle>
-                                {s.icon}
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{s.value.toLocaleString()}</div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        label="Total Schools"
+                        value={totals.schools}
+                        icon={<School className="size-4 text-primary" />}
+                    />
+                    <StatCard
+                        label="Monthly Revenue"
+                        value={`₱${revenue.monthly_recurring.toLocaleString()}`}
+                        icon={<CreditCard className="size-4 text-secondary" />}
+                    />
+                    <StatCard
+                        label="Projected Yearly"
+                        value={`₱${revenue.projected_yearly.toLocaleString()}`}
+                        icon={<TrendingUp className="size-4 text-accent" />}
+                    />
+                    <StatCard
+                        label="Discounts Active"
+                        value={`${discountStats.with_discount} / ${discountStats.total_active}`}
+                        icon={<Percent className="text-info size-4" />}
+                    />
                 </div>
 
+                {/* Charts Row 1 */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    {/* School Growth Chart */}
+                    {/* School Growth */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">New Schools (Last 6 Months)</CardTitle>
+                            <CardTitle className="text-base">
+                                New Schools (Last 6 Months)
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <BarChart data={schoolsGrowth} max={maxGrowth} color="bg-primary" />
+                            {schoolsGrowth.length === 0 ? (
+                                <EmptyState />
+                            ) : (
+                                <ChartContainer
+                                    config={schoolGrowthChartConfig}
+                                    className="aspect-video h-[250px]"
+                                >
+                                    <BarChart data={schoolsGrowth}>
+                                        <XAxis
+                                            dataKey="month"
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickMargin={8}
+                                            tickFormatter={(v: string) =>
+                                                v.slice(5)
+                                            }
+                                        />
+                                        <YAxis
+                                            tickLine={false}
+                                            axisLine={false}
+                                            tickMargin={8}
+                                        />
+                                        <ChartTooltip
+                                            content={<ChartTooltipContent />}
+                                        />
+                                        <Bar
+                                            dataKey="total"
+                                            radius={[4, 4, 0, 0]}
+                                            fill="var(--color-total)"
+                                        />
+                                    </BarChart>
+                                </ChartContainer>
+                            )}
                         </CardContent>
                     </Card>
 
-                    {/* Borrowing Activity Chart */}
+                    {/* Plan Distribution Pie */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">Borrowing Activity (Last 6 Months)</CardTitle>
+                            <CardTitle className="text-base">
+                                Subscription Plans
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <BarChart data={borrowingActivity} max={maxBorrowing} color="bg-secondary" />
+                            {Object.keys(planBreakdown).length === 0 ? (
+                                <EmptyState />
+                            ) : (
+                                <ChartContainer
+                                    config={planChartConfig}
+                                    className="aspect-video h-[250px]"
+                                >
+                                    <PieChart>
+                                        <ChartTooltip
+                                            content={
+                                                <ChartTooltipContent
+                                                    hideLabel
+                                                />
+                                            }
+                                        />
+                                        <Pie
+                                            data={toPieData(planBreakdown)}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={80}
+                                            label
+                                        >
+                                            {toPieData(planBreakdown).map(
+                                                (entry) => (
+                                                    <Cell
+                                                        key={entry.name}
+                                                        fill={`var(--color-${entry.name})`}
+                                                    />
+                                                ),
+                                            )}
+                                        </Pie>
+                                    </PieChart>
+                                </ChartContainer>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Top Schools */}
+                {/* Charts Row 2 */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {/* Status Distribution */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">
+                                Subscription Status
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {Object.keys(statusBreakdown).length === 0 ? (
+                                <EmptyState />
+                            ) : (
+                                <ChartContainer
+                                    config={statusChartConfig}
+                                    className="aspect-video h-[250px]"
+                                >
+                                    <BarChart
+                                        data={toBarData(statusBreakdown)}
+                                        layout="vertical"
+                                    >
+                                        <XAxis
+                                            type="number"
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            dataKey="name"
+                                            type="category"
+                                            tickLine={false}
+                                            axisLine={false}
+                                            width={80}
+                                            tickFormatter={(v: string) =>
+                                                v.replace('_', ' ')
+                                            }
+                                        />
+                                        <ChartTooltip
+                                            content={<ChartTooltipContent />}
+                                        />
+                                        <Bar
+                                            dataKey="value"
+                                            radius={[0, 4, 4, 0]}
+                                        >
+                                            {toBarData(statusBreakdown).map(
+                                                (entry) => (
+                                                    <Cell
+                                                        key={entry.name}
+                                                        fill={`var(--color-${entry.name})`}
+                                                    />
+                                                ),
+                                            )}
+                                        </Bar>
+                                    </BarChart>
+                                </ChartContainer>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Billing Cycle Pie */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">
+                                Billing Cycle
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {Object.keys(billingBreakdown).length === 0 ? (
+                                <EmptyState />
+                            ) : (
+                                <ChartContainer
+                                    config={billingChartConfig}
+                                    className="aspect-video h-[250px]"
+                                >
+                                    <PieChart>
+                                        <ChartTooltip
+                                            content={
+                                                <ChartTooltipContent
+                                                    hideLabel
+                                                />
+                                            }
+                                        />
+                                        <Pie
+                                            data={toPieData(billingBreakdown)}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={80}
+                                            label
+                                        >
+                                            {toPieData(billingBreakdown).map(
+                                                (entry) => (
+                                                    <Cell
+                                                        key={entry.name}
+                                                        fill={`var(--color-${entry.name})`}
+                                                    />
+                                                ),
+                                            )}
+                                        </Pie>
+                                    </PieChart>
+                                </ChartContainer>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Revenue Breakdown */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Most Active Schools</CardTitle>
+                        <CardTitle className="text-base">
+                            Revenue Breakdown
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="table table-sm w-full">
-                                <thead>
-                                    <tr className="text-muted-foreground">
-                                        <th>#</th>
-                                        <th>School</th>
-                                        <th>Plan</th>
-                                        <th>Transactions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {topSchools.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={4} className="py-6 text-center text-muted-foreground">
-                                                No data yet.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        topSchools.map((school, i) => (
-                                            <tr key={school.id} className="hover">
-                                                <td className="text-muted-foreground">{i + 1}</td>
-                                                <td className="font-medium">{school.name}</td>
-                                                <td>
-                                                    <span className={`badge badge-sm capitalize ${planBadge[school.plan]}`}>
-                                                        {school.plan}
-                                                    </span>
-                                                </td>
-                                                <td>{school.borrow_transactions_count}</td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <RevenueItem
+                                label="Monthly Recurring"
+                                value={revenue.monthly_recurring}
+                            />
+                            <RevenueItem
+                                label="Annual Recurring"
+                                value={revenue.annual_recurring}
+                            />
+                            <RevenueItem
+                                label="Projected Yearly"
+                                value={revenue.projected_yearly}
+                                highlight
+                            />
                         </div>
                     </CardContent>
                 </Card>
@@ -148,26 +344,67 @@ export default function Analytics({ schoolsGrowth, borrowingActivity, topSchools
     );
 }
 
-// Simple CSS bar chart — no external chart library needed
-function BarChart({ data, max, color }: { data: MonthlyData[]; max: number; color: string }) {
-    if (data.length === 0) {
-        return <p className="py-6 text-center text-sm text-muted-foreground">No data yet.</p>;
-    }
-
+function StatCard({
+    label,
+    value,
+    icon,
+}: {
+    label: string;
+    value: string | number;
+    icon: React.ReactNode;
+}) {
     return (
-        <div className="flex items-end gap-2 h-32">
-            {data.map((d) => (
-                <div key={d.month} className="flex flex-1 flex-col items-center gap-1">
-                    <span className="text-xs font-medium">{d.total}</span>
-                    <div
-                        className={`w-full rounded-t ${color} transition-all`}
-                        style={{ height: `${(d.total / max) * 100}px`, minHeight: '4px' }}
-                    />
-                    <span className="text-xs text-muted-foreground">
-                        {d.month.slice(5)} {/* Show MM only */}
-                    </span>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-1">
+                <CardTitle className="text-xs text-muted-foreground">
+                    {label}
+                </CardTitle>
+                {icon}
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">
+                    {typeof value === 'number' ? value.toLocaleString() : value}
                 </div>
-            ))}
+            </CardContent>
+        </Card>
+    );
+}
+
+function RevenueItem({
+    label,
+    value,
+    highlight = false,
+}: {
+    label: string;
+    value: number;
+    highlight?: boolean;
+}) {
+    return (
+        <div
+            className={`rounded-lg p-4 ${highlight ? 'border border-primary/20 bg-primary/5' : 'bg-muted/50'}`}
+        >
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p
+                className={`text-xl font-bold ${highlight ? 'text-primary' : ''}`}
+            >
+                ₱{value.toLocaleString()}
+            </p>
         </div>
     );
+}
+
+function EmptyState() {
+    return (
+        <p className="flex h-[250px] items-center justify-center text-sm text-muted-foreground">
+            No data yet.
+        </p>
+    );
+}
+
+function toPieData(record: Record<string, number>) {
+    return Object.entries(record).map(([name, value]) => ({ name, value }));
+}
+
+function toBarData(record: Record<string, number>) {
+    return Object.entries(record).map(([name, value]) => ({ name, value }));
 }

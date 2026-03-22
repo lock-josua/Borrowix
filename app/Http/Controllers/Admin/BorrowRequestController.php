@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Enums\BorrowRequestStatus;
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +19,6 @@ class BorrowRequestController extends Controller
     public function index(Request $request): Response
     {
         $requests = BorrowRequest::with(['requester', 'equipment'])
-            ->forCurrentSchool()
             ->when($request->status, fn ($q) => $q->where('status', BorrowRequestStatus::from($request->status)))
             ->when($request->search, fn ($q) => $q->whereHas('requester', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
@@ -34,7 +33,6 @@ class BorrowRequestController extends Controller
 
     public function show(BorrowRequest $borrowRequest): Response
     {
-        $this->authorizeSchool($borrowRequest);
 
         $borrowRequest->load(['requester', 'equipment.category', 'processedBy']);
 
@@ -45,7 +43,6 @@ class BorrowRequestController extends Controller
 
     public function approve(Request $request, BorrowRequest $borrowRequest): RedirectResponse
     {
-        $this->authorizeSchool($borrowRequest);
 
         abort_if(! $borrowRequest->isPending(), 422, 'This request has already been processed.');
         abort_if(! $borrowRequest->equipment->isAvailable(), 422, 'This equipment is no longer available.');
@@ -64,7 +61,6 @@ class BorrowRequestController extends Controller
 
         // Create the active transaction
         BorrowTransaction::create([
-            'school_id' => $borrowRequest->school_id,
             'borrow_request_id' => $borrowRequest->id,
             'borrower_id' => $borrowRequest->user_id,
             'equipment_id' => $borrowRequest->equipment_id,
@@ -89,7 +85,6 @@ class BorrowRequestController extends Controller
 
     public function reject(Request $request, BorrowRequest $borrowRequest): RedirectResponse
     {
-        $this->authorizeSchool($borrowRequest);
 
         abort_if(! $borrowRequest->isPending(), 422, 'This request has already been processed.');
 
@@ -107,10 +102,5 @@ class BorrowRequestController extends Controller
         return redirect()
             ->route('admin.requests.index')
             ->with('success', 'Request rejected.');
-    }
-
-    private function authorizeSchool(BorrowRequest $borrowRequest): void
-    {
-        abort_if($borrowRequest->school_id !== app('current_school')->id, 403, 'Unauthorized.');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subscription;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,38 +13,41 @@ class SubscriptionController extends Controller
 {
     public function index(): Response
     {
-        $school = app('current_school');
-        $school->load('subscription');
+        $tenant = tenant();
+        $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->first();
 
         return Inertia::render('admin/subscription/index', [
-            'school' => $school,
-            'subscription' => $school->subscription,
+            'school' => [
+                'name' => $tenant->school_name ?? $tenant->id,
+                'plan' => $tenant->plan ?? 'free',
+                'status' => $tenant->status ?? 'active',
+            ],
+            'subscription' => $subscription,
         ]);
     }
 
     public function upgrade(Request $request): RedirectResponse
     {
-        $request->validate([
-            'plan' => ['required', 'in:basic,pro'],
-        ]);
+        $request->validate(['plan' => ['required', 'in:basic,pro']]);
 
-        // Payment gateway checkout will be wired up in Phase 5
-        // For now redirect to a placeholder checkout page
         return redirect()
             ->route('admin.subscription.index')
-            ->with('info', 'Payment gateway integration coming in Phase 5.');
+            ->with('info', 'Payment gateway integration coming soon.');
     }
 
     public function cancel(): RedirectResponse
     {
-        $school = app('current_school');
+        $tenant = tenant();
 
-        $school->subscription()->update([
-            'status' => 'canceled',
-            'canceled_at' => now(),
-        ]);
+        Subscription::where('tenant_id', $tenant->id)
+            ->latest()
+            ->first()
+            ?->update([
+                'status' => 'canceled',
+                'canceled_at' => now(),
+            ]);
 
-        $school->update(['plan' => 'free']);
+        $tenant->update(['plan' => 'free']);
 
         return redirect()
             ->route('admin.subscription.index')

@@ -10,6 +10,7 @@ import {
     Tag,
     BarChart3,
     CreditCard,
+    Settings,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -26,18 +27,29 @@ import type { BreadcrumbItem } from '@/types';
 import type { PropsWithChildren } from 'react';
 
 const navItems = [
-    { title: 'Dashboard',    href: '/super-admin/dashboard',    icon: LayoutDashboard },
-    { title: 'Schools',      href: '/super-admin/schools',      icon: School },
-    { title: 'Subscriptions',href: '/super-admin/subscriptions',icon: CreditCard },
-    { title: 'Promo Codes',  href: '/super-admin/promo-codes',  icon: Tag },
-    { title: 'Analytics',    href: '/super-admin/analytics',    icon: BarChart3 },
+    {
+        title: 'Dashboard',
+        href: '/super-admin/dashboard',
+        icon: LayoutDashboard,
+    },
+    { title: 'Schools', href: '/super-admin/schools', icon: School },
+    {
+        title: 'Subscriptions',
+        href: '/super-admin/subscriptions',
+        icon: CreditCard,
+    },
+    { title: 'Promo Codes', href: '/super-admin/promo-codes', icon: Tag },
+    { title: 'Analytics', href: '/super-admin/analytics', icon: BarChart3 },
 ];
 
 interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) {
+export default function SuperAdminLayout({
+    children,
+    breadcrumbs = [],
+}: Props) {
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
@@ -53,7 +65,7 @@ export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) 
                                         <LayoutDashboard className="size-5" />
                                     </div>
                                     <div className="ml-1 grid flex-1 text-left text-sm">
-                                        <span className="truncate font-semibold leading-tight">
+                                        <span className="truncate leading-tight font-semibold">
                                             Borrowix
                                         </span>
                                         <span className="truncate text-xs text-muted-foreground">
@@ -85,6 +97,25 @@ export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) 
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
+                        </SidebarMenu>
+                    </SidebarGroup>
+
+                    {/* Settings */}
+                    <SidebarGroup className="px-2 py-0">
+                        <SidebarGroupLabel>Settings</SidebarGroupLabel>
+                        <SidebarMenu>
+                            <SidebarMenuItem key="Profile">
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={isCurrentUrl('/settings/profile')}
+                                    tooltip={{ children: 'Profile' }}
+                                >
+                                    <Link href="/settings/profile">
+                                        <Settings className="size-4" />
+                                        <span>Profile</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroup>
                 </SidebarContent>

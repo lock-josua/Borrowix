@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +17,6 @@ class BorrowTransactionController extends Controller
     public function index(Request $request): Response
     {
         $transactions = BorrowTransaction::with(['borrower', 'equipment', 'issuedBy'])
-            ->forCurrentSchool()
             ->when($request->status, fn ($q) => $q->where('status', BorrowTransactionStatus::from($request->status)))
             ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
@@ -32,7 +31,6 @@ class BorrowTransactionController extends Controller
 
     public function show(BorrowTransaction $borrowTransaction): Response
     {
-        $this->authorizeSchool($borrowTransaction);
 
         $borrowTransaction->load(['borrower', 'equipment.category', 'issuedBy', 'returnedTo', 'borrowRequest']);
 
@@ -43,7 +41,6 @@ class BorrowTransactionController extends Controller
 
     public function markReturned(Request $request, BorrowTransaction $borrowTransaction): RedirectResponse
     {
-        $this->authorizeSchool($borrowTransaction);
 
         abort_if($borrowTransaction->isReturned(), 422, 'This item has already been returned.');
 
@@ -74,10 +71,5 @@ class BorrowTransactionController extends Controller
         return redirect()
             ->route('admin.transactions.index')
             ->with('success', 'Item marked as returned.');
-    }
-
-    private function authorizeSchool(BorrowTransaction $transaction): void
-    {
-        abort_if($transaction->school_id !== app('current_school')->id, 403, 'Unauthorized.');
     }
 }

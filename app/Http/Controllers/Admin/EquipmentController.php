@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Enums\EquipmentStatus;
+use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Equipment;
 use Illuminate\Http\RedirectResponse;
@@ -16,8 +16,7 @@ class EquipmentController extends Controller
 {
     public function index(Request $request): Response
     {
-        $equipment = Equipment::forCurrentSchool()
-            ->with('category')
+        $equipment = Equipment::with('category')
             ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%"))
             ->when($request->category, fn ($q) => $q->where('category_id', $request->category))
             ->when($request->status, fn ($q) => $q->where('status', EquipmentStatus::from($request->status)))
@@ -38,7 +37,7 @@ class EquipmentController extends Controller
                 ];
             });
 
-        $categories = Category::forCurrentSchool()->get(['id', 'name']);
+        $categories = Category::get(['id', 'name']);
 
         return Inertia::render('admin/equipment/index', [
             'equipment' => $equipment,
@@ -49,7 +48,7 @@ class EquipmentController extends Controller
 
     public function create(): Response
     {
-        $categories = Category::forCurrentSchool()->get(['id', 'name']);
+        $categories = Category::get(['id', 'name']);
 
         return Inertia::render('admin/equipment/create', [
             'categories' => $categories,
@@ -58,8 +57,6 @@ class EquipmentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $school = app('current_school');
-
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['nullable', 'exists:categories,id'],
@@ -78,7 +75,6 @@ class EquipmentController extends Controller
 
         $equipment = Equipment::create([
             ...$validated,
-            'school_id' => $school->id,
             'available_quantity' => $validated['quantity'],
         ]);
 
@@ -89,7 +85,6 @@ class EquipmentController extends Controller
 
     public function update(Request $request, Equipment $equipment): RedirectResponse
     {
-        $this->authorizeSchool($equipment);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -190,7 +185,6 @@ class EquipmentController extends Controller
 
     public function show(Equipment $equipment): Response
     {
-        $this->authorizeSchool($equipment);
 
         $freshEquipment = Equipment::with('category')
             ->withCount('borrowTransactions')
@@ -205,9 +199,7 @@ class EquipmentController extends Controller
 
     public function edit(Equipment $equipment): Response
     {
-        $this->authorizeSchool($equipment);
-
-        $categories = Category::forCurrentSchool()->get(['id', 'name']);
+        $categories = Category::get(['id', 'name']);
 
         $equipment->image = $this->resolveImageUrl($equipment->image);
 
@@ -219,7 +211,6 @@ class EquipmentController extends Controller
 
     public function destroy(Equipment $equipment): RedirectResponse
     {
-        $this->authorizeSchool($equipment);
 
         // Delete equipment image if it exists
         if ($equipment->image) {
@@ -231,10 +222,5 @@ class EquipmentController extends Controller
         return redirect()
             ->route('admin.equipment.index')
             ->with('success', 'Equipment deleted.');
-    }
-
-    private function authorizeSchool(Equipment $equipment): void
-    {
-        abort_if($equipment->school_id !== app('current_school')->id, 403);
     }
 }

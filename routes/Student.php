@@ -6,7 +6,7 @@ use App\Http\Controllers\Student\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('student')
-    ->middleware(['auth', 'verified', 'role:student', 'school.active', 'school.scope'])
+    ->middleware(['auth', 'verified', 'role:student'])
     ->name('student.')
     ->group(function () {
 

@@ -17,7 +17,6 @@ class BorrowTransactionController extends Controller
     public function index(Request $request): Response
     {
         $transactions = BorrowTransaction::with(['borrower', 'equipment'])
-            ->forCurrentSchool()
             ->when($request->status, fn ($q) => $q->where('status', BorrowTransactionStatus::from($request->status)))
             ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
             ->latest()
@@ -32,8 +31,6 @@ class BorrowTransactionController extends Controller
 
     public function show(BorrowTransaction $borrowTransaction): Response
     {
-        abort_if($borrowTransaction->school_id !== app('current_school')->id, 403);
-
         $borrowTransaction->load(['borrower', 'equipment', 'issuedBy', 'borrowRequest']);
 
         return Inertia::render('staff/transactions/show', [
@@ -43,7 +40,6 @@ class BorrowTransactionController extends Controller
 
     public function markReturned(Request $request, BorrowTransaction $borrowTransaction): RedirectResponse
     {
-        abort_if($borrowTransaction->school_id !== app('current_school')->id, 403);
         abort_if($borrowTransaction->isReturned(), 422, 'This item has already been returned.');
 
         $request->validate([

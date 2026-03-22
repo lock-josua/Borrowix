@@ -13,12 +13,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface Subscription {
     id: number;
     plan: string;
-    status: string; 
+    status: string;
     billing_cycle: string;
     current_period_end: string | null;
     discount_amount: string;
     created_at: string;
-    school: { id: number; name: string; email: string };
+    school: { id: string; name: string; email: string };
     promo_code: { code: string } | null;
 }
 
@@ -46,7 +46,10 @@ const statusBadge: Record<string, string> = {
     trialing: 'badge-accent',
 };
 
-export default function SubscriptionsIndex({ subscriptions, breakdown }: Props) {
+export default function SubscriptionsIndex({
+    subscriptions,
+    breakdown,
+}: Props) {
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Subscriptions" />
@@ -54,7 +57,9 @@ export default function SubscriptionsIndex({ subscriptions, breakdown }: Props) 
             <div className="flex flex-col gap-6 p-6">
                 <div>
                     <h1 className="text-2xl font-bold">Subscriptions</h1>
-                    <p className="text-sm text-muted-foreground">All school subscription records across the platform.</p>
+                    <p className="text-sm text-muted-foreground">
+                        All school subscription records across the platform.
+                    </p>
                 </div>
 
                 {/* Plan breakdown */}
@@ -62,10 +67,18 @@ export default function SubscriptionsIndex({ subscriptions, breakdown }: Props) 
                     {(['free', 'basic', 'pro'] as const).map((plan) => (
                         <Card key={plan}>
                             <CardContent className="pt-4">
-                                <div className="text-3xl font-bold">{breakdown[plan] ?? 0}</div>
+                                <div className="text-3xl font-bold">
+                                    {breakdown[plan] ?? 0}
+                                </div>
                                 <div className="mt-1 flex items-center gap-2">
-                                    <span className={`badge badge-sm capitalize ${planBadge[plan]}`}>{plan}</span>
-                                    <span className="text-xs text-muted-foreground">schools</span>
+                                    <span
+                                        className={`badge badge-sm capitalize ${planBadge[plan]}`}
+                                    >
+                                        {plan}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                        schools
+                                    </span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -74,11 +87,13 @@ export default function SubscriptionsIndex({ subscriptions, breakdown }: Props) 
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">All Subscriptions</CardTitle>
+                        <CardTitle className="text-base">
+                            All Subscriptions
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">
-                            <table className="table table-sm w-full">
+                            <table className="table-sm table w-full">
                                 <thead>
                                     <tr className="text-muted-foreground">
                                         <th>School</th>
@@ -94,49 +109,76 @@ export default function SubscriptionsIndex({ subscriptions, breakdown }: Props) 
                                 <tbody>
                                     {subscriptions.data.length === 0 ? (
                                         <tr>
-                                            <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                                            <td
+                                                colSpan={8}
+                                                className="py-8 text-center text-muted-foreground"
+                                            >
                                                 No subscriptions yet.
                                             </td>
                                         </tr>
-                                    ) : subscriptions.data.map((s) => (
-                                        <tr key={s.id} className="hover">
-                                            <td>
-                                                <div className="font-medium">{s.school.name}</div>
-                                                <div className="text-xs text-muted-foreground">{s.school.email}</div>
-                                            </td>
-                                            <td>
-                                                <span className={`badge badge-sm capitalize ${planBadge[s.plan] ?? 'badge-ghost'}`}>
-                                                    {s.plan}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={`badge badge-sm capitalize ${statusBadge[s.status] ?? 'badge-ghost'}`}>
-                                                    {s.status.replace('_', ' ')}
-                                                </span>
-                                            </td>
-                                            <td className="capitalize text-sm">{s.billing_cycle ?? '—'}</td>
-                                            <td className="text-xs text-muted-foreground">
-                                                {s.current_period_end
-                                                    ? new Date(s.current_period_end).toLocaleDateString()
-                                                    : '—'}
-                                            </td>
-                                            <td className="text-sm">
-                                                {parseFloat(s.discount_amount) > 0
-                                                    ? `₱${parseFloat(s.discount_amount).toFixed(2)}`
-                                                    : '—'}
-                                            </td>
-                                            <td className="font-mono text-xs">
-                                                {s.promo_code?.code ?? '—'}
-                                            </td>
-                                            <td>
-                                                <Link href={`/super-admin/subscriptions/${s.school.id}`}>
-                                                    <Button variant="ghost" size="icon">
-                                                        <Eye className="size-4" />
-                                                    </Button>
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    ) : (
+                                        subscriptions.data.map((s) => (
+                                            <tr key={s.id} className="hover">
+                                                <td>
+                                                    <div className="font-medium">
+                                                        {s.school.name}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {s.school.email}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        className={`badge badge-sm capitalize ${planBadge[s.plan] ?? 'badge-ghost'}`}
+                                                    >
+                                                        {s.plan}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        className={`badge badge-sm capitalize ${statusBadge[s.status] ?? 'badge-ghost'}`}
+                                                    >
+                                                        {s.status.replace(
+                                                            '_',
+                                                            ' ',
+                                                        )}
+                                                    </span>
+                                                </td>
+                                                <td className="text-sm capitalize">
+                                                    {s.billing_cycle ?? '—'}
+                                                </td>
+                                                <td className="text-xs text-muted-foreground">
+                                                    {s.current_period_end
+                                                        ? new Date(
+                                                              s.current_period_end,
+                                                          ).toLocaleDateString()
+                                                        : '—'}
+                                                </td>
+                                                <td className="text-sm">
+                                                    {parseFloat(
+                                                        s.discount_amount,
+                                                    ) > 0
+                                                        ? `₱${parseFloat(s.discount_amount).toFixed(2)}`
+                                                        : '—'}
+                                                </td>
+                                                <td className="font-mono text-xs">
+                                                    {s.promo_code?.code ?? '—'}
+                                                </td>
+                                                <td>
+                                                    <Link
+                                                        href={`/super-admin/subscriptions/${s.school.id}`}
+                                                    >
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                        >
+                                                            <Eye className="size-4" />
+                                                        </Button>
+                                                    </Link>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -145,15 +187,20 @@ export default function SubscriptionsIndex({ subscriptions, breakdown }: Props) 
                             <div className="mt-4 flex justify-center gap-2">
                                 {subscriptions.prev_page_url && (
                                     <Link href={subscriptions.prev_page_url}>
-                                        <Button variant="outline" size="sm">Previous</Button>
+                                        <Button variant="outline" size="sm">
+                                            Previous
+                                        </Button>
                                     </Link>
                                 )}
                                 <span className="flex items-center text-sm text-muted-foreground">
-                                    Page {subscriptions.current_page} of {subscriptions.last_page}
+                                    Page {subscriptions.current_page} of{' '}
+                                    {subscriptions.last_page}
                                 </span>
                                 {subscriptions.next_page_url && (
                                     <Link href={subscriptions.next_page_url}>
-                                        <Button variant="outline" size="sm">Next</Button>
+                                        <Button variant="outline" size="sm">
+                                            Next
+                                        </Button>
                                     </Link>
                                 )}
                             </div>

@@ -3,16 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [
@@ -21,7 +18,7 @@ class User extends Authenticatable
         'password',
         'google_id',
         'role',
-        'school_id',
+        // school_id REMOVED — users live in their school's own DB
     ];
 
     protected $hidden = [
@@ -40,23 +37,9 @@ class User extends Authenticatable
         ];
     }
 
-    // -------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------
-
-    public function scopeForCurrentSchool(Builder $query): void
-    {
-        $query->where('school_id', app('current_school')->id);
-    }
-
-    // -------------------------------------------------------
-    // Relationships
-    // -------------------------------------------------------
-
-    public function school(): BelongsTo
-    {
-        return $this->belongsTo(School::class);
-    }
+    // school() REMOVED — no cross-DB relationships
+    // scopeForCurrentSchool() REMOVED — DB already switched by the package
+    // isSuperAdmin() REMOVED — super_admin only exists in central DB, not tenant DB
 
     public function borrowRequests(): HasMany
     {
@@ -66,15 +49,6 @@ class User extends Authenticatable
     public function borrowTransactions(): HasMany
     {
         return $this->hasMany(BorrowTransaction::class, 'borrower_id');
-    }
-
-    // -------------------------------------------------------
-    // Role Helper Methods
-    // -------------------------------------------------------
-
-    public function isSuperAdmin(): bool
-    {
-        return $this->role === 'super_admin';
     }
 
     public function isAdmin(): bool

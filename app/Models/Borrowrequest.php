@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
+use App\Enums\BorrowRequestStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Builder;
-use App\Enums\BorrowRequestStatus;
 
 class BorrowRequest extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'school_id',
+        // school_id REMOVED
         'user_id',
         'equipment_id',
         'purpose',
@@ -29,32 +28,16 @@ class BorrowRequest extends Model
     protected function casts(): array
     {
         return [
-            'borrow_date' => 'datetime',
+            'borrow_date'          => 'datetime',
             'expected_return_date' => 'datetime',
-            'processed_at' => 'datetime',
-            'status' => BorrowRequestStatus::class,
+            'processed_at'         => 'datetime',
+            'status'               => BorrowRequestStatus::class,
         ];
     }
 
-    // -------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------
+    // school() REMOVED
+    // scopeForCurrentSchool() REMOVED
 
-    public function scopeForCurrentSchool(Builder $query): void
-    {
-        $query->where('school_id', app('current_school')->id);
-    }
-
-    // -------------------------------------------------------
-    // Relationships
-    // -------------------------------------------------------
-
-    public function school(): BelongsTo
-    {
-        return $this->belongsTo(School::class);
-    }
-
-    // The student/staff who submitted the request
     public function requester(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -65,7 +48,6 @@ class BorrowRequest extends Model
         return $this->belongsTo(Equipment::class);
     }
 
-    // The admin/staff who approved or rejected
     public function processedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'processed_by');
@@ -76,27 +58,8 @@ class BorrowRequest extends Model
         return $this->hasOne(BorrowTransaction::class);
     }
 
-    // -------------------------------------------------------
-    // Status Helper Methods
-    // -------------------------------------------------------
-
-    public function isPending(): bool
-    {
-        return $this->status === BorrowRequestStatus::Pending;
-    }
-
-    public function isApproved(): bool
-    {
-        return $this->status === BorrowRequestStatus::Approved;
-    }
-
-    public function isRejected(): bool
-    {
-        return $this->status === BorrowRequestStatus::Rejected;
-    }
-
-    public function isCanceled(): bool
-    {
-        return $this->status === BorrowRequestStatus::Canceled;
-    }
+    public function isPending(): bool  { return $this->status === BorrowRequestStatus::Pending; }
+    public function isApproved(): bool { return $this->status === BorrowRequestStatus::Approved; }
+    public function isRejected(): bool { return $this->status === BorrowRequestStatus::Rejected; }
+    public function isCanceled(): bool { return $this->status === BorrowRequestStatus::Canceled; }
 }
