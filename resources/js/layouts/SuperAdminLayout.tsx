@@ -68,7 +68,7 @@ export default function SuperAdminLayout({
                                         <span className="truncate leading-tight font-semibold">
                                             Borrowix
                                         </span>
-                                        <span className="truncate text-xs text-muted-foreground">
+                                        <span className="badge badge-xs badge-outline truncate">
                                             Super Admin
                                         </span>
                                     </div>
@@ -100,9 +100,9 @@ export default function SuperAdminLayout({
                         </SidebarMenu>
                     </SidebarGroup>
 
-                    {/* Settings */}
+                    {/* Account */}
                     <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel>Settings</SidebarGroupLabel>
+                        <SidebarGroupLabel>Account</SidebarGroupLabel>
                         <SidebarMenu>
                             <SidebarMenuItem key="Profile">
                                 <SidebarMenuButton

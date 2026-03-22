@@ -1,6 +1,13 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { Eye, ShieldAlert, ShieldCheck, Search } from 'lucide-react';
+import {
+    Eye,
+    School,
+    ShieldAlert,
+    ShieldCheck,
+    Search,
+    ExternalLink,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,31 +101,84 @@ export default function SchoolsIndex({ schools, filters }: Props) {
             <Head title="Schools" />
 
             <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center justify-between">
+                {/* Header with inline search */}
+                <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold">Schools</h1>
-                        <p className="text-sm text-muted-foreground">
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Schools
+                        </h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
                             All registered schools on the platform.
                         </p>
                     </div>
+                    <form onSubmit={handleSearch} className="flex gap-2">
+                        <Input
+                            placeholder="Search name or email..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-64"
+                        />
+                        <Button type="submit" variant="outline" size="icon">
+                            <Search className="size-4" />
+                        </Button>
+                    </form>
                 </div>
 
-                {/* Search */}
-                <Card>
-                    <CardContent className="pt-4">
-                        <form onSubmit={handleSearch} className="flex gap-2">
-                            <Input
-                                placeholder="Search by name or email..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="max-w-sm"
-                            />
-                            <Button type="submit" variant="outline" size="icon">
-                                <Search className="size-4" />
+                {/* Plan + Status filters */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {['', 'free', 'basic', 'pro'].map((p) => (
+                        <Button
+                            key={p}
+                            size="sm"
+                            variant={
+                                filters.plan === p ||
+                                (!filters.plan && p === '')
+                                    ? 'default'
+                                    : 'outline'
+                            }
+                            onClick={() =>
+                                router.get(
+                                    '/super-admin/schools',
+                                    { search, plan: p, status: filters.status },
+                                    { preserveState: true },
+                                )
+                            }
+                        >
+                            {p === ''
+                                ? 'All Plans'
+                                : p.charAt(0).toUpperCase() + p.slice(1)}
+                        </Button>
+                    ))}
+                    <div className="ml-4 flex gap-2">
+                        {['', 'active', 'suspended'].map((s) => (
+                            <Button
+                                key={s}
+                                size="sm"
+                                variant={
+                                    filters.status === s ||
+                                    (!filters.status && s === '')
+                                        ? 'default'
+                                        : 'outline'
+                                }
+                                onClick={() =>
+                                    router.get(
+                                        '/super-admin/schools',
+                                        {
+                                            search,
+                                            plan: filters.plan,
+                                            status: s,
+                                        },
+                                        { preserveState: true },
+                                    )
+                                }
+                            >
+                                {s === ''
+                                    ? 'All Status'
+                                    : s.charAt(0).toUpperCase() + s.slice(1)}
                             </Button>
-                        </form>
-                    </CardContent>
-                </Card>
+                        ))}
+                    </div>
+                </div>
 
                 {/* Table */}
                 <Card>
@@ -129,151 +189,202 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="table-sm table w-full">
-                                <thead>
-                                    <tr className="text-muted-foreground">
-                                        <th>School</th>
-                                        <th>Plan</th>
-                                        <th>Status</th>
-                                        <th>Users</th>
-                                        <th>Equipment</th>
-                                        <th>Joined</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {schools.data.length === 0 ? (
-                                        <tr>
-                                            <td
-                                                colSpan={7}
-                                                className="py-8 text-center text-muted-foreground"
-                                            >
-                                                No schools found.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        schools.data.map((school) => (
-                                            <tr
-                                                key={school.id}
-                                                className="hover"
-                                            >
-                                                <td>
-                                                    <div className="font-medium">
-                                                        {school.name}
-                                                    </div>
-                                                    <div className="text-xs text-muted-foreground">
-                                                        {school.email}
-                                                    </div>
-                                                    {school.school_url && (
-                                                        <a
-                                                            href={
-                                                                school.school_url
-                                                            }
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-xs text-primary underline hover:opacity-80"
-                                                        >
-                                                            {school.subdomain}
-                                                            .localhost
-                                                        </a>
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        className={`badge badge-sm capitalize ${planBadge[school.plan]}`}
-                                                    >
-                                                        {school.plan}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        className={`badge badge-sm capitalize ${statusBadge[school.status]}`}
-                                                    >
-                                                        {school.status}
-                                                    </span>
-                                                </td>
-                                                <td>{school.users_count}</td>
-                                                <td>
-                                                    {school.equipment_count}
-                                                </td>
-                                                <td className="text-xs text-muted-foreground">
-                                                    {new Date(
-                                                        school.created_at,
-                                                    ).toLocaleDateString()}
-                                                </td>
-                                                <td>
-                                                    <div className="flex items-center gap-1">
-                                                        <Link
-                                                            href={`/super-admin/schools/${school.id}`}
-                                                        >
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                title="View"
-                                                            >
-                                                                <Eye className="size-4" />
-                                                            </Button>
-                                                        </Link>
-                                                        {school.status ===
-                                                        'active' ? (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                title="Suspend"
-                                                                onClick={() =>
-                                                                    setSuspendTarget(
-                                                                        school,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <ShieldAlert className="size-4 text-destructive" />
-                                                            </Button>
-                                                        ) : (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                title="Reactivate"
-                                                                onClick={() =>
-                                                                    handleReactivate(
-                                                                        school,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <ShieldCheck className="size-4 text-green-500" />
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Pagination */}
-                        {schools.last_page > 1 && (
-                            <div className="mt-4 flex justify-center gap-2">
-                                {schools.prev_page_url && (
-                                    <Link href={schools.prev_page_url}>
-                                        <Button variant="outline" size="sm">
-                                            Previous
-                                        </Button>
-                                    </Link>
-                                )}
-                                <span className="flex items-center text-sm text-muted-foreground">
-                                    Page {schools.current_page} of{' '}
-                                    {schools.last_page}
-                                </span>
-                                {schools.next_page_url && (
-                                    <Link href={schools.next_page_url}>
-                                        <Button variant="outline" size="sm">
-                                            Next
-                                        </Button>
-                                    </Link>
-                                )}
+                        {schools.data.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-center">
+                                <School className="mb-3 size-10 text-muted-foreground/40" />
+                                <p className="font-medium text-muted-foreground">
+                                    No schools found
+                                </p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                    Try adjusting your search or filters.
+                                </p>
                             </div>
+                        ) : (
+                            <>
+                                <div className="overflow-x-auto rounded-md border">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            <tr className="border-b bg-muted/50">
+                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                                    School
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                                    Plan
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                                    Status
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                                    Users
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                                    Equipment
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                                    Joined
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {schools.data.map((school) => (
+                                                <tr
+                                                    key={school.id}
+                                                    className="border-b transition-colors last:border-0 hover:bg-muted/50"
+                                                >
+                                                    <td className="px-4 py-3">
+                                                        <div className="font-medium">
+                                                            {school.name}
+                                                        </div>
+                                                        <div className="text-xs text-muted-foreground">
+                                                            {school.email}
+                                                        </div>
+                                                        {school.school_url && (
+                                                            <a
+                                                                href={
+                                                                    school.school_url
+                                                                }
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="mt-0.5 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                                                            >
+                                                                <ExternalLink className="size-3" />
+                                                                {
+                                                                    school.subdomain
+                                                                }
+                                                                .localhost
+                                                            </a>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span
+                                                            className={`badge badge-sm capitalize ${planBadge[school.plan] ?? 'badge-ghost'}`}
+                                                        >
+                                                            {school.plan}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span
+                                                            className={`badge badge-sm capitalize ${statusBadge[school.status] ?? 'badge-ghost'}`}
+                                                        >
+                                                            {school.status.replace(
+                                                                /_/g,
+                                                                ' ',
+                                                            )}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm">
+                                                        <span className="font-medium">
+                                                            {school.users_count}
+                                                        </span>
+                                                        <span className="ml-1 text-xs text-muted-foreground">
+                                                            users
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm">
+                                                        <span className="font-medium">
+                                                            {
+                                                                school.equipment_count
+                                                            }
+                                                        </span>
+                                                        <span className="ml-1 text-xs text-muted-foreground">
+                                                            items
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                                                        {new Date(
+                                                            school.created_at,
+                                                        ).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-1">
+                                                            <Link
+                                                                href={`/super-admin/schools/${school.id}`}
+                                                            >
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                >
+                                                                    <Eye className="mr-1 size-3.5" />
+                                                                    View
+                                                                </Button>
+                                                            </Link>
+                                                            {school.status ===
+                                                            'active' ? (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="text-destructive hover:text-destructive"
+                                                                    onClick={() =>
+                                                                        setSuspendTarget(
+                                                                            school,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <ShieldAlert className="mr-1 size-3.5" />
+                                                                    Suspend
+                                                                </Button>
+                                                            ) : (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="text-emerald-600 hover:text-emerald-600"
+                                                                    onClick={() =>
+                                                                        handleReactivate(
+                                                                            school,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <ShieldCheck className="mr-1 size-3.5" />
+                                                                    Reactivate
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Pagination */}
+                                {schools.last_page > 1 && (
+                                    <div className="flex items-center justify-between border-t pt-4">
+                                        <p className="text-xs text-muted-foreground">
+                                            Page {schools.current_page} of{' '}
+                                            {schools.last_page}
+                                        </p>
+                                        <div className="flex gap-2">
+                                            {schools.prev_page_url && (
+                                                <Link
+                                                    href={schools.prev_page_url}
+                                                >
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                    >
+                                                        ← Previous
+                                                    </Button>
+                                                </Link>
+                                            )}
+                                            {schools.next_page_url && (
+                                                <Link
+                                                    href={schools.next_page_url}
+                                                >
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                    >
+                                                        Next →
+                                                    </Button>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </CardContent>
                 </Card>
