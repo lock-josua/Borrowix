@@ -28,14 +28,21 @@ import {
 import type { BreadcrumbItem } from '@/types';
 import type { PropsWithChildren } from 'react';
 
-const navItems = [
-    { title: 'Dashboard',    href: '/admin/dashboard',    icon: LayoutDashboard },
-    { title: 'Equipment',    href: '/admin/equipment',    icon: Package },
-    { title: 'Categories',   href: '/admin/categories',   icon: Tag },
-    { title: 'Requests',     href: '/admin/requests',     icon: ClipboardList },
-    { title: 'Transactions', href: '/admin/transactions', icon: ArrowLeftRight },
-    { title: 'Users',        href: '/admin/users',        icon: Users },
-    { title: 'Reports',      href: '/admin/reports',      icon: BarChart3 },
+const operationsNav = [
+    { title: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { title: 'Equipment', href: '/admin/equipment', icon: Package },
+    { title: 'Categories', href: '/admin/categories', icon: Tag },
+    { title: 'Requests', href: '/admin/requests', icon: ClipboardList },
+    {
+        title: 'Transactions',
+        href: '/admin/transactions',
+        icon: ArrowLeftRight,
+    },
+    { title: 'Users', href: '/admin/users', icon: Users },
+];
+
+const insightsNav = [
+    { title: 'Reports', href: '/admin/reports', icon: BarChart3 },
     { title: 'Subscription', href: '/admin/subscription', icon: CreditCard },
 ];
 
@@ -58,8 +65,12 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
                                         <LayoutDashboard className="size-5" />
                                     </div>
                                     <div className="ml-1 grid flex-1 text-left text-sm">
-                                        <span className="truncate font-semibold leading-tight">Borrowix</span>
-                                        <span className="truncate text-xs text-muted-foreground">School Admin</span>
+                                        <span className="truncate leading-tight font-semibold">
+                                            Borrowix
+                                        </span>
+                                        <span className="badge badge-xs badge-outline truncate">
+                                            Admin
+                                        </span>
                                     </div>
                                 </Link>
                             </SidebarMenuButton>
@@ -69,9 +80,29 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
 
                 <SidebarContent>
                     <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel>Management</SidebarGroupLabel>
+                        <SidebarGroupLabel>Operations</SidebarGroupLabel>
                         <SidebarMenu>
-                            {navItems.map((item) => (
+                            {operationsNav.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={isCurrentUrl(item.href)}
+                                        tooltip={{ children: item.title }}
+                                    >
+                                        <Link href={item.href}>
+                                            <item.icon className="size-4" />
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroup>
+
+                    <SidebarGroup className="px-2 py-0">
+                        <SidebarGroupLabel>Insights</SidebarGroupLabel>
+                        <SidebarMenu>
+                            {insightsNav.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton
                                         asChild
