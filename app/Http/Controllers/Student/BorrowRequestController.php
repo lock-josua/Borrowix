@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Http\Controllers\Controller;
 use App\Enums\BorrowRequestStatus;
 use App\Enums\EquipmentStatus;
+use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\Equipment;
 use Illuminate\Http\RedirectResponse;
@@ -28,15 +28,16 @@ class BorrowRequestController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $equipment = Equipment::where('status', EquipmentStatus::Available)
             ->where('available_quantity', '>', 0)
             ->with('category')
-            ->get(['id', 'name', 'brand', 'model', 'available_quantity', 'category_id']);
+            ->get(['id', 'name', 'brand', 'model', 'available_quantity', 'category_id', 'image', 'description']);
 
         return Inertia::render('student/borrow-requests/create', [
             'equipment' => $equipment,
+            'preselectedEquipmentId' => $request->query('equipment_id'),
         ]);
     }
 

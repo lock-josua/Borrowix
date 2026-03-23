@@ -31,4 +31,8 @@ Route::prefix('student')
             ->name('history.index');
         Route::get('/history/{borrowTransaction}', [BorrowHistoryController::class, 'show'])
             ->name('history.show');
+
+        // Equipment Browse — discover available equipment
+        Route::get('/browse', [\App\Http\Controllers\Student\BrowseController::class, 'index'])
+            ->name('browse');
     });
