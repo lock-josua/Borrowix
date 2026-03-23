@@ -19,19 +19,19 @@ Route::prefix('super-admin')
         // Schools — read only + manual override actions
         Route::get('/schools', [SchoolController::class, 'index'])
             ->name('schools.index');
-        Route::get('/schools/{school}', [SchoolController::class, 'show'])
+        Route::get('/schools/{tenant}', [SchoolController::class, 'show'])
             ->name('schools.show');
-        Route::post('/schools/{school}/suspend', [SchoolController::class, 'suspend'])
+        Route::post('/schools/{tenant}/suspend', [SchoolController::class, 'suspend'])
             ->name('schools.suspend');
-        Route::post('/schools/{school}/reactivate', [SchoolController::class, 'reactivate'])
+        Route::post('/schools/{tenant}/reactivate', [SchoolController::class, 'reactivate'])
             ->name('schools.reactivate');
-        Route::post('/schools/{school}/impersonate', [SchoolController::class, 'impersonate'])
+        Route::post('/schools/{tenant}/impersonate', [SchoolController::class, 'impersonate'])
             ->name('schools.impersonate');
 
         // Subscriptions — read only
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])
             ->name('subscriptions.index');
-        Route::get('/subscriptions/{school}', [SubscriptionController::class, 'show'])
+        Route::get('/subscriptions/{tenant}', [SubscriptionController::class, 'show'])
             ->name('subscriptions.show');
 
         // Promo Codes — full CRUD
