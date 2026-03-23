@@ -45,6 +45,7 @@ Route::middleware([
     'web',
     RefreshUrlGeneratorForTenant::class,
     PreventAccessFromCentralDomains::class,
+    'school.active',
     // InitializeTenancyBySubdomain removed — now runs globally in
     // bootstrap/app.php via prepend() so it fires before StartSession
 ])->group(function () {

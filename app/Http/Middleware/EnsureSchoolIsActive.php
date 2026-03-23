@@ -5,42 +5,73 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureSchoolIsActive
 {
     /**
-     * Check if the current tenant's school is active.
+     * Routes that are always allowed even when the school is suspended.
      *
-     * Uses tenant() helper from the tenancy package to get the current Tenant model.
-     * The status is stored in the `data` JSON column on the Tenant model.
+     * Auth routes MUST be excluded. Without this, the middleware fires on
+     * /login itself, logs the user out, then redirects to /login, which
+     * fires the middleware again — creating an infinite redirect loop.
      *
-     * This middleware should only be applied to tenant routes (inside routes/Admin.php etc.).
-     * Super admin routes on the central domain will have tenant() return null, which
-     * means they always pass through.
+     * logout is allowed so suspended users can explicitly log out.
+     * password.* routes allow password reset emails to still work.
+     * two-factor.login routes are part of the login flow for 2FA users.
      */
+    private const ALLOWED_ROUTES = [
+        'login',
+        'logout',
+        'password.request',
+        'password.email',
+        'password.reset',
+        'password.update',
+        'verification.notice',
+        'verification.verify',
+        'verification.send',
+        'two-factor.login',
+        'two-factor.login.store',
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         $tenant = tenant();
 
-        // No tenant context means this is a central domain request (super_admin) — allow
+        // No tenant context = central domain request (super_admin) — always allow
         if (! $tenant) {
             return $next($request);
         }
 
-        // Read status from the data JSON column.
-        // tenant()->status works because the Tenant model's data column
-        // is automatically decoded — attributes are accessible as properties.
-        $status = $tenant->status ?? 'active';
-
-        if ($status === 'suspended') {
-            Auth::logout();
-
-            return redirect()->route('login')->withErrors([
-                'email' => 'Your school account has been suspended. Please contact support.',
-            ]);
+        // Always allow auth routes to prevent infinite redirect loop.
+        // If suspended users hit /login, they see the login page.
+        // If they try to log in, the middleware fires AFTER auth — they
+        // get redirected to the suspended page immediately.
+        if ($request->routeIs(...self::ALLOWED_ROUTES)) {
+            return $next($request);
         }
 
-        return $next($request);
+        $status = $tenant->status ?? 'active';
+
+        if ($status !== 'suspended') {
+            return $next($request);
+        }
+
+        // School is suspended — log out any active session and show
+        // the branded suspended page instead of a generic error.
+        if (Auth::check()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        // Return the Inertia suspended page with the suspension reason
+        // so users understand why they are locked out.
+        return Inertia::render('suspended', [
+            'schoolName' => $tenant->school_name ?? $tenant->id,
+            'suspensionReason' => $tenant->suspension_reason ?? null,
+            'contactEmail' => $tenant->school_email,
+        ])->toResponse($request)->setStatusCode(403);
     }
 }

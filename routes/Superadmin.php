@@ -25,8 +25,6 @@ Route::prefix('super-admin')
             ->name('schools.suspend');
         Route::post('/schools/{tenant}/reactivate', [SchoolController::class, 'reactivate'])
             ->name('schools.reactivate');
-        Route::post('/schools/{tenant}/impersonate', [SchoolController::class, 'impersonate'])
-            ->name('schools.impersonate');
 
         // Subscriptions — read only
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])

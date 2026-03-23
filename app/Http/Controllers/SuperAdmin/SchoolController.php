@@ -5,10 +5,10 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
 use App\Models\Tenant;
-use App\Models\User;
+use App\Services\SystemLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -96,6 +96,21 @@ class SchoolController extends Controller
             'suspension_reason' => $request->reason,
         ]);
 
+        // Immediately invalidate all active sessions in the tenant's database.
+        // This kicks out currently logged-in users (admin, staff, students)
+        // instantly rather than waiting for their session to expire (120 min).
+        $tenant->run(function () {
+            DB::table('sessions')->truncate();
+        });
+
+        $schoolName = $tenant->school_name ?? $tenant->id;
+        SystemLogService::log(
+            'school_suspended',
+            "School suspended: {$schoolName}. Reason: {$request->reason}",
+            $tenant->id,
+            'super_admin'
+        );
+
         return redirect()
             ->route('super-admin.schools.show', $tenant)
             ->with('success', 'School suspended.');
@@ -108,25 +123,16 @@ class SchoolController extends Controller
             'suspension_reason' => null,
         ]);
 
+        $schoolName = $tenant->school_name ?? $tenant->id;
+        SystemLogService::log(
+            'school_reactivated',
+            "School reactivated: {$schoolName}",
+            $tenant->id,
+            'super_admin'
+        );
+
         return redirect()
             ->route('super-admin.schools.show', $tenant)
             ->with('success', 'School reactivated.');
-    }
-
-    public function impersonate(Tenant $tenant): RedirectResponse
-    {
-        // Use $tenant->run() to query the tenant's database for the admin user
-        $admin = null;
-        $tenant->run(function () use (&$admin) {
-            $admin = User::where('role', 'admin')->firstOrFail();
-        });
-
-        session(['impersonating_from' => Auth::id()]);
-        Auth::login($admin);
-
-        $subdomain = $tenant->domains()->first()?->domain;
-        $centralDomain = config('tenancy.central_domains')[0];
-
-        return redirect("http://{$subdomain}.{$centralDomain}/admin/dashboard");
     }
 }
