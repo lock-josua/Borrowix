@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, ShieldAlert, ShieldCheck, UserCog } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
@@ -58,10 +58,6 @@ export default function SchoolShow({ school, subscription }: Props) {
         router.post(`/super-admin/schools/${school.id}/reactivate`);
     }
 
-    function handleImpersonate() {
-        router.post(`/super-admin/schools/${school.id}/impersonate`);
-    }
-
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title={school.name} />
@@ -95,10 +91,6 @@ export default function SchoolShow({ school, subscription }: Props) {
                         </span>
                     </div>
                     <div className="flex gap-2">
-                        <Button variant="outline" onClick={handleImpersonate}>
-                            <UserCog className="mr-2 size-4" />
-                            Impersonate
-                        </Button>
                         {school.status === 'suspended' ? (
                             <Button
                                 variant="default"

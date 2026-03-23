@@ -8,7 +8,6 @@ import {
     CreditCard,
     Sparkles,
     UserCheck,
-    LogIn,
     Tag,
     XCircle,
     AlertTriangle,
@@ -138,10 +137,6 @@ function EventIcon({ type }: { type: string }) {
         subscription_canceled: {
             icon: <XCircle className="size-3.5" />,
             color: 'bg-red-500/15 text-red-500',
-        },
-        impersonation: {
-            icon: <LogIn className="size-3.5" />,
-            color: 'bg-purple-500/15 text-purple-500',
         },
         promo_created: {
             icon: <Tag className="size-3.5" />,
@@ -474,9 +469,8 @@ export default function SuperAdminDashboard({
                                         No activity yet.
                                     </p>
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                        Events like school registrations,
-                                        suspensions, and impersonations will
-                                        appear here.
+                                        Events like school registrations and
+                                        suspensions will appear here.
                                     </p>
                                 </div>
                             ) : (

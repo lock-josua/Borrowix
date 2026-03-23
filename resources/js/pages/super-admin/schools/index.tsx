@@ -92,10 +92,6 @@ export default function SchoolsIndex({ schools, filters }: Props) {
         router.post(`/super-admin/schools/${school.id}/reactivate`);
     }
 
-    function handleImpersonate(school: School) {
-        router.post(`/super-admin/schools/${school.id}/impersonate`);
-    }
-
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Schools" />
