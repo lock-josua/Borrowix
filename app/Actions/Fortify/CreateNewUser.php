@@ -6,6 +6,7 @@ use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\SystemLogService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -52,6 +53,14 @@ class CreateNewUser implements CreatesNewUsers
         $tenant->domains()->create([
             'domain' => $slug,
         ]);
+
+        $schoolName = $tenant->school_name ?? $slug;
+        SystemLogService::log(
+            'school_registered',
+            "New school registered: {$schoolName}",
+            $tenant->id,
+            'system'
+        );
 
         // Step 3: Run code inside the tenant's new database.
         // $tenant->run() switches to tenant_demo-school, runs the callback,
