@@ -6,8 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
-import { login } from '@/routes';
-import { store } from '@/routes/register';
 
 export default function Register() {
     return (
@@ -17,7 +15,8 @@ export default function Register() {
         >
             <Head title="Register" />
             <Form
-                {...store.form()}
+                action="/register"
+                method="post"
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 className="flex flex-col gap-6"
@@ -44,7 +43,9 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="admin_name">Admin Full Name</Label>
+                                <Label htmlFor="admin_name">
+                                    Admin Full Name
+                                </Label>
                                 <Input
                                     id="admin_name"
                                     type="text"
@@ -61,7 +62,9 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Admin Email Address</Label>
+                                <Label htmlFor="email">
+                                    Admin Email Address
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -119,7 +122,7 @@ export default function Register() {
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={7}>
+                            <TextLink href="/login" tabIndex={7}>
                                 Log in
                             </TextLink>
                         </div>
