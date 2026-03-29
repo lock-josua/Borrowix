@@ -18,6 +18,8 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -77,6 +79,8 @@ export default function SchoolShow({ school, subscription }: Props) {
     const [showCredentials, setShowCredentials] = useState(false);
     const [credentials, setCredentials] = useState<Credentials | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
+    const [showSuspend, setShowSuspend] = useState(false);
+    const [suspendReason, setSuspendReason] = useState('');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/super-admin/dashboard' },
@@ -97,6 +101,19 @@ export default function SchoolShow({ school, subscription }: Props) {
 
     function handleResendCredentials() {
         router.post(`/super-admin/schools/${school.id}/resend-credentials`);
+    }
+
+    function handleSuspend() {
+        router.post(
+            `/super-admin/schools/${school.id}/suspend`,
+            { reason: suspendReason },
+            {
+                onSuccess: () => {
+                    setShowSuspend(false);
+                    setSuspendReason('');
+                },
+            },
+        );
     }
 
     function handleCopy(value: string, key: string) {
@@ -160,12 +177,13 @@ export default function SchoolShow({ school, subscription }: Props) {
                                 Reactivate
                             </Button>
                         ) : (
-                            <Link href={`/super-admin/schools/${school.id}`}>
-                                <Button variant="destructive">
-                                    <ShieldAlert className="mr-2 size-4" />
-                                    Suspend
-                                </Button>
-                            </Link>
+                            <Button
+                                variant="destructive"
+                                onClick={() => setShowSuspend(true)}
+                            >
+                                <ShieldAlert className="mr-2 size-4" />
+                                Suspend
+                            </Button>
                         )}
                     </div>
                 </div>
@@ -360,6 +378,52 @@ export default function SchoolShow({ school, subscription }: Props) {
                     <DialogFooter>
                         <Button onClick={() => setShowCredentials(false)}>
                             Done
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Suspend Dialog */}
+            <Dialog
+                open={showSuspend}
+                onOpenChange={(open) => {
+                    setShowSuspend(open);
+                    if (!open) setSuspendReason('');
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Suspend School</DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                        This will immediately log out all users at{' '}
+                        <strong>{school.name}</strong> and block access to their
+                        portal.
+                    </p>
+                    <div className="space-y-1">
+                        <Label>
+                            Reason <span className="text-destructive">*</span>
+                        </Label>
+                        <Textarea
+                            placeholder="e.g. Non-payment of subscription"
+                            value={suspendReason}
+                            onChange={(e) => setSuspendReason(e.target.value)}
+                            rows={3}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowSuspend(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleSuspend}
+                            disabled={!suspendReason.trim()}
+                        >
+                            Confirm Suspend
                         </Button>
                     </DialogFooter>
                 </DialogContent>
