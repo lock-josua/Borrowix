@@ -22,14 +22,14 @@ class SchoolSeeder extends Seeder
         $tenant = Tenant::firstOrCreate(
             ['id' => 'demo-school'],
             [
-                'school_email'   => 'admin@demoschool.com',
-                'admin_email'    => 'admin@demoschool.com',
+                'school_email' => 'admin@demoschool.com',
+                'admin_email' => 'admin@demoschool.com',
                 'contact_number' => '09123456789',
                 // These go into the data JSON column:
-                'school_name'    => 'Demo School',
-                'plan'           => 'free',
-                'status'         => 'active',
-                'address'        => '123 Main Street, Cagayan de Oro City',
+                'school_name' => 'Demo School',
+                'plan' => 'free',
+                'status' => 'active',
+                'address' => '123 Main Street, Cagayan de Oro City',
             ]
         );
 
@@ -39,7 +39,7 @@ class SchoolSeeder extends Seeder
         // Create the tenant database if it doesn't exist
         if (! $tenant->database()->manager()->databaseExists($tenant->database()->getName())) {
             $tenant->database()->manager()->createDatabase($tenant);
-            $this->command->info('Created tenant database: ' . $tenant->database()->getName());
+            $this->command->info('Created tenant database: '.$tenant->database()->getName());
         }
 
         // Run tenant migrations
@@ -51,9 +51,9 @@ class SchoolSeeder extends Seeder
             User::updateOrCreate(
                 ['email' => 'admin@demoschool.com'],
                 [
-                    'name'              => 'School Admin',
-                    'password'          => Hash::make('admin123'),
-                    'role'              => 'admin',
+                    'name' => 'School Admin',
+                    'password' => Hash::make('admin123'),
+                    'role' => 'admin',
                     'email_verified_at' => now(),
                 ]
             );

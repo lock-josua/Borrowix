@@ -22,6 +22,7 @@ class EquipmentSeeder extends Seeder
 
         if (! $tenant) {
             $this->command->error('Run SchoolSeeder first: php artisan db:seed --class=SchoolSeeder');
+
             return;
         }
 
@@ -31,9 +32,9 @@ class EquipmentSeeder extends Seeder
             User::updateOrCreate(
                 ['email' => 'staff@demoschool.com'],
                 [
-                    'name'              => 'Demo Staff',
-                    'password'          => Hash::make('staff123'),
-                    'role'              => 'staff',
+                    'name' => 'Demo Staff',
+                    'password' => Hash::make('staff123'),
+                    'role' => 'staff',
                     'email_verified_at' => now(),
                 ]
             );
@@ -47,9 +48,9 @@ class EquipmentSeeder extends Seeder
                 User::updateOrCreate(
                     ['email' => $student['email']],
                     [
-                        'name'              => $student['name'],
-                        'password'          => Hash::make('student123'),
-                        'role'              => 'student',
+                        'name' => $student['name'],
+                        'password' => Hash::make('student123'),
+                        'role' => 'student',
                         'email_verified_at' => now(),
                     ]
                 );
@@ -64,58 +65,58 @@ class EquipmentSeeder extends Seeder
             // Seed equipment
             $items = [
                 [
-                    'name'     => 'Dell Latitude 5520',
-                    'cat'      => 'Laptops',
-                    'brand'    => 'Dell',
-                    'model'    => 'Latitude 5520',
-                    'sn'       => 'DL-5520-001',
-                    'qty'      => 5,
-                    'desc'     => '15.6" laptop, Intel i5, 8GB RAM, 256GB SSD',
+                    'name' => 'Dell Latitude 5520',
+                    'cat' => 'Laptops',
+                    'brand' => 'Dell',
+                    'model' => 'Latitude 5520',
+                    'sn' => 'DL-5520-001',
+                    'qty' => 5,
+                    'desc' => '15.6" laptop, Intel i5, 8GB RAM, 256GB SSD',
                 ],
                 [
-                    'name'     => 'Lenovo ThinkPad E14',
-                    'cat'      => 'Laptops',
-                    'brand'    => 'Lenovo',
-                    'model'    => 'ThinkPad E14',
-                    'sn'       => 'LN-E14-001',
-                    'qty'      => 3,
-                    'desc'     => '14" laptop, Intel i5, 8GB RAM, 512GB SSD',
+                    'name' => 'Lenovo ThinkPad E14',
+                    'cat' => 'Laptops',
+                    'brand' => 'Lenovo',
+                    'model' => 'ThinkPad E14',
+                    'sn' => 'LN-E14-001',
+                    'qty' => 3,
+                    'desc' => '14" laptop, Intel i5, 8GB RAM, 512GB SSD',
                 ],
                 [
-                    'name'     => 'iPad 10th Generation',
-                    'cat'      => 'Tablets',
-                    'brand'    => 'Apple',
-                    'model'    => 'iPad 10th Gen',
-                    'sn'       => 'AP-IPAD-001',
-                    'qty'      => 10,
-                    'desc'     => '10.9" iPad with Wi-Fi, 64GB',
+                    'name' => 'iPad 10th Generation',
+                    'cat' => 'Tablets',
+                    'brand' => 'Apple',
+                    'model' => 'iPad 10th Gen',
+                    'sn' => 'AP-IPAD-001',
+                    'qty' => 10,
+                    'desc' => '10.9" iPad with Wi-Fi, 64GB',
                 ],
                 [
-                    'name'     => 'Epson EB-X51 Projector',
-                    'cat'      => 'Projectors',
-                    'brand'    => 'Epson',
-                    'model'    => 'EB-X51',
-                    'sn'       => 'EP-X51-001',
-                    'qty'      => 4,
-                    'desc'     => '3800 lumens XGA projector',
+                    'name' => 'Epson EB-X51 Projector',
+                    'cat' => 'Projectors',
+                    'brand' => 'Epson',
+                    'model' => 'EB-X51',
+                    'sn' => 'EP-X51-001',
+                    'qty' => 4,
+                    'desc' => '3800 lumens XGA projector',
                 ],
                 [
-                    'name'     => 'Canon EOS M50 Camera',
-                    'cat'      => 'Cameras',
-                    'brand'    => 'Canon',
-                    'model'    => 'EOS M50',
-                    'sn'       => 'CN-M50-001',
-                    'qty'      => 2,
-                    'desc'     => 'Mirrorless camera with 18-150mm lens kit',
+                    'name' => 'Canon EOS M50 Camera',
+                    'cat' => 'Cameras',
+                    'brand' => 'Canon',
+                    'model' => 'EOS M50',
+                    'sn' => 'CN-M50-001',
+                    'qty' => 2,
+                    'desc' => 'Mirrorless camera with 18-150mm lens kit',
                 ],
                 [
-                    'name'     => 'Sony WH-1000XM5 Headphones',
-                    'cat'      => 'Audio Equipment',
-                    'brand'    => 'Sony',
-                    'model'    => 'WH-1000XM5',
-                    'sn'       => 'SN-XM5-001',
-                    'qty'      => 6,
-                    'desc'     => 'Noise-cancelling wireless headphones',
+                    'name' => 'Sony WH-1000XM5 Headphones',
+                    'cat' => 'Audio Equipment',
+                    'brand' => 'Sony',
+                    'model' => 'WH-1000XM5',
+                    'sn' => 'SN-XM5-001',
+                    'qty' => 6,
+                    'desc' => 'Noise-cancelling wireless headphones',
                 ],
             ];
 
@@ -123,14 +124,14 @@ class EquipmentSeeder extends Seeder
                 Equipment::updateOrCreate(
                     ['serial_number' => $item['sn']],
                     [
-                        'category_id'        => $categories[$item['cat']]->id,
-                        'name'               => $item['name'],
-                        'brand'              => $item['brand'],
-                        'model'              => $item['model'],
-                        'quantity'           => $item['qty'],
+                        'category_id' => $categories[$item['cat']]->id,
+                        'name' => $item['name'],
+                        'brand' => $item['brand'],
+                        'model' => $item['model'],
+                        'quantity' => $item['qty'],
                         'available_quantity' => $item['qty'],
-                        'status'             => 'available',
-                        'description'        => $item['desc'],
+                        'status' => 'available',
+                        'description' => $item['desc'],
                     ]
                 );
             }

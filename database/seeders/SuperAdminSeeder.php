@@ -17,9 +17,9 @@ class SuperAdminSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'superadmin@gmail.com'],
             [
-                'name'              => 'Super Admin',
-                'password'          => Hash::make('superadmin123'),
-                'role'              => 'super_admin',
+                'name' => 'Super Admin',
+                'password' => Hash::make('superadmin123'),
+                'role' => 'super_admin',
                 // school_id REMOVED — super_admin has no school
                 'email_verified_at' => now(),
             ]
