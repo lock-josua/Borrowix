@@ -80,7 +80,7 @@ class SubscriptionController extends Controller
 
         SystemLogService::log(
             'subscription_updated',
-            "Subscription updated for {$tenant->school_name}: plan={$validated['plan']}, status={$validated['status']}",
+            "Subscription for {$tenant->school_name} set to ".ucfirst($validated['plan']).' ('.ucfirst($validated['status']).', '.ucfirst($validated['billing_cycle']).')',
             $tenant->id,
             'super_admin'
         );
