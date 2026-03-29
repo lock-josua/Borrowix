@@ -17,5 +17,4 @@ class RoleRedirectController extends Controller
             default => redirect('/login'),
         };
     }
-
 }
