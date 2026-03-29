@@ -4,6 +4,7 @@ import {
     ArrowLeft,
     Check,
     Copy,
+    Pencil,
     RefreshCw,
     ShieldAlert,
     ShieldCheck,
@@ -137,6 +138,12 @@ export default function SchoolShow({ school, subscription }: Props) {
                         </span>
                     </div>
                     <div className="flex gap-2">
+                        <Link href={`/super-admin/schools/${school.id}/edit`}>
+                            <Button variant="outline">
+                                <Pencil className="mr-2 size-4" />
+                                Edit
+                            </Button>
+                        </Link>
                         <Button
                             variant="outline"
                             onClick={handleResendCredentials}
