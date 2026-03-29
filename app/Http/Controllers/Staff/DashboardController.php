@@ -14,8 +14,8 @@ class DashboardController extends Controller
     {
         $stats = [
             'available_equipment' => Equipment::where('status', 'available')->count(),
-            'active_loans'        => BorrowTransaction::where('status', 'active')->count(),
-            'overdue_loans'       => BorrowTransaction::where('status', 'overdue')->count(),
+            'active_loans' => BorrowTransaction::where('status', 'active')->count(),
+            'overdue_loans' => BorrowTransaction::where('status', 'overdue')->count(),
         ];
 
         $urgentTransactions = BorrowTransaction::with(['borrower', 'equipment'])
@@ -26,7 +26,7 @@ class DashboardController extends Controller
             ->get();
 
         return Inertia::render('staff/dashboard', [
-            'stats'              => $stats,
+            'stats' => $stats,
             'urgentTransactions' => $urgentTransactions,
         ]);
     }

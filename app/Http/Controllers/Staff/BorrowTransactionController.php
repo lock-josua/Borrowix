@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Staff;
 
-use App\Http\Controllers\Controller;
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Staff;
 
-use App\Http\Controllers\Controller;
 use App\Enums\EquipmentStatus;
+use App\Http\Controllers\Controller;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
