@@ -474,7 +474,7 @@ export default function SuperAdminDashboard({
                                     </p>
                                 </div>
                             ) : (
-                                <div className="max-h-[30rem] divide-y overflow-y-auto">
+                                <div className="max-h-[25rem] divide-y overflow-y-auto">
                                     {activityLog.map((log) => (
                                         <div
                                             key={log.id}
