@@ -5,6 +5,8 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Mail\SchoolCreatedMail;
 use App\Mail\SchoolProfileUpdatedMail;
+use App\Mail\SchoolReactivatedMail;
+use App\Mail\SchoolSuspendedMail;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
@@ -300,6 +302,12 @@ class SchoolController extends Controller
             'super_admin'
         );
 
+        Mail::to($tenant->school_email)->send(new SchoolSuspendedMail(
+            schoolName: $tenant->school_name ?? $tenant->id,
+            reason: $request->reason,
+            adminEmail: $tenant->school_email,
+        ));
+
         return redirect()
             ->route('super-admin.schools.show', $tenant)
             ->with('success', 'School suspended.');
@@ -307,6 +315,8 @@ class SchoolController extends Controller
 
     public function reactivate(Tenant $tenant): RedirectResponse
     {
+        $tenant->load('domains');
+
         $tenant->update([
             'status' => 'active',
             'suspension_reason' => null,
@@ -319,6 +329,15 @@ class SchoolController extends Controller
             $tenant->id,
             'super_admin'
         );
+
+        $subdomain = $tenant->domains->first()?->domain;
+        $centralDomain = config('tenancy.central_domains')[0];
+        $loginUrl = "http://{$subdomain}.{$centralDomain}:8000/login";
+
+        Mail::to($tenant->school_email)->send(new SchoolReactivatedMail(
+            schoolName: $tenant->school_name ?? $tenant->id,
+            loginUrl: $loginUrl,
+        ));
 
         return redirect()
             ->route('super-admin.schools.show', $tenant)

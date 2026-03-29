@@ -67,6 +67,8 @@ class SubscriptionController extends Controller
             'billing_cycle' => ['required', 'in:'.implode(',', Subscription::BILLING_CYCLES)],
         ]);
 
+        $currentPlan = $tenant->plan ?? 'free';
+
         Subscription::updateOrCreate(
             ['tenant_id' => $tenant->id],
             [
@@ -84,6 +86,13 @@ class SubscriptionController extends Controller
             $tenant->id,
             'super_admin'
         );
+
+        Mail::to($tenant->school_email)->send(new PlanChangedMail(
+            schoolName: $tenant->school_name ?? $tenant->id,
+            oldPlan: $currentPlan,
+            newPlan: $validated['plan'],
+            adminEmail: $tenant->school_email,
+        ));
 
         return redirect()
             ->route('super-admin.subscriptions.show', $tenant)
