@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Stancl\Tenancy\Middleware\InitializeTenancyBySubdomain;
-use Symfony\Component\HttpFoundation\Response;
 
 class InitializeTenancyBySubdomainOrSkip extends InitializeTenancyBySubdomain
 {
