@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SchoolCreatedMail;
+use App\Mail\SchoolProfileUpdatedMail;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
@@ -254,6 +255,13 @@ class SchoolController extends Controller
             'contact_number' => $validated['contact_number'],
             'address' => $validated['address'],
         ]);
+
+        Mail::to($tenant->school_email)->send(new SchoolProfileUpdatedMail(
+            schoolName: $validated['name'],
+            adminEmail: $validated['email'],
+            contactNumber: $validated['contact_number'] ?? '',
+            address: $validated['address'] ?? '',
+        ));
 
         SystemLogService::log(
             'school_updated',
