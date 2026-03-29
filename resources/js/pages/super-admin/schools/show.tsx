@@ -1,7 +1,22 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import {
+    ArrowLeft,
+    Check,
+    Copy,
+    RefreshCw,
+    ShieldAlert,
+    ShieldCheck,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -21,6 +36,13 @@ interface School {
     equipment_count: number;
     borrow_requests_count: number;
     borrow_transactions_count: number;
+}
+
+interface Credentials {
+    admin_email: string;
+    subdomain_url: string;
+    login_url: string;
+    reset_link: string;
 }
 
 interface Props {
@@ -48,14 +70,38 @@ const planBadge: Record<string, string> = {
 };
 
 export default function SchoolShow({ school, subscription }: Props) {
+    const { flash } = usePage().props as {
+        flash?: { credentials?: Credentials };
+    };
+    const [showCredentials, setShowCredentials] = useState(false);
+    const [credentials, setCredentials] = useState<Credentials | null>(null);
+    const [copied, setCopied] = useState<string | null>(null);
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/super-admin/dashboard' },
         { title: 'Schools', href: '/super-admin/schools' },
         { title: school.name, href: `/super-admin/schools/${school.id}` },
     ];
 
+    useEffect(() => {
+        if (flash?.credentials) {
+            setCredentials(flash.credentials);
+            setShowCredentials(true);
+        }
+    }, [flash]);
+
     function handleReactivate() {
         router.post(`/super-admin/schools/${school.id}/reactivate`);
+    }
+
+    function handleResendCredentials() {
+        router.post(`/super-admin/schools/${school.id}/resend-credentials`);
+    }
+
+    function handleCopy(value: string, key: string) {
+        navigator.clipboard.writeText(value);
+        setCopied(key);
+        setTimeout(() => setCopied(null), 2000);
     }
 
     return (
@@ -91,6 +137,13 @@ export default function SchoolShow({ school, subscription }: Props) {
                         </span>
                     </div>
                     <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={handleResendCredentials}
+                        >
+                            <RefreshCw className="mr-2 size-4" />
+                            Resend Credentials
+                        </Button>
                         {school.status === 'suspended' ? (
                             <Button
                                 variant="default"
@@ -241,7 +294,110 @@ export default function SchoolShow({ school, subscription }: Props) {
                     </Card>
                 </div>
             </div>
+
+            {/* Credentials Dialog */}
+            <Dialog
+                open={showCredentials}
+                onOpenChange={(open) => {
+                    setShowCredentials(open);
+                    if (!open) setCredentials(null);
+                }}
+            >
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>School Credentials</DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                        Share these credentials with the school.
+                    </p>
+                    {credentials && (
+                        <div className="space-y-3">
+                            <CredentialField
+                                label="Admin Email"
+                                value={credentials.admin_email}
+                                copied={copied === 'email'}
+                                onCopy={() =>
+                                    handleCopy(credentials.admin_email, 'email')
+                                }
+                            />
+                            <CredentialField
+                                label="School URL"
+                                value={credentials.subdomain_url}
+                                copied={copied === 'subdomain'}
+                                onCopy={() =>
+                                    handleCopy(
+                                        credentials.subdomain_url,
+                                        'subdomain',
+                                    )
+                                }
+                            />
+                            <CredentialField
+                                label="Login URL"
+                                value={credentials.login_url}
+                                copied={copied === 'login'}
+                                onCopy={() =>
+                                    handleCopy(credentials.login_url, 'login')
+                                }
+                            />
+                            <CredentialField
+                                label="Password Setup Link"
+                                value={credentials.reset_link}
+                                copied={copied === 'reset'}
+                                onCopy={() =>
+                                    handleCopy(credentials.reset_link, 'reset')
+                                }
+                                note="Link expires in 60 minutes."
+                            />
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button onClick={() => setShowCredentials(false)}>
+                            Done
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </SuperAdminLayout>
+    );
+}
+
+function CredentialField({
+    label,
+    value,
+    copied,
+    onCopy,
+    note,
+}: {
+    label: string;
+    value: string;
+    copied: boolean;
+    onCopy: () => void;
+    note?: string;
+}) {
+    return (
+        <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground">
+                {label}
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="flex-1 rounded-md border bg-muted/50 px-3 py-2 font-mono text-xs break-all">
+                    {value}
+                </div>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                    onClick={onCopy}
+                >
+                    {copied ? (
+                        <Check className="size-3.5 text-emerald-600" />
+                    ) : (
+                        <Copy className="size-3.5" />
+                    )}
+                </Button>
+            </div>
+            {note && <p className="text-xs text-muted-foreground">{note}</p>}
+        </div>
     );
 }
 

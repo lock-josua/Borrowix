@@ -1,12 +1,15 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import {
+    Copy,
     Eye,
+    Plus,
     School,
     ShieldAlert,
     ShieldCheck,
     Search,
     ExternalLink,
+    Check,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +50,13 @@ interface PaginatedSchools {
     prev_page_url: string | null;
 }
 
+interface Credentials {
+    admin_email: string;
+    subdomain_url: string;
+    login_url: string;
+    reset_link: string;
+}
+
 interface Props {
     schools: PaginatedSchools;
     filters: { search?: string; plan?: string; status?: string };
@@ -65,9 +75,22 @@ const statusBadge: Record<string, string> = {
 };
 
 export default function SchoolsIndex({ schools, filters }: Props) {
+    const { flash } = usePage().props as {
+        flash?: { credentials?: Credentials };
+    };
     const [search, setSearch] = useState(filters.search ?? '');
     const [suspendTarget, setSuspendTarget] = useState<School | null>(null);
     const [reason, setReason] = useState('');
+    const [showCredentials, setShowCredentials] = useState(false);
+    const [credentials, setCredentials] = useState<Credentials | null>(null);
+    const [copied, setCopied] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (flash?.credentials) {
+            setCredentials(flash.credentials);
+            setShowCredentials(true);
+        }
+    }, [flash]);
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
@@ -92,6 +115,12 @@ export default function SchoolsIndex({ schools, filters }: Props) {
         router.post(`/super-admin/schools/${school.id}/reactivate`);
     }
 
+    function handleCopy(value: string, key: string) {
+        navigator.clipboard.writeText(value);
+        setCopied(key);
+        setTimeout(() => setCopied(null), 2000);
+    }
+
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Schools" />
@@ -107,17 +136,25 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                             All registered schools on the platform.
                         </p>
                     </div>
-                    <form onSubmit={handleSearch} className="flex gap-2">
-                        <Input
-                            placeholder="Search name or email..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-64"
-                        />
-                        <Button type="submit" variant="outline" size="icon">
-                            <Search className="size-4" />
-                        </Button>
-                    </form>
+                    <div className="flex items-center gap-2">
+                        <form onSubmit={handleSearch} className="flex gap-2">
+                            <Input
+                                placeholder="Search name or email..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-64"
+                            />
+                            <Button type="submit" variant="outline" size="icon">
+                                <Search className="size-4" />
+                            </Button>
+                        </form>
+                        <Link href="/super-admin/schools/create">
+                            <Button>
+                                <Plus className="mr-1 size-4" />
+                                Add School
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Plan + Status filters */}
@@ -422,6 +459,109 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Credentials Dialog */}
+            <Dialog
+                open={showCredentials}
+                onOpenChange={(open) => {
+                    setShowCredentials(open);
+                    if (!open) setCredentials(null);
+                }}
+            >
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>School Created Successfully</DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                        Share these credentials with the school.
+                    </p>
+                    {credentials && (
+                        <div className="space-y-3">
+                            <CredentialField
+                                label="Admin Email"
+                                value={credentials.admin_email}
+                                copied={copied === 'email'}
+                                onCopy={() =>
+                                    handleCopy(credentials.admin_email, 'email')
+                                }
+                            />
+                            <CredentialField
+                                label="School URL"
+                                value={credentials.subdomain_url}
+                                copied={copied === 'subdomain'}
+                                onCopy={() =>
+                                    handleCopy(
+                                        credentials.subdomain_url,
+                                        'subdomain',
+                                    )
+                                }
+                            />
+                            <CredentialField
+                                label="Login URL"
+                                value={credentials.login_url}
+                                copied={copied === 'login'}
+                                onCopy={() =>
+                                    handleCopy(credentials.login_url, 'login')
+                                }
+                            />
+                            <CredentialField
+                                label="Password Setup Link"
+                                value={credentials.reset_link}
+                                copied={copied === 'reset'}
+                                onCopy={() =>
+                                    handleCopy(credentials.reset_link, 'reset')
+                                }
+                                note="Link expires in 60 minutes."
+                            />
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button onClick={() => setShowCredentials(false)}>
+                            Done
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </SuperAdminLayout>
+    );
+}
+
+function CredentialField({
+    label,
+    value,
+    copied,
+    onCopy,
+    note,
+}: {
+    label: string;
+    value: string;
+    copied: boolean;
+    onCopy: () => void;
+    note?: string;
+}) {
+    return (
+        <div className="space-y-1">
+            <div className="text-xs font-medium text-muted-foreground">
+                {label}
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="flex-1 rounded-md border bg-muted/50 px-3 py-2 font-mono text-xs break-all">
+                    {value}
+                </div>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                    onClick={onCopy}
+                >
+                    {copied ? (
+                        <Check className="size-3.5 text-emerald-600" />
+                    ) : (
+                        <Copy className="size-3.5" />
+                    )}
+                </Button>
+            </div>
+            {note && <p className="text-xs text-muted-foreground">{note}</p>}
+        </div>
     );
 }
