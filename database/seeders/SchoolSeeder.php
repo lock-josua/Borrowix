@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -35,6 +36,17 @@ class SchoolSeeder extends Seeder
 
         // Register the subdomain: "demo-school" → demo-school.huwam.test
         $tenant->domains()->firstOrCreate(['domain' => 'demo-school']);
+
+        Subscription::firstOrCreate(
+            ['tenant_id' => $tenant->id],
+            [
+                'plan' => 'free',
+                'status' => 'active',
+                'billing_cycle' => 'monthly',
+                'current_period_start' => now(),
+                'current_period_end' => now()->addMonth(),
+            ]
+        );
 
         // Create the tenant database if it doesn't exist
         if (! $tenant->database()->manager()->databaseExists($tenant->database()->getName())) {

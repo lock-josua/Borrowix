@@ -86,6 +86,15 @@ class SchoolController extends Controller
 
         $tenant->domains()->create(['domain' => $slug]);
 
+        Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan' => 'free',
+            'status' => 'active',
+            'billing_cycle' => 'monthly',
+            'current_period_start' => now(),
+            'current_period_end' => now()->addMonth(),
+        ]);
+
         $result = $tenant->run(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['admin_name'],

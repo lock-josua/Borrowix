@@ -4,6 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
+use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\SystemLogService;
@@ -52,6 +53,15 @@ class CreateNewUser implements CreatesNewUsers
         // IMPORTANT: Store only the subdomain slug, NOT the full hostname.
         $tenant->domains()->create([
             'domain' => $slug,
+        ]);
+
+        Subscription::create([
+            'tenant_id' => $tenant->id,
+            'plan' => 'free',
+            'status' => 'active',
+            'billing_cycle' => 'monthly',
+            'current_period_start' => now(),
+            'current_period_end' => now()->addMonth(),
         ]);
 
         $schoolName = $tenant->school_name ?? $slug;
