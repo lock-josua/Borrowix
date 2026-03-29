@@ -5,6 +5,9 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
 use App\Models\Tenant;
+use App\Services\SystemLogService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -51,7 +54,39 @@ class SubscriptionController extends Controller
 
         return Inertia::render('super-admin/subscriptions/show', [
             'school' => $tenant,
+            'subscription' => $subscription,
             'paymentHistory' => $paymentHistory,
         ]);
+    }
+
+    public function update(Request $request, Tenant $tenant): RedirectResponse
+    {
+        $validated = $request->validate([
+            'plan' => ['required', 'in:'.implode(',', Subscription::PLANS)],
+            'status' => ['required', 'in:'.implode(',', Subscription::STATUSES)],
+            'billing_cycle' => ['required', 'in:'.implode(',', Subscription::BILLING_CYCLES)],
+        ]);
+
+        Subscription::updateOrCreate(
+            ['tenant_id' => $tenant->id],
+            [
+                'plan' => $validated['plan'],
+                'status' => $validated['status'],
+                'billing_cycle' => $validated['billing_cycle'],
+            ]
+        );
+
+        $tenant->update(['plan' => $validated['plan']]);
+
+        SystemLogService::log(
+            'subscription_updated',
+            "Subscription updated for {$tenant->school_name}: plan={$validated['plan']}, status={$validated['status']}",
+            $tenant->id,
+            'super_admin'
+        );
+
+        return redirect()
+            ->route('super-admin.subscriptions.show', $tenant)
+            ->with('success', 'Subscription updated.');
     }
 }

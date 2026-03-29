@@ -36,11 +36,13 @@ Route::prefix('super-admin')
         Route::post('/schools/{tenant}/resend-credentials', [SchoolController::class, 'resendCredentials'])
             ->name('schools.resend-credentials');
 
-        // Subscriptions — read only
+        // Subscriptions
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])
             ->name('subscriptions.index');
         Route::get('/subscriptions/{tenant}', [SubscriptionController::class, 'show'])
             ->name('subscriptions.show');
+        Route::patch('/subscriptions/{tenant}', [SubscriptionController::class, 'update'])
+            ->name('subscriptions.update');
 
         // Promo Codes — full CRUD
         Route::resource('/promo-codes', PromoCodeController::class)
