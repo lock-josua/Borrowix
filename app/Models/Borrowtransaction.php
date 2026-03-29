@@ -30,11 +30,11 @@ class BorrowTransaction extends Model
     protected function casts(): array
     {
         return [
-            'issued_at'   => 'datetime',
-            'due_date'    => 'datetime',
+            'issued_at' => 'datetime',
+            'due_date' => 'datetime',
             'returned_at' => 'datetime',
             'fine_amount' => 'decimal:2',
-            'status'      => BorrowTransactionStatus::class,
+            'status' => BorrowTransactionStatus::class,
         ];
     }
 
@@ -66,12 +66,24 @@ class BorrowTransaction extends Model
         return $this->belongsTo(User::class, 'returned_to');
     }
 
-    public function isActive(): bool   { return $this->status === BorrowTransactionStatus::Active; }
-    public function isReturned(): bool { return $this->status === BorrowTransactionStatus::Returned; }
+    public function isActive(): bool
+    {
+        return $this->status === BorrowTransactionStatus::Active;
+    }
+
+    public function isReturned(): bool
+    {
+        return $this->status === BorrowTransactionStatus::Returned;
+    }
+
     public function isOverdue(): bool
     {
         return $this->status === BorrowTransactionStatus::Overdue
             || ($this->status === BorrowTransactionStatus::Active && now()->isAfter($this->due_date));
     }
-    public function hasFine(): bool { return $this->fine_amount > 0; }
+
+    public function hasFine(): bool
+    {
+        return $this->fine_amount > 0;
+    }
 }
