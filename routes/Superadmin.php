@@ -16,15 +16,21 @@ Route::prefix('super-admin')
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        // Schools — read only + manual override actions
+        // Schools — full management
         Route::get('/schools', [SchoolController::class, 'index'])
             ->name('schools.index');
+        Route::get('/schools/create', [SchoolController::class, 'create'])
+            ->name('schools.create');
+        Route::post('/schools', [SchoolController::class, 'store'])
+            ->name('schools.store');
         Route::get('/schools/{tenant}', [SchoolController::class, 'show'])
             ->name('schools.show');
         Route::post('/schools/{tenant}/suspend', [SchoolController::class, 'suspend'])
             ->name('schools.suspend');
         Route::post('/schools/{tenant}/reactivate', [SchoolController::class, 'reactivate'])
             ->name('schools.reactivate');
+        Route::post('/schools/{tenant}/resend-credentials', [SchoolController::class, 'resendCredentials'])
+            ->name('schools.resend-credentials');
 
         // Subscriptions — read only
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])

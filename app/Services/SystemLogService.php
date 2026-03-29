@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\SystemLog;
 
-
 class SystemLogService
 {
     /**
