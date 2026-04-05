@@ -49,7 +49,7 @@ class TenantDataSeeder extends Seeder
         $tenant->run(function () use ($domain) {
             // Seed staff user
             $staffEmail = 'staff@'.$domain.'.com';
-            User::updateOrCreate(
+            $staff = User::updateOrCreate(
                 ['email' => $staffEmail],
                 [
                     'name' => 'John Smith',
@@ -58,6 +58,7 @@ class TenantDataSeeder extends Seeder
                     'email_verified_at' => now(),
                 ]
             );
+            $staff->syncRoles(['staff']);
 
             // Seed 2 student users
             $students = [
@@ -66,7 +67,7 @@ class TenantDataSeeder extends Seeder
             ];
 
             foreach ($students as $student) {
-                User::updateOrCreate(
+                $user = User::updateOrCreate(
                     ['email' => $student['email']],
                     [
                         'name' => $student['name'],
@@ -75,6 +76,7 @@ class TenantDataSeeder extends Seeder
                         'email_verified_at' => now(),
                     ]
                 );
+                $user->syncRoles(['student']);
             }
 
             // Seed categories

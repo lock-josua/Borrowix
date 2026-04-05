@@ -24,6 +24,8 @@ class CategoryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize(Permission::CategoryManage->value);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -38,6 +40,7 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category): RedirectResponse
     {
+        $this->authorize(Permission::CategoryManage->value);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -53,6 +56,7 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
+        $this->authorize(Permission::CategoryManage->value);
 
         // Unlink equipment from this category before deleting
         $category->equipment()->update(['category_id' => null]);

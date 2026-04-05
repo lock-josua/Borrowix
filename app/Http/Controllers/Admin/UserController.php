@@ -40,13 +40,15 @@ class UserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize(Permission::UserCreate->value);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'role' => ['required', 'in:staff,student'],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
@@ -73,6 +75,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
+        $this->authorize(Permission::UserUpdate->value);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -89,6 +92,7 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
+        $this->authorize(Permission::UserDelete->value);
 
         $user->delete();
 

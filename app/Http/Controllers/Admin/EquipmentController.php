@@ -57,6 +57,8 @@ class EquipmentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize(Permission::EquipmentCreate->value);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category_id' => ['nullable', 'exists:categories,id'],
@@ -85,6 +87,7 @@ class EquipmentController extends Controller
 
     public function update(Request $request, Equipment $equipment): RedirectResponse
     {
+        $this->authorize(Permission::EquipmentUpdate->value);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -211,6 +214,7 @@ class EquipmentController extends Controller
 
     public function destroy(Equipment $equipment): RedirectResponse
     {
+        $this->authorize(Permission::EquipmentDelete->value);
 
         // Delete equipment image if it exists
         if ($equipment->image) {

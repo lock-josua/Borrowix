@@ -21,7 +21,9 @@ class CheckRole
             return redirect()->route('login');
         }
 
-        if (! in_array($request->user()->role, $roles)) {
+        $userRole = $request->user()->role->value;
+
+        if (! in_array($userRole, $roles)) {
             abort(403, 'Unauthorized. You do not have permission to access this page.');
         }
 

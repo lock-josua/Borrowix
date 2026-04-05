@@ -43,6 +43,7 @@ class BorrowRequestController extends Controller
 
     public function approve(Request $request, BorrowRequest $borrowRequest): RedirectResponse
     {
+        $this->authorize(Permission::RequestApprove->value);
 
         abort_if(! $borrowRequest->isPending(), 422, 'This request has already been processed.');
         abort_if(! $borrowRequest->equipment->isAvailable(), 422, 'This equipment is no longer available.');
@@ -85,6 +86,7 @@ class BorrowRequestController extends Controller
 
     public function reject(Request $request, BorrowRequest $borrowRequest): RedirectResponse
     {
+        $this->authorize(Permission::RequestReject->value);
 
         abort_if(! $borrowRequest->isPending(), 422, 'This request has already been processed.');
 
