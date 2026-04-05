@@ -25,6 +25,8 @@ class BorrowTransaction extends Model
         'fine_amount',
         'fine_reason',
         'return_condition_notes',
+        'reminder_sent_at',
+        'overdue_notification_sent_at',
     ];
 
     protected function casts(): array
@@ -33,6 +35,8 @@ class BorrowTransaction extends Model
             'issued_at' => 'datetime',
             'due_date' => 'datetime',
             'returned_at' => 'datetime',
+            'reminder_sent_at' => 'datetime',
+            'overdue_notification_sent_at' => 'datetime',
             'fine_amount' => 'decimal:2',
             'status' => BorrowTransactionStatus::class,
         ];
