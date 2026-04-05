@@ -13,6 +13,7 @@ import {
     BarChart3,
     CreditCard,
     Tag,
+    Settings,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -44,6 +45,7 @@ const operationsNav = [
 const insightsNav = [
     { title: 'Reports', href: '/admin/reports', icon: BarChart3 },
     { title: 'Subscription', href: '/admin/subscription', icon: CreditCard },
+    { title: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 interface Props extends PropsWithChildren {

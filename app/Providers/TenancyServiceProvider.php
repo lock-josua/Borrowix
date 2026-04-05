@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\PermissionRegistrar;
 use Stancl\JobPipeline\JobPipeline;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
@@ -38,6 +39,9 @@ class TenancyServiceProvider extends ServiceProvider
             // When tenancy is initialized (DB switched), run the bootstrappers.
             Events\TenancyInitialized::class => [
                 Listeners\BootstrapTenancy::class,
+                function (Events\TenancyInitialized $event) {
+                    app(PermissionRegistrar::class)->forgetCachedPermissions();
+                },
             ],
 
             // When tenancy ends, revert to the central DB connection.
@@ -58,7 +62,7 @@ class TenancyServiceProvider extends ServiceProvider
     protected function bootEvents(): void
     {
         foreach ($this->events() as $event => $listeners) {
-            foreach (array_unique($listeners) as $listener) {
+            foreach ($listeners as $listener) {
                 Event::listen($event, $listener);
             }
         }
