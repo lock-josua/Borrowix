@@ -64,7 +64,7 @@ export default function StudentDashboard({
                 <div className="flex items-start justify-between">
                     <div>
                         <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">
-                            {greeting}, {firstName} 👋
+                            {greeting}, {firstName} 
                         </h1>
                         <p className="mt-0.5 text-sm text-muted-foreground">
                             Track your loans and requests.
