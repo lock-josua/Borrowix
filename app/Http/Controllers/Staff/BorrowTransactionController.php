@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
 use Illuminate\Http\RedirectResponse;
@@ -40,6 +41,8 @@ class BorrowTransactionController extends Controller
 
     public function markReturned(Request $request, BorrowTransaction $borrowTransaction): RedirectResponse
     {
+        $this->authorize(Permission::TransactionReturn->value);
+
         abort_if($borrowTransaction->isReturned(), 422, 'This item has already been returned.');
 
         $request->validate([

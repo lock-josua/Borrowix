@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BorrowTransactionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\RbacController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionController;
@@ -77,4 +78,8 @@ Route::prefix('admin')
         // School Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+        // RBAC — role permissions matrix
+        Route::get('/rbac', [RbacController::class, 'index'])->name('rbac.index');
+        Route::patch('/rbac', [RbacController::class, 'update'])->name('rbac.update');
     });

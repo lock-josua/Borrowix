@@ -2,7 +2,7 @@ import { NavUser } from '@/components/nav-user';
 import { AppShell } from '@/components/app-shell';
 import { AppContent } from '@/components/app-content';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import {
     LayoutDashboard,
@@ -14,6 +14,7 @@ import {
     CreditCard,
     Tag,
     Settings,
+    ShieldCheck,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -29,7 +30,13 @@ import {
 import type { BreadcrumbItem } from '@/types';
 import type { PropsWithChildren } from 'react';
 
-const operationsNav = [
+interface NavItem {
+    title: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+}
+
+const operationsNav: NavItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { title: 'Equipment', href: '/admin/equipment', icon: Package },
     { title: 'Categories', href: '/admin/categories', icon: Tag },
@@ -42,18 +49,41 @@ const operationsNav = [
     { title: 'Users', href: '/admin/users', icon: Users },
 ];
 
-const insightsNav = [
-    { title: 'Reports', href: '/admin/reports', icon: BarChart3 },
-    { title: 'Subscription', href: '/admin/subscription', icon: CreditCard },
-    { title: 'Settings', href: '/admin/settings', icon: Settings },
-];
-
 interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
 
 export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
+    const { can } = usePage().props;
+
+    const insightsNav: NavItem[] = [
+        { title: 'Reports', href: '/admin/reports', icon: BarChart3 },
+        {
+            title: 'Subscription',
+            href: '/admin/subscription',
+            icon: CreditCard,
+        },
+        { title: 'Settings', href: '/admin/settings', icon: Settings },
+    ];
+
+    const administrationNav: NavItem[] = [
+        { title: 'Role Permissions', href: '/admin/rbac', icon: ShieldCheck },
+    ];
+
+    const filteredInsightsNav = insightsNav.filter((item) => {
+        if (item.title === 'Reports') {
+            return can.view_reports;
+        }
+        return true;
+    });
+
+    const filteredAdministrationNav = administrationNav.filter((item) => {
+        if (item.title === 'Role Permissions') {
+            return can.manage_rbac;
+        }
+        return true;
+    });
 
     return (
         <AppShell variant="sidebar">
@@ -101,25 +131,51 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
                         </SidebarMenu>
                     </SidebarGroup>
 
-                    <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel>Insights</SidebarGroupLabel>
-                        <SidebarMenu>
-                            {insightsNav.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        isActive={isCurrentUrl(item.href)}
-                                        tooltip={{ children: item.title }}
-                                    >
-                                        <Link href={item.href}>
-                                            <item.icon className="size-4" />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroup>
+                    {filteredInsightsNav.length > 0 && (
+                        <SidebarGroup className="px-2 py-0">
+                            <SidebarGroupLabel>Insights</SidebarGroupLabel>
+                            <SidebarMenu>
+                                {filteredInsightsNav.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={isCurrentUrl(item.href)}
+                                            tooltip={{ children: item.title }}
+                                        >
+                                            <Link href={item.href}>
+                                                <item.icon className="size-4" />
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroup>
+                    )}
+
+                    {filteredAdministrationNav.length > 0 && (
+                        <SidebarGroup className="px-2 py-0">
+                            <SidebarGroupLabel>
+                                Administration
+                            </SidebarGroupLabel>
+                            <SidebarMenu>
+                                {filteredAdministrationNav.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={isCurrentUrl(item.href)}
+                                            tooltip={{ children: item.title }}
+                                        >
+                                            <Link href={item.href}>
+                                                <item.icon className="size-4" />
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroup>
+                    )}
                 </SidebarContent>
 
                 <SidebarFooter>

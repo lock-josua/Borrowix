@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Permission;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,6 +42,16 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'can' => tenant() && $request->user() ? [
+                'manage_equipment' => $request->user()->can(Permission::EquipmentCreate->value),
+                'delete_equipment' => $request->user()->can(Permission::EquipmentDelete->value),
+                'approve_requests' => $request->user()->can(Permission::RequestApprove->value),
+                'create_request' => $request->user()->can(Permission::RequestCreate->value),
+                'process_returns' => $request->user()->can(Permission::TransactionReturn->value),
+                'manage_users' => $request->user()->can(Permission::UserCreate->value),
+                'view_reports' => $request->user()->can(Permission::ReportView->value),
+                'manage_rbac' => $request->user()->can(Permission::RbacManage->value),
+            ] : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
                 'success' => $request->session()->get('success'),

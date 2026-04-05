@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Enums\BorrowRequestStatus;
 use App\Enums\EquipmentStatus;
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\Equipment;
@@ -43,6 +44,8 @@ class BorrowRequestController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize(Permission::RequestCreate->value);
+
         $validated = $request->validate([
             'equipment_id' => ['required', 'exists:equipment,id'],
             'purpose' => ['required', 'string', 'max:500'],

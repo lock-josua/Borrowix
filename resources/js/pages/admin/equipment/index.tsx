@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Plus, Package, Pencil, Trash2, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,6 +56,7 @@ export default function EquipmentIndex({
     categories,
     filters,
 }: Props) {
+    const { can } = usePage().props;
     const [search, setSearch] = useState(filters.search ?? '');
     const [deleteTarget, setDeleteTarget] = useState<Equipment | null>(null);
 
@@ -86,12 +87,14 @@ export default function EquipmentIndex({
                             Manage your school's ICT equipment.
                         </p>
                     </div>
-                    <Link href="/admin/equipment/create">
-                        <Button>
-                            <Plus className="mr-2 size-4" />
-                            Add Equipment
-                        </Button>
-                    </Link>
+                    {can.manage_equipment && (
+                        <Link href="/admin/equipment/create">
+                            <Button>
+                                <Plus className="mr-2 size-4" />
+                                Add Equipment
+                            </Button>
+                        </Link>
+                    )}
                 </div>
 
                 {/* Search */}
@@ -121,12 +124,17 @@ export default function EquipmentIndex({
                         <p className="mt-1 text-xs text-muted-foreground">
                             Try adjusting your search or add new equipment.
                         </p>
-                        <Link href="/admin/equipment/create" className="mt-4">
-                            <Button size="sm">
-                                <Plus className="mr-2 size-4" />
-                                Add Equipment
-                            </Button>
-                        </Link>
+                        {can.manage_equipment && (
+                            <Link
+                                href="/admin/equipment/create"
+                                className="mt-4"
+                            >
+                                <Button size="sm">
+                                    <Plus className="mr-2 size-4" />
+                                    Add Equipment
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -172,14 +180,18 @@ export default function EquipmentIndex({
                                                 <Pencil className="size-3.5" />
                                             </Link>
                                         </Button>
-                                        <Button
-                                            variant="secondary"
-                                            size="icon"
-                                            className="size-8 shadow-sm"
-                                            onClick={() => setDeleteTarget(e)}
-                                        >
-                                            <Trash2 className="size-3.5 text-destructive" />
-                                        </Button>
+                                        {can.delete_equipment && (
+                                            <Button
+                                                variant="secondary"
+                                                size="icon"
+                                                className="size-8 shadow-sm"
+                                                onClick={() =>
+                                                    setDeleteTarget(e)
+                                                }
+                                            >
+                                                <Trash2 className="size-3.5 text-destructive" />
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                                 <CardContent className="p-4">

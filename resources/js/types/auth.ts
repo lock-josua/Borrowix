@@ -22,3 +22,14 @@ export type TwoFactorSetupData = {
 export type TwoFactorSecretKey = {
     secretKey: string;
 };
+
+export type Can = {
+    manage_equipment?: boolean;
+    delete_equipment?: boolean;
+    approve_requests?: boolean;
+    create_request?: boolean;
+    process_returns?: boolean;
+    manage_users?: boolean;
+    view_reports?: boolean;
+    manage_rbac?: boolean;
+};
