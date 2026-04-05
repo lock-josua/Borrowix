@@ -70,7 +70,7 @@ export default function ReportsIndex({
                     <h1 className="text-2xl font-bold">Reports</h1>
                     <Button asChild variant="outline">
                         <a href={`/admin/reports/export?from=${from}&to=${to}`}>
-                            Export CSV
+                            Export Excel
                         </a>
                     </Button>
                 </div>
