@@ -42,6 +42,9 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'unread_count' => tenant() && $request->user()
+                ? $request->user()->unreadNotifications->count()
+                : 0,
             'can' => tenant() && $request->user() ? [
                 'manage_equipment' => $request->user()->can(Permission::EquipmentCreate->value),
                 'delete_equipment' => $request->user()->can(Permission::EquipmentDelete->value),
