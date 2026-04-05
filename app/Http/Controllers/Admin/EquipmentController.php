@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\EquipmentStatus;
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Equipment;

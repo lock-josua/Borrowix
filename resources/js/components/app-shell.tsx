@@ -1,9 +1,9 @@
 import { usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { Toaster } from '@/components/ui/sonner';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { Toaster } from '@/components/ui/sonner';
 
 type Props = {
     children: ReactNode;

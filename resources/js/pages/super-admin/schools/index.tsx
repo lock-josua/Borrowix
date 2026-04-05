@@ -1,5 +1,4 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import {
     Copy,
     Eye,
@@ -11,9 +10,9 @@ import {
     ExternalLink,
     Check,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -21,6 +20,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 

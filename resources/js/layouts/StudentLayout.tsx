@@ -1,10 +1,4 @@
 import { Link, usePage, router } from '@inertiajs/react';
-import { useCurrentUrl } from '@/hooks/use-current-url';
-import { useIsTabletOrBelow } from '@/hooks/use-mobile';
-import { AppShell } from '@/components/app-shell';
-import { AppContent } from '@/components/app-content';
-import { AppSidebarHeader } from '@/components/app-sidebar-header';
-import { NavUser } from '@/components/nav-user';
 import {
     LayoutDashboard,
     Search,
@@ -12,6 +6,11 @@ import {
     History,
     Zap,
 } from 'lucide-react';
+import type { PropsWithChildren } from 'react';
+import { AppContent } from '@/components/app-content';
+import { AppShell } from '@/components/app-shell';
+import { AppSidebarHeader } from '@/components/app-sidebar-header';
+import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
     SidebarContent,
@@ -23,8 +22,9 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
 } from '@/components/ui/sidebar';
+import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useIsTabletOrBelow } from '@/hooks/use-mobile';
 import type { BreadcrumbItem } from '@/types';
-import type { PropsWithChildren } from 'react';
 
 // ── Navigation items (shared between sidebar and bottom nav) ──
 const navItems = [

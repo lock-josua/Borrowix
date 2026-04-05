@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Rule;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Permission as SpatiePermission;
@@ -47,7 +47,7 @@ class RbacController extends Controller
         ]);
     }
 
-    public function update(Request $request): JsonResponse
+    public function update(Request $request): RedirectResponse
     {
         $this->authorize(Permission::RbacManage->value);
 
@@ -69,11 +69,6 @@ class RbacController extends Controller
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        return response()->json([
-            'ok' => true,
-            'role' => $role->name,
-            'permission' => $validated['permission'],
-            'granted' => $validated['grant'],
-        ]);
+        return redirect()->route('admin.rbac.index');
     }
 }

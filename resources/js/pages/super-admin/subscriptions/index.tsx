@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { CreditCard, Eye } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 

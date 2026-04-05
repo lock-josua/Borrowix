@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Plus, Pencil, Trash2, CheckCircle, XCircle, Tag } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -9,7 +10,6 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 

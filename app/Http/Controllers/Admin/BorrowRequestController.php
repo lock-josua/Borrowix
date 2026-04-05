@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\BorrowRequestStatus;
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
@@ -18,6 +19,8 @@ class BorrowRequestController extends Controller
 {
     public function index(Request $request): Response
     {
+        $this->authorize(Permission::RequestViewAny->value);
+
         $requests = BorrowRequest::with(['requester', 'equipment'])
             ->when($request->status, fn ($q) => $q->where('status', BorrowRequestStatus::from($request->status)))
             ->when($request->search, fn ($q) => $q->whereHas('requester', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
@@ -33,6 +36,7 @@ class BorrowRequestController extends Controller
 
     public function show(BorrowRequest $borrowRequest): Response
     {
+        $this->authorize(Permission::RequestViewAny->value);
 
         $borrowRequest->load(['requester', 'equipment.category', 'processedBy']);
 

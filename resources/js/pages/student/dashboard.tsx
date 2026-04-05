@@ -6,8 +6,8 @@ import {
     Search,
     CheckCircle,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 

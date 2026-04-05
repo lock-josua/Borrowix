@@ -85,13 +85,15 @@ class CreateNewUser implements CreatesNewUsers
         // then automatically returns to the central DB.
         // Create the admin user inside the tenant's new database.
         $tenant->run(function () use ($input) {
-            User::create([
+            $user = User::create([
                 'name' => $input['admin_name'],
                 'email' => $input['email'],
                 'password' => $input['password'],
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]);
+
+            $user->syncRoles(['admin']);
         });
 
         // SECURITY: Return an empty unsaved User so Fortify's type contract is

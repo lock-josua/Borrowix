@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +18,8 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
+        $this->authorize(Permission::UserViewAny->value);
+
         $users = User::whereIn('role', ['staff', 'student'])
             ->when($request->search, fn ($q) => $q->where(function ($query) use ($request) {
                 $query->where('name', 'like', "%{$request->search}%")
@@ -35,6 +38,8 @@ class UserController extends Controller
 
     public function invite(): Response
     {
+        $this->authorize(Permission::UserCreate->value);
+
         return Inertia::render('admin/users/invite');
     }
 
@@ -65,6 +70,7 @@ class UserController extends Controller
 
     public function show(User $user): Response
     {
+        $this->authorize(Permission::UserViewAny->value);
 
         $user->loadCount(['borrowRequests', 'borrowTransactions']);
 

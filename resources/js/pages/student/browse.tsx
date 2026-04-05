@@ -1,8 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
 import { Search, Package } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 

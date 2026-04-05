@@ -21,18 +21,20 @@ class RolePermissionSeeder extends Seeder
         $staffRole = $this->createRole(UserRole::Staff);
         $studentRole = $this->createRole(UserRole::Student);
 
-        $adminRole->syncPermissions(Permission::cases());
+        $adminRole->syncPermissions(
+            array_map(fn (Permission $p) => $p->value, Permission::cases())
+        );
 
         $staffRole->syncPermissions([
-            Permission::EquipmentViewAny,
-            Permission::TransactionViewAny,
-            Permission::TransactionCreate,
-            Permission::TransactionReturn,
+            Permission::EquipmentViewAny->value,
+            Permission::TransactionViewAny->value,
+            Permission::TransactionCreate->value,
+            Permission::TransactionReturn->value,
         ]);
 
         $studentRole->syncPermissions([
-            Permission::EquipmentViewAny,
-            Permission::RequestCreate,
+            Permission::EquipmentViewAny->value,
+            Permission::RequestCreate->value,
         ]);
 
         $this->command->info('Roles and permissions seeded successfully.');

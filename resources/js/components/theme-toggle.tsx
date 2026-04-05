@@ -1,4 +1,3 @@
-import { useAppearance, type Appearance } from '@/hooks/use-appearance';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -7,6 +6,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAppearance, type Appearance } from '@/hooks/use-appearance';
 
 const themeOptions: { value: Appearance; label: string; icon: typeof Sun }[] = [
     { value: 'light', label: 'Light', icon: Sun },

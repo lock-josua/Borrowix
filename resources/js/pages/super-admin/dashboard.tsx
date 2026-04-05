@@ -16,6 +16,7 @@ import {
     ArrowRight,
 } from 'lucide-react';
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     ChartContainer,
@@ -23,7 +24,6 @@ import {
     ChartTooltipContent,
     type ChartConfig,
 } from '@/components/ui/chart';
-import { Button } from '@/components/ui/button';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 

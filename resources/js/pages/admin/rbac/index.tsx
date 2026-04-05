@@ -1,7 +1,10 @@
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
 import { ShieldCheck, Lock, Check } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import {
     Table,
@@ -11,9 +14,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -56,7 +56,7 @@ function hasPermission(
     overrides: Map<string, Map<string, boolean>>,
 ): boolean {
     const roleOverrides = overrides.get(role.name);
-    if (roleOverrides?.has(permission) !== undefined) {
+    if (roleOverrides?.has(permission)) {
         return roleOverrides.get(permission) ?? false;
     }
 
@@ -92,49 +92,39 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
         roleOverrides.set(permission, checked);
         setOverrides(new Map(overrides).set(roleName, roleOverrides));
 
-        try {
-            const response = await fetch('/admin/rbac', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': (
-                        document.querySelector(
-                            'meta[name="csrf-token"]',
-                        ) as HTMLMetaElement
-                    )?.content,
+        router.patch(
+            '/admin/rbac',
+            {
+                role: roleName,
+                permission,
+                grant: checked,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setPending((prev) => {
+                        const next = new Set(prev);
+                        next.delete(key);
+                        return next;
+                    });
+                    toast.success(
+                        `${roleName} ${checked ? 'granted' : 'revoked'} ${permission}`,
+                    );
                 },
-                body: JSON.stringify({
-                    role: roleName,
-                    permission,
-                    grant: checked,
-                }),
-            });
-
-            if (!response.ok) {
-                const error = await response.json().catch(() => null);
-                throw new Error(
-                    error?.message ?? 'Failed to update permission',
-                );
-            }
-
-            toast.success(
-                `${roleName} ${checked ? 'granted' : 'revoked'} ${permission}`,
-            );
-        } catch (error) {
-            roleOverrides.set(permission, !checked);
-            setOverrides(new Map(overrides).set(roleName, roleOverrides));
-            toast.error(
-                error instanceof Error
-                    ? error.message
-                    : 'Failed to update permission',
-            );
-        } finally {
-            setPending((prev) => {
-                const next = new Set(prev);
-                next.delete(key);
-                return next;
-            });
-        }
+                onError: () => {
+                    roleOverrides.set(permission, !checked);
+                    setOverrides(
+                        new Map(overrides).set(roleName, roleOverrides),
+                    );
+                    setPending((prev) => {
+                        const next = new Set(prev);
+                        next.delete(key);
+                        return next;
+                    });
+                    toast.error('Failed to update permission');
+                },
+            },
+        );
     }
 
     function isPending(roleName: string, permission: string): boolean {

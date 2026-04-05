@@ -58,9 +58,15 @@ class SchoolSeeder extends Seeder
         $this->command->info('Running tenant migrations...');
         \Illuminate\Support\Facades\Artisan::call('tenants:migrate', ['--tenants' => $tenant->id]);
 
+        // Seed tenant roles and permissions before creating admin user
+        \Illuminate\Support\Facades\Artisan::call('tenants:seed', [
+            '--tenants' => $tenant->id,
+            '--class' => 'Database\Seeders\TenantDatabaseSeeder',
+        ]);
+
         // Seed admin user inside the tenant's database using $tenant->run()
         $tenant->run(function () {
-            User::updateOrCreate(
+            $user = User::updateOrCreate(
                 ['email' => 'admin@demoschool.com'],
                 [
                     'name' => 'School Admin',
@@ -69,6 +75,8 @@ class SchoolSeeder extends Seeder
                     'email_verified_at' => now(),
                 ]
             );
+
+            $user->syncRoles(['admin']);
         });
 
         $this->command->info('Demo School created.');

@@ -1,9 +1,4 @@
-import { NavUser } from '@/components/nav-user';
-import { AppShell } from '@/components/app-shell';
-import { AppContent } from '@/components/app-content';
-import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { Link, usePage } from '@inertiajs/react';
-import { useCurrentUrl } from '@/hooks/use-current-url';
 import {
     LayoutDashboard,
     Package,
@@ -16,6 +11,11 @@ import {
     Settings,
     ShieldCheck,
 } from 'lucide-react';
+import type { PropsWithChildren } from 'react';
+import { AppContent } from '@/components/app-content';
+import { AppShell } from '@/components/app-shell';
+import { AppSidebarHeader } from '@/components/app-sidebar-header';
+import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
     SidebarContent,
@@ -27,8 +27,8 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
 } from '@/components/ui/sidebar';
+import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { BreadcrumbItem } from '@/types';
-import type { PropsWithChildren } from 'react';
 
 interface NavItem {
     title: string;

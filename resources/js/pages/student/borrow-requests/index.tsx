@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
 import { Plus, Eye, XCircle, ClipboardList } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,

@@ -1,8 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
 import { Eye, Search } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import StaffLayout from '@/layouts/StaffLayout';
 import type { BreadcrumbItem } from '@/types';
