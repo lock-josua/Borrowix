@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -72,4 +73,8 @@ Route::prefix('admin')
             ->name('subscription.upgrade');
         Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])
             ->name('subscription.cancel');
+
+        // School Settings
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
     });

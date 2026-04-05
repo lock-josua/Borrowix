@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\SystemLogService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -28,6 +29,13 @@ class CreateNewUser implements CreatesNewUsers
 
         // Convert "Demo School" → "demo-school" (used as tenant ID and subdomain)
         $slug = Str::slug($input['school_name']);
+
+        // SECURITY: Guard against duplicate school names that would create duplicate tenant IDs
+        if (Tenant::where('id', $slug)->exists()) {
+            throw ValidationException::withMessages([
+                'school_name' => 'A school with this name already exists. Please try a slightly different name.',
+            ]);
+        }
 
         // Step 1: Create the Tenant record in the CENTRAL database.
         // This automatically fires:
@@ -75,8 +83,9 @@ class CreateNewUser implements CreatesNewUsers
         // Step 3: Run code inside the tenant's new database.
         // $tenant->run() switches to tenant_demo-school, runs the callback,
         // then automatically returns to the central DB.
-        return $tenant->run(function () use ($input) {
-            return User::create([
+        // Create the admin user inside the tenant's new database.
+        $tenant->run(function () use ($input) {
+            User::create([
                 'name' => $input['admin_name'],
                 'email' => $input['email'],
                 'password' => $input['password'],
@@ -84,5 +93,11 @@ class CreateNewUser implements CreatesNewUsers
                 'email_verified_at' => now(),
             ]);
         });
+
+        // SECURITY: Return an empty unsaved User so Fortify's type contract is
+        // satisfied. A User() with no id cannot produce a real Auth session.
+        // The RegisterResponse binding in FortifyServiceProvider intercepts
+        // the response before any session is written.
+        return new User;
     }
 }

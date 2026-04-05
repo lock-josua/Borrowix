@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -20,7 +21,47 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // SECURITY: Override Fortify's default RegisterResponse to prevent
+        // Auth::login() from authenticating a tenant user on the central domain.
+        // This intercepts the response before any session is written and redirects
+        // the new school admin to their tenant subdomain login instead.
+        $this->app->singleton(RegisterResponse::class, function () {
+            return new class implements RegisterResponse
+            {
+                public function toResponse($request)
+                {
+                    $slug = \Illuminate\Support\Str::slug($request->input('school_name', ''));
+                    $centralDomain = config('tenancy.central_domains')[0];
+                    $subdomainUrl = "http://{$slug}.{$centralDomain}:8000";
+                    $loginUrl = "{$subdomainUrl}/login";
+                    $adminEmail = $request->input('email', '');
+                    $schoolName = $request->input('school_name', '');
+
+                    // Send the registration confirmation email.
+                    // The user already set their own password, so no reset token is needed.
+                    \Illuminate\Support\Facades\Mail::to($adminEmail)->send(
+                        new \App\Mail\SchoolRegisteredMail(
+                            schoolName: $schoolName,
+                            adminEmail: $adminEmail,
+                            subdomainUrl: $subdomainUrl,
+                            loginUrl: $loginUrl,
+                        )
+                    );
+
+                    // Store the school details in the session so the success page can display them.
+                    // Use session()->put() not ->with() because ->with() only survives one redirect
+                    // and we need the data available when RegisterSuccessController renders the page.
+                    $request->session()->put('registered_school', [
+                        'school_name' => $schoolName,
+                        'subdomain_url' => $subdomainUrl,
+                        'login_url' => $loginUrl,
+                        'admin_email' => $adminEmail,
+                    ]);
+
+                    return redirect()->route('register.success');
+                }
+            };
+        });
     }
 
     /**

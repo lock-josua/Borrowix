@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Auth\RegisterSuccessController;
 use App\Http\Controllers\RoleRedirectController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
@@ -30,6 +31,10 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::post('/register', [RegisteredUserController::class, 'store'])
             ->middleware(['guest'])
             ->name('register.store');
+
+        Route::get('/register/success', RegisterSuccessController::class)
+            ->middleware(['guest'])
+            ->name('register.success');
 
         // Super admin panel routes
         require __DIR__.'/Superadmin.php';
