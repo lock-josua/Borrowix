@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'manage_equipment' => $request->user()->can(Permission::EquipmentCreate->value),
                 'delete_equipment' => $request->user()->can(Permission::EquipmentDelete->value),
                 'approve_requests' => $request->user()->can(Permission::RequestApprove->value),
+                'reject_requests' => $request->user()->can(Permission::RequestReject->value),
                 'create_request' => $request->user()->can(Permission::RequestCreate->value),
                 'process_returns' => $request->user()->can(Permission::TransactionReturn->value),
                 'manage_users' => $request->user()->can(Permission::UserCreate->value),

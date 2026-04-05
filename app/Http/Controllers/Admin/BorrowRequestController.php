@@ -28,7 +28,7 @@ class BorrowRequestController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return Inertia::render('admin/requests/index', [
+        return Inertia::render($this->getViewPrefix().'/requests/index', [
             'requests' => $requests,
             'filters' => $request->only(['status', 'search']),
         ]);
@@ -40,7 +40,7 @@ class BorrowRequestController extends Controller
 
         $borrowRequest->load(['requester', 'equipment.category', 'processedBy']);
 
-        return Inertia::render('admin/requests/show', [
+        return Inertia::render($this->getViewPrefix().'/requests/show', [
             'borrowRequest' => $borrowRequest,
         ]);
     }
@@ -84,7 +84,7 @@ class BorrowRequestController extends Controller
         }
 
         return redirect()
-            ->route('admin.requests.index')
+            ->route($this->getRedirectRoute())
             ->with('success', 'Request approved and transaction created.');
     }
 
@@ -106,7 +106,17 @@ class BorrowRequestController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.requests.index')
+            ->route($this->getRedirectRoute())
             ->with('success', 'Request rejected.');
+    }
+
+    private function getRedirectRoute(): string
+    {
+        return request()->routeIs('staff.*') ? 'staff.requests.index' : 'admin.requests.index';
+    }
+
+    private function getViewPrefix(): string
+    {
+        return request()->routeIs('staff.*') ? 'staff' : 'admin';
     }
 }

@@ -30,6 +30,9 @@ class RolePermissionSeeder extends Seeder
             Permission::TransactionViewAny->value,
             Permission::TransactionCreate->value,
             Permission::TransactionReturn->value,
+            Permission::RequestViewAny->value,
+            Permission::RequestApprove->value,
+            Permission::RequestReject->value,
         ]);
 
         $studentRole->syncPermissions([
