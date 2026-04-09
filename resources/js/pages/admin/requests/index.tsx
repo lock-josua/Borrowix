@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -251,6 +252,10 @@ export default function RequestsIndex({ requests, filters }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Approve Request</DialogTitle>
+                            <DialogDescription>
+                                Approving {approveTarget?.requester.name}'s
+                                request for {approveTarget?.equipment.name}.
+                            </DialogDescription>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">
                             Approving{' '}
@@ -282,6 +287,10 @@ export default function RequestsIndex({ requests, filters }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Reject Request</DialogTitle>
+                            <DialogDescription>
+                                Rejecting {rejectTarget?.requester.name}'s
+                                request for {rejectTarget?.equipment.name}.
+                            </DialogDescription>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">
                             Rejecting{' '}

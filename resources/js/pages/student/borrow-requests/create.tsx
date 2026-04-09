@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2, Package } from 'lucide-react';
 import { useEffect } from 'react';
@@ -66,7 +67,13 @@ export default function CreateRequest({
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        post('/student/borrow-requests');
+        post('/student/borrow-requests', {
+            onError: (errors) => {
+                if (errors.message) {
+                    toast.error(errors.message);
+                }
+            },
+        });
     }
 
     return (
