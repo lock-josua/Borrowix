@@ -1,6 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import { History, AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Eye } from 'lucide-react';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
+import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -29,140 +35,78 @@ interface Props {
     };
 }
 
-const statusBadge: Record<string, string> = {
-    active: 'badge-info',
-    returned: 'badge-success',
-    overdue: 'badge-error',
-};
-
 export default function StudentHistory({ history }: Props) {
     return (
         <StudentLayout breadcrumbs={breadcrumbs}>
             <Head title="My History" />
 
-            <div className="flex flex-col gap-4 p-4 lg:p-6">
-                {/* Header */}
-                <div>
-                    <h1 className="text-xl font-semibold tracking-tight">
-                        My History
-                    </h1>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                        All your past and active equipment loans.
-                    </p>
-                </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader title="My History" description="Your past and active equipment transactions." />
 
-                {/* History list */}
-                {history.data.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 text-center">
-                        <History className="mb-3 size-10 text-muted-foreground/30" />
-                        <p className="font-medium text-muted-foreground">
-                            No history yet
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                            Your borrowing history will appear here.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-2.5">
-                        {history.data.map((t) => (
-                            <div
-                                key={t.id}
-                                className={`rounded-xl border bg-card p-3.5 transition-colors hover:bg-muted/30 ${
-                                    t.status === 'overdue'
-                                        ? 'border-red-200 dark:border-red-900/30'
-                                        : ''
-                                }`}
-                            >
-                                <div className="flex items-start gap-3">
-                                    <div className="min-w-0 flex-1">
-                                        {/* Equipment name + status */}
-                                        <div className="flex items-center gap-2">
-                                            <p className="truncate text-sm font-medium">
-                                                {t.equipment.name}
-                                            </p>
-                                            <span
-                                                className={`badge badge-xs shrink-0 capitalize ${statusBadge[t.status] ?? 'badge-ghost'}`}
-                                            >
-                                                {t.status}
-                                            </span>
-                                        </div>
-
-                                        {/* Dates */}
-                                        <p className="mt-1 text-xs text-muted-foreground">
-                                            Issued{' '}
-                                            {new Date(
-                                                t.issued_at,
-                                            ).toLocaleDateString()}
-                                            {' · '}
-                                            Due{' '}
-                                            {new Date(
-                                                t.due_date,
-                                            ).toLocaleDateString()}
-                                        </p>
-                                        {t.returned_at && (
-                                            <p className="text-xs text-emerald-600 dark:text-emerald-400">
-                                                Returned{' '}
-                                                {new Date(
-                                                    t.returned_at,
-                                                ).toLocaleDateString()}
-                                            </p>
-                                        )}
-
-                                        {/* Fine */}
-                                        {t.fine_amount > 0 && (
-                                            <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5">
-                                                <AlertTriangle className="size-3 text-amber-500" />
-                                                <span className="text-[11px] font-semibold text-amber-600">
-                                                    Fine: ₱{t.fine_amount}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* View button */}
-                                    <Link
-                                        href={`/student/history/${t.id}`}
-                                        className="shrink-0"
-                                    >
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-7 text-xs"
-                                        >
-                                            View
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Pagination */}
-                {history.last_page > 1 && (
-                    <div className="flex items-center justify-between border-t pt-4">
-                        <p className="text-xs text-muted-foreground">
-                            Page {history.current_page} of {history.last_page}
-                        </p>
-                        <div className="flex gap-2">
-                            {history.prev_page_url && (
-                                <Link href={history.prev_page_url}>
-                                    <Button variant="outline" size="sm">
-                                        ← Prev
+                <Card className="overflow-hidden p-0">
+                    <DataTable
+                        columns={[
+                            {
+                                key: 'equipment',
+                                label: 'Equipment',
+                                width: '30%',
+                                render: (t) => <span className="font-medium text-foreground">{t.equipment.name}</span>,
+                            },
+                            {
+                                key: 'borrowed',
+                                label: 'Borrowed',
+                                width: '18%',
+                                render: (t) => <span className="text-xs">{t.issued_at}</span>,
+                            },
+                            {
+                                key: 'returned',
+                                label: 'Returned',
+                                width: '18%',
+                                render: (t) => <span className="text-xs">{t.returned_at || '—'}</span>,
+                            },
+                            {
+                                key: 'duration',
+                                label: 'Due',
+                                width: '14%',
+                                render: (t) => <span className="text-xs">{t.due_date}</span>,
+                            },
+                            {
+                                key: 'status',
+                                label: 'Status',
+                                width: '12%',
+                                align: 'center',
+                                render: (t) => <StatusBadge status={t.status} />,
+                            },
+                            {
+                                key: 'actions',
+                                label: '',
+                                width: '8%',
+                                align: 'right',
+                                render: (t) => (
+                                    <Button variant="ghost" size="icon" className="size-7" asChild>
+                                        <Link href={`/student/transactions/${t.id}`}>
+                                            <Eye className="size-3.5" />
+                                        </Link>
                                     </Button>
-                                </Link>
-                            )}
-                            {history.next_page_url && (
-                                <Link href={history.next_page_url}>
-                                    <Button variant="outline" size="sm">
-                                        Next →
-                                    </Button>
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
+                                ),
+                            },
+                        ]}
+                        data={history.data}
+                        keyExtractor={(t) => t.id}
+                    />
+                    <TablePagination
+                        currentPage={history.current_page}
+                        lastPage={history.last_page}
+                        nextUrl={history.next_page_url}
+                        prevUrl={history.prev_page_url}
+                    />
+                </Card>
+            </motion.div>
         </StudentLayout>
     );
 }

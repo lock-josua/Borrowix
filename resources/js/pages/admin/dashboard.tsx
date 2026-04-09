@@ -1,20 +1,15 @@
 import { Head, Link } from '@inertiajs/react';
-import {
-    Package,
-    ClipboardList,
-    ArrowLeftRight,
-    AlertTriangle,
-    Users,
-    CheckCircle,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { AlertTriangle, ArrowLeftRight, ClipboardList, Package, Users } from 'lucide-react';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
+import { StatCard } from '@/components/stat-card';
+import { StatusBadge } from '@/components/status-badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/admin/dashboard' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/admin/dashboard' }];
 
 interface PendingRequest {
     id: number;
@@ -48,244 +43,130 @@ interface Props {
     school: { name: string; plan: string };
 }
 
-const planBadge: Record<string, string> = {
-    free: 'badge-ghost',
-    basic: 'badge-info',
-    pro: 'badge-warning',
-};
-
-export default function AdminDashboard({
-    stats,
-    pendingRequests,
-    overdueTransactions,
-    school,
-}: Props) {
+export default function AdminDashboard({ stats, pendingRequests, overdueTransactions, school }: Props) {
     return (
         <AdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
 
-            <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">
-                            {school.name}
-                        </h1>
-                        <div className="mt-1 flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">
-                                Plan:
-                            </span>
-                            <span
-                                className={`badge badge-sm capitalize ${planBadge[school.plan] ?? 'badge-ghost'}`}
-                            >
-                                {school.plan}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader title={school.name} description="Equipment borrowing overview" actions={<StatusBadge status={school.plan} />} />
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                {/* Stat grid */}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                     <StatCard
                         title="Equipment"
                         value={stats.total_equipment}
                         sub={`${stats.available_equipment} available`}
-                        icon={<Package className="size-4 text-blue-500" />}
-                        iconBg="bg-blue-500/10"
+                        icon={<Package />}
+                        delay={0}
                     />
                     <StatCard
                         title="Pending"
                         value={stats.pending_requests}
                         sub="Awaiting approval"
-                        icon={
-                            <ClipboardList className="size-4 text-amber-500" />
-                        }
-                        iconBg="bg-amber-500/10"
+                        valueColor="hsl(var(--chart-4))"
+                        icon={<ClipboardList />}
+                        delay={0.05}
                     />
-                    <StatCard
-                        title="Active Loans"
-                        value={stats.active_loans}
-                        sub="Currently borrowed"
-                        icon={
-                            <ArrowLeftRight className="size-4 text-cyan-500" />
-                        }
-                        iconBg="bg-cyan-500/10"
-                    />
+                    <StatCard title="Active Loans" value={stats.active_loans} sub="Currently out" icon={<ArrowLeftRight />} delay={0.1} />
                     <StatCard
                         title="Overdue"
                         value={stats.overdue_loans}
-                        sub="Past due date"
-                        icon={<AlertTriangle className="size-4 text-red-500" />}
-                        iconBg="bg-red-500/10"
+                        sub="Needs action"
+                        valueColor="hsl(var(--destructive))"
+                        trend="down"
+                        icon={<AlertTriangle />}
+                        delay={0.15}
                     />
-                    <StatCard
-                        title="Users"
-                        value={stats.total_students + stats.total_staff}
-                        sub={`${stats.total_students} students · ${stats.total_staff} staff`}
-                        icon={<Users className="size-4 text-purple-500" />}
-                        iconBg="bg-purple-500/10"
-                    />
+                    <StatCard title="Total Users" value={stats.total_students + stats.total_staff} icon={<Users />} delay={0.2} />
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    {/* Pending Requests */}
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle className="text-base">
-                                Pending Requests
-                            </CardTitle>
-                            <Link href="/admin/requests">
-                                <Button variant="ghost" size="sm">
-                                    View all
-                                </Button>
-                            </Link>
+                {/* Bottom grid */}
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+                    <Card className="lg:col-span-3 overflow-hidden border-border/60">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-semibold">Pending Requests</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            {pendingRequests.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <ClipboardList className="mb-3 size-8 text-muted-foreground/40" />
-                                    <p className="font-medium text-muted-foreground">
-                                        No pending requests
-                                    </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        Student requests will appear here.
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {pendingRequests.map((r) => (
-                                        <div
-                                            key={r.id}
-                                            className="flex items-start justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-                                        >
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate font-medium">
-                                                    {r.requester.name}
-                                                </p>
-                                                <p className="truncate text-xs text-muted-foreground">
-                                                    {r.equipment.name}
-                                                </p>
-                                                <p className="mt-1 text-xs text-muted-foreground">
-                                                    {new Date(
-                                                        r.borrow_date,
-                                                    ).toLocaleDateString()}{' '}
-                                                    →{' '}
-                                                    {new Date(
-                                                        r.expected_return_date,
-                                                    ).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                            <Link
-                                                href={`/admin/requests/${r.id}`}
-                                            >
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                >
-                                                    Review
-                                                </Button>
+                        <CardContent className="p-0">
+                            <DataTable
+                                columns={[
+                                    {
+                                        key: 'requester',
+                                        label: 'Requester',
+                                        width: '35%',
+                                        render: (r) => <span className="font-medium text-foreground truncate block">{r.requester.name}</span>,
+                                    },
+                                    {
+                                        key: 'equipment',
+                                        label: 'Equipment',
+                                        width: '30%',
+                                        render: (r) => <span className="text-muted-foreground truncate block">{r.equipment.name}</span>,
+                                    },
+                                    {
+                                        key: 'date',
+                                        label: 'Date',
+                                        width: '20%',
+                                        render: (r) => <span className="text-muted-foreground text-xs">{r.borrow_date}</span>,
+                                    },
+                                    {
+                                        key: 'action',
+                                        label: '',
+                                        width: '15%',
+                                        align: 'right',
+                                        render: (r) => (
+                                            <Link href={`/admin/requests/${r.id}`} className="text-xs text-primary hover:underline">
+                                                Review
                                             </Link>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                                        ),
+                                    },
+                                ]}
+                                data={pendingRequests}
+                                keyExtractor={(r) => r.id}
+                                emptyMessage="No pending requests"
+                            />
                         </CardContent>
                     </Card>
 
-                    {/* Overdue */}
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle className="text-base text-destructive">
-                                Overdue Items
-                            </CardTitle>
-                            <Link href="/admin/transactions?status=overdue">
-                                <Button variant="ghost" size="sm">
-                                    View all
-                                </Button>
-                            </Link>
+                    <Card className="lg:col-span-2 overflow-hidden border-border/60">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-semibold">Overdue Loans</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                            {overdueTransactions.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <CheckCircle className="mb-3 size-8 text-emerald-500/40" />
-                                    <p className="font-medium text-muted-foreground">
-                                        No overdue items
-                                    </p>
-                                    <p className="mt-1 text-xs text-muted-foreground">
-                                        All equipment is returned on time.
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {overdueTransactions.map((t) => (
-                                        <div
-                                            key={t.id}
-                                            className="flex items-start justify-between gap-3 rounded-lg border border-red-200 bg-red-50/50 p-3 dark:border-red-900/30 dark:bg-red-950/20"
-                                        >
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate font-medium">
-                                                    {t.borrower.name}
-                                                </p>
-                                                <p className="truncate text-xs text-muted-foreground">
-                                                    {t.equipment.name}
-                                                </p>
-                                                <p className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
-                                                    <AlertTriangle className="size-3" />
-                                                    Due{' '}
-                                                    {new Date(
-                                                        t.due_date,
-                                                    ).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                            <Link
-                                                href={`/admin/transactions/${t.id}`}
-                                            >
-                                                <Button
-                                                    size="sm"
-                                                    variant="destructive"
-                                                >
-                                                    View
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                        <CardContent className="p-0">
+                            <DataTable
+                                columns={[
+                                    {
+                                        key: 'borrower',
+                                        label: 'Borrower',
+                                        width: '40%',
+                                        render: (r) => <span className="font-medium text-foreground truncate block">{r.borrower.name}</span>,
+                                    },
+                                    {
+                                        key: 'equipment',
+                                        label: 'Equipment',
+                                        width: '35%',
+                                        render: (r) => <span className="text-muted-foreground truncate block">{r.equipment.name}</span>,
+                                    },
+                                    {
+                                        key: 'due',
+                                        label: 'Due',
+                                        width: '25%',
+                                        align: 'right',
+                                        render: (r) => <span className="text-destructive text-xs font-medium">{r.due_date}</span>,
+                                    },
+                                ]}
+                                data={overdueTransactions}
+                                keyExtractor={(r) => r.id}
+                                emptyMessage="No overdue loans"
+                            />
                         </CardContent>
                     </Card>
                 </div>
-            </div>
+            </motion.div>
         </AdminLayout>
-    );
-}
-
-function StatCard({
-    title,
-    value,
-    sub,
-    icon,
-    iconBg,
-}: {
-    title: string;
-    value: number;
-    sub?: string;
-    icon: React.ReactNode;
-    iconBg: string;
-}) {
-    return (
-        <Card className="relative overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {title}
-                </CardTitle>
-                <div className={`rounded-md p-2 ${iconBg}`}>{icon}</div>
-            </CardHeader>
-            <CardContent>
-                <div className="text-3xl font-bold tracking-tight">{value}</div>
-                {sub && (
-                    <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
-                )}
-            </CardContent>
-        </Card>
     );
 }

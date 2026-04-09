@@ -1,15 +1,12 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -36,13 +33,6 @@ interface Props {
     borrowRequest: BorrowRequest;
 }
 
-const statusBadge: Record<string, string> = {
-    pending: 'badge-warning',
-    approved: 'badge-success',
-    rejected: 'badge-error',
-    canceled: 'badge-neutral',
-};
-
 export default function RequestShow({ borrowRequest: r }: Props) {
     const { can } = usePage().props;
     const breadcrumbs: BreadcrumbItem[] = [
@@ -56,210 +46,164 @@ export default function RequestShow({ borrowRequest: r }: Props) {
     const [remarks, setRemarks] = useState('');
 
     function handleApprove() {
-        router.post(
-            `/admin/requests/${r.id}/approve`,
-            { remarks },
-            { onSuccess: () => setApproveOpen(false) },
-        );
+        router.post(`/admin/requests/${r.id}/approve`, { remarks }, { onSuccess: () => setApproveOpen(false) });
     }
 
     function handleReject() {
-        router.post(
-            `/admin/requests/${r.id}/reject`,
-            { remarks },
-            { onSuccess: () => setRejectOpen(false) },
-        );
+        router.post(`/admin/requests/${r.id}/reject`, { remarks }, { onSuccess: () => setRejectOpen(false) });
     }
 
     return (
         <AdminLayout breadcrumbs={breadcrumbs}>
             <Head title={`Request #${r.id}`} />
 
-            <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Link href="/admin/requests">
-                            <Button variant="ghost" size="icon">
-                                <ArrowLeft className="size-4" />
-                            </Button>
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl font-bold">
-                                Request #{r.id}
-                            </h1>
-                            <span
-                                className={`badge capitalize ${statusBadge[r.status]}`}
-                            >
-                                {r.status}
-                            </span>
-                        </div>
-                    </div>
-                    {can.approve_requests && r.status === 'pending' && (
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    title={`Request #${r.id}`}
+                    description={`Submitted on ${r.borrow_date}`}
+                    actions={
                         <div className="flex gap-2">
-                            <Button onClick={() => setApproveOpen(true)}>
-                                <CheckCircle className="mr-2 size-4" />
-                                Approve
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href="/admin/requests">
+                                    <ArrowLeft className="size-3.5 mr-1.5" /> Back
+                                </Link>
                             </Button>
-                            <Button
-                                variant="destructive"
-                                onClick={() => setRejectOpen(true)}
-                            >
-                                <XCircle className="mr-2 size-4" />
-                                Reject
-                            </Button>
+                            {can.approve_requests && r.status === 'pending' && (
+                                <>
+                                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => setApproveOpen(true)}>
+                                        <CheckCircle className="size-3.5 mr-1.5" /> Approve
+                                    </Button>
+                                    <Button size="sm" variant="destructive" onClick={() => setRejectOpen(true)}>
+                                        <XCircle className="size-3.5 mr-1.5" /> Reject
+                                    </Button>
+                                </>
+                            )}
                         </div>
-                    )}
-                </div>
+                    }
+                />
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Requester
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={r.requester.name} />
-                            <InfoRow label="Email" value={r.requester.email} />
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Equipment
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={r.equipment.name} />
-                            <InfoRow
-                                label="Category"
-                                value={r.equipment.category?.name ?? '—'}
-                            />
-                            {r.equipment.brand && (
-                                <InfoRow
-                                    label="Brand"
-                                    value={r.equipment.brand}
-                                />
-                            )}
-                            {r.equipment.model && (
-                                <InfoRow
-                                    label="Model"
-                                    value={r.equipment.model}
-                                />
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Schedule
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow
-                                label="Borrow Date"
-                                value={new Date(r.borrow_date).toLocaleString()}
-                            />
-                            <InfoRow
-                                label="Return Date"
-                                value={new Date(
-                                    r.expected_return_date,
-                                ).toLocaleString()}
-                            />
-                            <InfoRow label="Purpose" value={r.purpose} />
-                        </CardContent>
-                    </Card>
-
-                    {r.processedBy && (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <div className="lg:col-span-2 space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">
-                                    Processing Details
-                                </CardTitle>
+                                <CardTitle className="text-sm">Details</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-2 text-sm">
-                                <InfoRow
-                                    label="Processed By"
-                                    value={r.processedBy.name}
-                                />
-                                <InfoRow
-                                    label="Processed At"
-                                    value={new Date(
-                                        r.processed_at!,
-                                    ).toLocaleString()}
-                                />
-                                {r.remarks && (
-                                    <InfoRow
-                                        label="Remarks"
-                                        value={r.remarks}
-                                    />
-                                )}
+                            <CardContent>
+                                <dl className="space-y-3">
+                                    {[
+                                        ['Requester', r.requester.name],
+                                        ['Equipment', r.equipment.name],
+                                        ['Purpose', r.purpose],
+                                        ['Borrow Date', r.borrow_date],
+                                        ['Return Date', r.expected_return_date],
+                                    ].map(([label, value]) => (
+                                        <div key={label} className="flex items-start justify-between py-2 border-b border-border last:border-0">
+                                            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground w-32 shrink-0">
+                                                {label}
+                                            </dt>
+                                            <dd className="text-sm text-foreground text-right">{value}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
                             </CardContent>
                         </Card>
-                    )}
+
+                        {r.remarks && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-sm">Admin Remarks</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-foreground whitespace-pre-wrap">{r.remarks}</p>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+
+                    <div className="space-y-4">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-sm">Status</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <StatusBadge status={r.status} />
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-sm">User Contact</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-sm font-medium">{r.requester.name}</div>
+                                <div className="text-xs text-muted-foreground">{r.requester.email}</div>
+                            </CardContent>
+                        </Card>
+
+                        {r.processedBy && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-sm">Timeline</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-xs">
+                                        <div className="font-medium">Processed by {r.processedBy.name}</div>
+                                        <div className="text-muted-foreground">{r.processed_at}</div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
                 </div>
-            </div>
 
-            <Dialog open={approveOpen} onOpenChange={setApproveOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Approve Request</DialogTitle>
-                    </DialogHeader>
-                    <Input
-                        placeholder="Remarks (optional)"
-                        value={remarks}
-                        onChange={(e) => setRemarks(e.target.value)}
-                    />
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setApproveOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button onClick={handleApprove}>Approve</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                {/* Dialogs */}
+                <Dialog open={approveOpen} onOpenChange={setApproveOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Approve Request</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-2">
+                            <p className="text-sm text-muted-foreground">
+                                You are approving <strong>{r.requester.name}</strong>'s request.
+                            </p>
+                            <Input placeholder="Remarks (optional)" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setApproveOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleApprove} className="bg-emerald-600 hover:bg-emerald-700">
+                                Approve
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
 
-            <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Reject Request</DialogTitle>
-                    </DialogHeader>
-                    <Input
-                        placeholder="Reason (required)"
-                        value={remarks}
-                        onChange={(e) => setRemarks(e.target.value)}
-                    />
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setRejectOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={handleReject}
-                            disabled={!remarks}
-                        >
-                            Reject
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Reject Request</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-2">
+                            <p className="text-sm text-muted-foreground">Please provide a reason for rejection.</p>
+                            <Input placeholder="Reason (required)" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setRejectOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button variant="destructive" onClick={handleReject} disabled={!remarks}>
+                                Reject
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </motion.div>
         </AdminLayout>
-    );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex justify-between border-b pb-2 last:border-0">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="font-medium">{value}</span>
-        </div>
     );
 }

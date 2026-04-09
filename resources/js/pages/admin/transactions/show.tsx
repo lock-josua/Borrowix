@@ -1,9 +1,12 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -19,18 +22,19 @@ interface Transaction {
     fine_reason: string | null;
     return_condition_notes: string | null;
     borrower: { name: string; email: string };
-    equipment: { name: string; brand: string | null; model: string | null; category: { name: string } | null };
+    equipment: {
+        name: string;
+        brand: string | null;
+        model: string | null;
+        category: { name: string } | null;
+    };
     issuedBy: { name: string } | null;
     returnedTo: { name: string } | null;
 }
 
-interface Props { transaction: Transaction; }
-
-const statusBadge: Record<string, string> = {
-    active: 'badge-info',
-    returned: 'badge-success',
-    overdue: 'badge-error',
-};
+interface Props {
+    transaction: Transaction;
+}
 
 export default function TransactionShow({ transaction: t }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -44,101 +48,151 @@ export default function TransactionShow({ transaction: t }: Props) {
     const [fine, setFine] = useState('');
 
     function handleReturn() {
-        router.post(`/admin/transactions/${t.id}/return`, {
-            return_condition_notes: notes,
-            fine_amount: fine,
-        }, { onSuccess: () => setReturnOpen(false) });
+        router.post(
+            `/admin/transactions/${t.id}/return`,
+            {
+                return_condition_notes: notes,
+                fine_amount: fine,
+            },
+            { onSuccess: () => setReturnOpen(false) },
+        );
     }
 
     return (
         <AdminLayout breadcrumbs={breadcrumbs}>
             <Head title={`Transaction #${t.id}`} />
 
-            <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Link href="/admin/transactions"><Button variant="ghost" size="icon"><ArrowLeft className="size-4" /></Button></Link>
-                        <div>
-                            <h1 className="text-2xl font-bold">Transaction #{t.id}</h1>
-                            <span className={`badge capitalize ${statusBadge[t.status]}`}>{t.status}</span>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    title={`Transaction #${t.id}`}
+                    description={`Issued on ${t.issued_at}`}
+                    actions={
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href="/admin/transactions">
+                                    <ArrowLeft className="size-3.5 mr-1.5" /> Back
+                                </Link>
+                            </Button>
+                            {t.status !== 'returned' && (
+                                <Button size="sm" onClick={() => setReturnOpen(true)}>
+                                    <RotateCcw className="size-3.5 mr-1.5" /> Mark Returned
+                                </Button>
+                            )}
                         </div>
-                    </div>
-                    {t.status !== 'returned' && (
-                        <Button onClick={() => setReturnOpen(true)}><RotateCcw className="mr-2 size-4" />Mark Returned</Button>
-                    )}
-                </div>
+                    }
+                />
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader><CardTitle className="text-base">Borrower</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={t.borrower.name} />
-                            <InfoRow label="Email" value={t.borrower.email} />
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader><CardTitle className="text-base">Equipment</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={t.equipment.name} />
-                            <InfoRow label="Category" value={t.equipment.category?.name ?? '—'} />
-                            {t.equipment.brand && <InfoRow label="Brand" value={t.equipment.brand} />}
-                            {t.equipment.model && <InfoRow label="Model" value={t.equipment.model} />}
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader><CardTitle className="text-base">Timeline</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Issued At" value={new Date(t.issued_at).toLocaleString()} />
-                            <InfoRow label="Due Date" value={new Date(t.due_date).toLocaleString()} />
-                            {t.returned_at && <InfoRow label="Returned At" value={new Date(t.returned_at).toLocaleString()} />}
-                            {t.issuedBy && <InfoRow label="Issued By" value={t.issuedBy.name} />}
-                            {t.returnedTo && <InfoRow label="Returned To" value={t.returnedTo.name} />}
-                        </CardContent>
-                    </Card>
-
-                    {(t.fine_amount > 0 || t.return_condition_notes) && (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <div className="lg:col-span-2 space-y-4">
                         <Card>
-                            <CardHeader><CardTitle className="text-base">Return Details</CardTitle></CardHeader>
-                            <CardContent className="space-y-2 text-sm">
-                                {t.fine_amount > 0 && <InfoRow label="Fine" value={`₱${t.fine_amount}`} />}
-                                {t.fine_reason && <InfoRow label="Fine Reason" value={t.fine_reason} />}
-                                {t.return_condition_notes && <InfoRow label="Condition Notes" value={t.return_condition_notes} />}
+                            <CardHeader>
+                                <CardTitle className="text-sm">Details</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <dl className="space-y-3">
+                                    {[
+                                        ['Borrower', t.borrower.name],
+                                        ['Equipment', t.equipment.name],
+                                        ['Issued Date', t.issued_at],
+                                        ['Due Date', t.due_date],
+                                    ].map(([label, value]) => (
+                                        <div key={label} className="flex items-start justify-between py-2 border-b border-border last:border-0">
+                                            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground w-32 shrink-0">
+                                                {label}
+                                            </dt>
+                                            <dd className="text-sm text-foreground text-right">{value}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
                             </CardContent>
                         </Card>
-                    )}
-                </div>
-            </div>
 
-            <Dialog open={returnOpen} onOpenChange={setReturnOpen}>
-                <DialogContent>
-                    <DialogHeader><DialogTitle>Mark as Returned</DialogTitle></DialogHeader>
-                    <div className="space-y-3">
-                        <div className="space-y-1">
-                            <Label>Condition Notes</Label>
-                            <Input placeholder="Any damage or notes..." value={notes} onChange={(e) => setNotes(e.target.value)} />
-                        </div>
-                        <div className="space-y-1">
-                            <Label>Fine Amount (₱)</Label>
-                            <Input type="number" min="0" placeholder="0" value={fine} onChange={(e) => setFine(e.target.value)} />
-                        </div>
+                        {(t.fine_amount > 0 || t.return_condition_notes) && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-sm">Return Info</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <dl className="space-y-3">
+                                        {t.fine_amount > 0 && (
+                                            <div className="flex items-start justify-between py-2 border-b border-border last:border-0">
+                                                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Fine</dt>
+                                                <dd className="text-sm font-bold text-destructive text-right">₱{t.fine_amount}</dd>
+                                            </div>
+                                        )}
+                                        {t.return_condition_notes && (
+                                            <div className="flex flex-col gap-1 py-2 border-b border-border last:border-0">
+                                                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Condition Notes</dt>
+                                                <dd className="text-sm text-foreground">{t.return_condition_notes}</dd>
+                                            </div>
+                                        )}
+                                    </dl>
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setReturnOpen(false)}>Cancel</Button>
-                        <Button onClick={handleReturn}>Confirm Return</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </AdminLayout>
-    );
-}
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex justify-between border-b pb-2 last:border-0">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="font-medium">{value}</span>
-        </div>
+                    <div className="space-y-4">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-sm">Status</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <StatusBadge status={t.status} />
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-sm">Timeline</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4 text-xs">
+                                <div>
+                                    <div className="text-muted-foreground uppercase font-bold text-[10px]">Issued</div>
+                                    <div>{t.issued_at}</div>
+                                    {t.issuedBy && <div className="italic">By {t.issuedBy.name}</div>}
+                                </div>
+                                {t.returned_at && (
+                                    <div>
+                                        <div className="text-muted-foreground uppercase font-bold text-[10px]">Returned</div>
+                                        <div>{t.returned_at}</div>
+                                        {t.returnedTo && <div className="italic">To {t.returnedTo.name}</div>}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+
+                <Dialog open={returnOpen} onOpenChange={setReturnOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Mark as Returned</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-2">
+                            <div className="space-y-1.5">
+                                <Label>Condition Notes</Label>
+                                <Input placeholder="Any damage or notes..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Fine Amount (₱)</Label>
+                                <Input type="number" min="0" placeholder="0" value={fine} onChange={(e) => setFine(e.target.value)} />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setReturnOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleReturn}>Confirm Return</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </motion.div>
+        </AdminLayout>
     );
 }

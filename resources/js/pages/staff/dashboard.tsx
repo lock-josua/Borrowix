@@ -1,7 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
-import { Package, ArrowLeftRight, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { AlertTriangle, ArrowLeftRight, Package } from 'lucide-react';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
+import { StatCard } from '@/components/stat-card';
+import { StatusBadge } from '@/components/status-badge';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import StaffLayout from '@/layouts/StaffLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -23,60 +27,71 @@ interface Props {
 export default function StaffDashboard({ stats, urgentTransactions }: Props) {
     return (
         <StaffLayout breadcrumbs={breadcrumbs}>
-            <Head title="Staff Dashboard" />
-            <div className="flex flex-col gap-6 p-6">
-                <h1 className="text-2xl font-bold">Dashboard</h1>
+            <Head title="Dashboard" />
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <StatCard title="Available Equipment" value={stats.available_equipment} icon={<Package className="size-5 text-primary" />} />
-                    <StatCard title="Active Loans" value={stats.active_loans} icon={<ArrowLeftRight className="size-5 text-info" />} />
-                    <StatCard title="Overdue" value={stats.overdue_loans} icon={<AlertTriangle className="size-5 text-error" />} />
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader title="Staff Dashboard" description="Process equipment returns and manage requests." />
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <StatCard title="Active Loans" value={stats.active_loans} delay={0} icon={<ArrowLeftRight />} />
+                    <StatCard title="Pending Requests" value={0} valueColor="hsl(var(--chart-4))" delay={0.05} icon={<Package />} />
+                    <StatCard
+                        title="Overdue"
+                        value={stats.overdue_loans}
+                        valueColor="hsl(var(--destructive))"
+                        trend="down"
+                        delay={0.1}
+                        icon={<AlertTriangle />}
+                    />
                 </div>
 
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-base text-destructive">Due / Overdue Items</CardTitle>
-                        <Link href="/staff/transactions"><Button variant="ghost" size="sm">View all</Button></Link>
+                <Card className="p-0 overflow-hidden">
+                    <CardHeader className="px-4 py-3 border-b border-border">
+                        <CardTitle className="text-sm font-semibold">Urgent: Due / Overdue Items</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        {urgentTransactions.length === 0 ? (
-                            <p className="py-4 text-center text-sm text-muted-foreground">No urgent items. 🎉</p>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="table table-sm w-full">
-                                    <thead><tr className="text-muted-foreground"><th>Borrower</th><th>Equipment</th><th>Due</th><th>Action</th></tr></thead>
-                                    <tbody>
-                                        {urgentTransactions.map((t) => (
-                                            <tr key={t.id} className="hover">
-                                                <td>{t.borrower.name}</td>
-                                                <td>{t.equipment.name}</td>
-                                                <td className="text-xs text-destructive">{new Date(t.due_date).toLocaleString()}</td>
-                                                <td>
-                                                    <Link href={`/staff/transactions/${t.id}`}>
-                                                        <Button size="sm" variant="outline">Return</Button>
-                                                    </Link>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </CardContent>
+                    <DataTable
+                        columns={[
+                            {
+                                key: 'borrower',
+                                label: 'Borrower',
+                                width: '35%',
+                                render: (t) => <span className="font-medium text-foreground">{t.borrower.name}</span>,
+                            },
+                            {
+                                key: 'equipment',
+                                label: 'Equipment',
+                                width: '35%',
+                                render: (t) => <span className="text-muted-foreground">{t.equipment.name}</span>,
+                            },
+                            {
+                                key: 'due',
+                                label: 'Due Date',
+                                width: '15%',
+                                render: (t) => <span className="text-destructive font-medium text-xs">{t.due_date}</span>,
+                            },
+                            {
+                                key: 'action',
+                                label: '',
+                                width: '15%',
+                                align: 'right',
+                                render: (t) => (
+                                    <Link href={`/staff/transactions/${t.id}`} className="text-xs text-primary hover:underline">
+                                        Return
+                                    </Link>
+                                ),
+                            },
+                        ]}
+                        data={urgentTransactions}
+                        keyExtractor={(t) => t.id}
+                        emptyMessage="No urgent items to process"
+                    />
                 </Card>
-            </div>
+            </motion.div>
         </StaffLayout>
-    );
-}
-
-function StatCard({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) {
-    return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-                {icon}
-            </CardHeader>
-            <CardContent><div className="text-3xl font-bold">{value}</div></CardContent>
-        </Card>
     );
 }

@@ -18,6 +18,8 @@ class BorrowRequestController extends Controller
 {
     public function index(): Response
     {
+        $this->authorize(Permission::RequestViewAny->value);
+
         $requests = BorrowRequest::with('equipment')
             ->where('user_id', Auth::id())
             // users only see their own, school constraint enforced elsewhere if needed

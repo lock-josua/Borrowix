@@ -30,6 +30,7 @@ class RolePermissionSeeder extends Seeder
             Permission::TransactionViewAny->value,
             Permission::TransactionCreate->value,
             Permission::TransactionReturn->value,
+            Permission::HistoryViewAny->value,
             Permission::RequestViewAny->value,
             Permission::RequestApprove->value,
             Permission::RequestReject->value,
@@ -37,6 +38,8 @@ class RolePermissionSeeder extends Seeder
 
         $studentRole->syncPermissions([
             Permission::EquipmentViewAny->value,
+            Permission::HistoryViewAny->value,
+            Permission::RequestViewAny->value,
             Permission::RequestCreate->value,
         ]);
 

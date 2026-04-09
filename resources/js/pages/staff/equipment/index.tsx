@@ -1,8 +1,13 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import { Eye, Search } from 'lucide-react';
 import { useState } from 'react';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
+import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import StaffLayout from '@/layouts/StaffLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -24,16 +29,15 @@ interface Equipment {
 }
 
 interface Props {
-    equipment: { data: Equipment[]; current_page: number; last_page: number; next_page_url: string | null; prev_page_url: string | null };
+    equipment: {
+        data: Equipment[];
+        current_page: number;
+        last_page: number;
+        next_page_url: string | null;
+        prev_page_url: string | null;
+    };
     filters: { search?: string; status?: string };
 }
-
-const statusBadge: Record<string, string> = {
-    available: 'badge-success',
-    borrowed: 'badge-warning',
-    under_repair: 'badge-error',
-    retired: 'badge-neutral',
-};
 
 export default function StaffEquipmentIndex({ equipment, filters }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
@@ -46,57 +50,84 @@ export default function StaffEquipmentIndex({ equipment, filters }: Props) {
     return (
         <StaffLayout breadcrumbs={breadcrumbs}>
             <Head title="Equipment" />
-            <div className="flex flex-col gap-6 p-6">
-                <h1 className="text-2xl font-bold">Equipment</h1>
 
-                <Card>
-                    <CardContent className="pt-4">
-                        <form onSubmit={handleSearch} className="flex gap-2">
-                            <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
-                            <Button type="submit" variant="outline" size="icon"><Search className="size-4" /></Button>
-                        </form>
-                    </CardContent>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader title="Equipment" description="View ICT equipment inventory." />
+
+                {/* Filter bar */}
+                <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
+                    <form onSubmit={handleSearch} className="relative min-w-[220px] flex-1 max-w-xs">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                        <Input
+                            className="pl-8 h-9 text-sm bg-muted/20"
+                            placeholder="Search equipment..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </form>
                 </Card>
 
-                <Card>
-                    <CardContent className="pt-4">
-                        <div className="overflow-x-auto">
-                            <table className="table table-sm w-full">
-                                <thead>
-                                    <tr className="text-muted-foreground"><th>Name</th><th>Category</th><th>Available</th><th>Status</th><th></th></tr>
-                                </thead>
-                                <tbody>
-                                    {equipment.data.length === 0 ? (
-                                        <tr><td colSpan={5} className="py-8 text-center text-muted-foreground">No equipment found.</td></tr>
-                                    ) : equipment.data.map((e) => (
-                                        <tr key={e.id} className="hover">
-                                            <td>
-                                                <div className="font-medium">{e.name}</div>
-                                                {(e.brand || e.model) && <div className="text-xs text-muted-foreground">{[e.brand, e.model].filter(Boolean).join(' · ')}</div>}
-                                            </td>
-                                            <td>{e.category?.name ?? '—'}</td>
-                                            <td>{e.available_quantity} / {e.quantity}</td>
-                                            <td><span className={`badge badge-sm capitalize ${statusBadge[e.status]}`}>{e.status.replace('_', ' ')}</span></td>
-                                            <td>
-                                                <Link href={`/staff/equipment/${e.id}`}>
-                                                    <Button variant="ghost" size="icon"><Eye className="size-4" /></Button>
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        {equipment.last_page > 1 && (
-                            <div className="mt-4 flex justify-center gap-2">
-                                {equipment.prev_page_url && <Link href={equipment.prev_page_url}><Button variant="outline" size="sm">Previous</Button></Link>}
-                                <span className="flex items-center text-sm text-muted-foreground">Page {equipment.current_page} of {equipment.last_page}</span>
-                                {equipment.next_page_url && <Link href={equipment.next_page_url}><Button variant="outline" size="sm">Next</Button></Link>}
-                            </div>
-                        )}
-                    </CardContent>
+                {/* Table */}
+                <Card className="overflow-hidden p-0 border-border/60">
+                    <DataTable
+                        columns={[
+                            {
+                                key: 'name',
+                                label: 'Name',
+                                width: '35%',
+                                render: (item) => (
+                                    <div className="flex flex-col">
+                                        <span className="font-medium text-foreground truncate">{item.name}</span>
+                                        <span className="text-[10px] text-muted-foreground truncate">
+                                            {[item.brand, item.model].filter(Boolean).join(' / ') || '—'}
+                                        </span>
+                                    </div>
+                                ),
+                            },
+                            {
+                                key: 'category',
+                                label: 'Category',
+                                width: '20%',
+                                render: (item) => <span className="text-muted-foreground text-xs">{item.category?.name ?? '—'}</span>,
+                            },
+                            {
+                                key: 'available',
+                                label: 'Available',
+                                width: '15%',
+                                align: 'center',
+                                render: (item) => <span className="font-bold text-primary">{item.available_quantity}</span>,
+                            },
+                            {
+                                key: 'total',
+                                label: 'Total',
+                                width: '15%',
+                                align: 'center',
+                                render: (item) => <span className="text-muted-foreground">{item.quantity}</span>,
+                            },
+                            {
+                                key: 'status',
+                                label: 'Status',
+                                width: '15%',
+                                align: 'center',
+                                render: (item) => <StatusBadge status={item.status} />,
+                            },
+                        ]}
+                        data={equipment.data}
+                        keyExtractor={(item) => item.id}
+                    />
+                    <TablePagination
+                        currentPage={equipment.current_page}
+                        lastPage={equipment.last_page}
+                        nextUrl={equipment.next_page_url}
+                        prevUrl={equipment.prev_page_url}
+                    />
                 </Card>
-            </div>
+            </motion.div>
         </StaffLayout>
     );
 }

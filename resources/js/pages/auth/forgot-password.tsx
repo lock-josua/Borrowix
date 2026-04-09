@@ -27,8 +27,8 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 <Form {...email.form()}>
                     {({ processing, errors }) => (
                         <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="email" className="text-sm font-medium text-foreground">Email address</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -36,6 +36,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     autoComplete="off"
                                     autoFocus
                                     placeholder="email@example.com"
+                                    className="h-10 transition-shadow duration-150 focus:ring-2 focus:ring-ring/30"
                                 />
 
                                 <InputError message={errors.email} />
@@ -43,12 +44,12 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
                             <div className="my-6 flex items-center justify-start">
                                 <Button
-                                    className="w-full"
+                                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-150 h-10 font-medium"
                                     disabled={processing}
                                     data-test="email-password-reset-link-button"
                                 >
                                     {processing && (
-                                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                                        <LoaderCircle className="h-4 w-4 animate-spin mr-2" />
                                     )}
                                     Email password reset link
                                 </Button>
@@ -59,7 +60,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
                 <div className="space-x-1 text-center text-sm text-muted-foreground">
                     <span>Or, return to</span>
-                    <TextLink href="/login">log in</TextLink>
+                    <TextLink href="/login" className="font-medium text-accent hover:text-accent/80 transition-colors duration-150">log in</TextLink>
                 </div>
             </div>
         </AuthLayout>

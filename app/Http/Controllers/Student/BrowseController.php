@@ -35,6 +35,7 @@ class BrowseController extends Controller
                 'available_quantity' => $e->available_quantity,
                 'quantity' => $e->quantity,
                 'image_url' => $e->image_url,
+                'status' => $e->status->value,
                 'category' => $e->category?->only(['id', 'name']),
             ]);
 

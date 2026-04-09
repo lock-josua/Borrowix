@@ -1,39 +1,23 @@
 import { Transition } from '@headlessui/react';
 import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { CheckCircle, User } from 'lucide-react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
-import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
-import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import StaffLayout from '@/layouts/StaffLayout';
 import StudentLayout from '@/layouts/StudentLayout';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
-import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Profile settings',
-        href: edit().url,
-    },
-];
-
-export default function Profile({
-    mustVerifyEmail,
-    status,
-}: {
-    mustVerifyEmail: boolean;
-    status?: string;
-}) {
+export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage().props;
 
-    // Determine the appropriate layout based on user role
     const Layout = (() => {
         switch (auth.user.role) {
             case 'admin':
@@ -45,125 +29,97 @@ export default function Profile({
             case 'student':
                 return StudentLayout;
             default:
-                return AppLayout;
+                return AdminLayout;
         }
     })();
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Settings', href: '/settings/profile' },
+        { title: 'Profile', href: '/settings/profile' },
+    ];
+
     return (
         <Layout breadcrumbs={breadcrumbs}>
-            <Head title="Profile settings" />
-
-            <h1 className="sr-only">Profile Settings</h1>
+            <Head title="Profile" />
 
             <SettingsLayout>
-                <div className="space-y-6">
-                    <Heading
-                        variant="small"
-                        title="Profile information"
-                        description="Update your name and email address"
-                    />
-
-                    <Form
-                        {...ProfileController.update.form()}
-                        options={{
-                            preserveScroll: true,
-                        }}
-                        className="space-y-6"
-                    >
-                        {({ processing, recentlySuccessful, errors }) => (
+                <Card>
+                    <CardHeader className="border-b">
+                        <CardTitle className="text-sm font-semibold">Profile Information</CardTitle>
+                        <CardDescription className="text-xs">Update your account's profile information and email address.</CardDescription>
+                    </CardHeader>
+                    <Form {...ProfileController.update.form()} options={{ preserveScroll: true }}>
+                        {({ processing, recentlySuccessful, errors, data, setData }) => (
                             <>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
+                                <CardContent className="space-y-5 pt-6">
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="name">Full Name</Label>
+                                        <Input
+                                            id="name"
+                                            value={data.name}
+                                            onChange={(e) => setData('name', e.target.value)}
+                                            required
+                                            autoComplete="name"
+                                        />
+                                        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                                    </div>
 
-                                    <Input
-                                        id="name"
-                                        className="mt-1 block w-full"
-                                        defaultValue={auth.user.name}
-                                        name="name"
-                                        required
-                                        autoComplete="name"
-                                        placeholder="Full name"
-                                    />
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="email">Email Address</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={data.email}
+                                            onChange={(e) => setData('email', e.target.value)}
+                                            required
+                                            autoComplete="username"
+                                        />
+                                        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                                    </div>
 
-                                    <InputError
-                                        className="mt-2"
-                                        message={errors.name}
-                                    />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">Email address</Label>
-
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        className="mt-1 block w-full"
-                                        defaultValue={auth.user.email}
-                                        name="email"
-                                        required
-                                        autoComplete="username"
-                                        placeholder="Email address"
-                                    />
-
-                                    <InputError
-                                        className="mt-2"
-                                        message={errors.email}
-                                    />
-                                </div>
-
-                                {mustVerifyEmail &&
-                                    auth.user.email_verified_at === null && (
-                                        <div>
-                                            <p className="-mt-4 text-sm text-muted-foreground">
-                                                Your email address is
-                                                unverified.{' '}
-                                                <Link
-                                                    href={send()}
-                                                    as="button"
-                                                    className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                                                >
-                                                    Click here to resend the
-                                                    verification email.
+                                    {mustVerifyEmail && auth.user.email_verified_at === null && (
+                                        <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                                            <p className="text-xs text-amber-700">
+                                                Your email is unverified.{' '}
+                                                <Link href={send()} as="button" className="underline font-bold">
+                                                    Resend verification
                                                 </Link>
                                             </p>
-
-                                            {status ===
-                                                'verification-link-sent' && (
-                                                <div className="mt-2 text-sm font-medium text-green-600">
-                                                    A new verification link has
-                                                    been sent to your email
-                                                    address.
-                                                </div>
-                                            )}
                                         </div>
                                     )}
-
-                                <div className="flex items-center gap-4">
-                                    <Button
-                                        disabled={processing}
-                                        data-test="update-profile-button"
-                                    >
-                                        Save
+                                </CardContent>
+                                <CardFooter className="border-t bg-muted/30 flex items-center justify-between py-3">
+                                    <div>
+                                        <Transition
+                                            show={recentlySuccessful}
+                                            enter="transition ease-in-out"
+                                            enterFrom="opacity-0"
+                                            leave="transition ease-in-out"
+                                            leaveTo="opacity-0"
+                                        >
+                                            <p className="text-xs text-emerald-600 flex items-center gap-1">
+                                                <CheckCircle className="size-3" /> Saved
+                                            </p>
+                                        </Transition>
+                                    </div>
+                                    <Button disabled={processing} size="sm">
+                                        {processing ? 'Saving...' : 'Save Profile'}
                                     </Button>
-
-                                    <Transition
-                                        show={recentlySuccessful}
-                                        enter="transition ease-in-out"
-                                        enterFrom="opacity-0"
-                                        leave="transition ease-in-out"
-                                        leaveTo="opacity-0"
-                                    >
-                                        <p className="text-sm text-neutral-600">
-                                            Saved
-                                        </p>
-                                    </Transition>
-                                </div>
+                                </CardFooter>
                             </>
                         )}
                     </Form>
-                </div>
+                </Card>
 
-                <DeleteUser />
+                <Card className="border-destructive/20">
+                    <CardHeader className="border-b bg-destructive/[0.02]">
+                        <CardTitle className="text-sm font-semibold text-destructive">Danger Zone</CardTitle>
+                        <CardDescription className="text-xs">Once you delete your account, there is no going back.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <DeleteUser />
+                    </CardContent>
+                </Card>
             </SettingsLayout>
         </Layout>
     );

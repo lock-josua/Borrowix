@@ -1,19 +1,14 @@
 import { Head, router } from '@inertiajs/react';
-import { ShieldCheck, Lock, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -37,48 +32,35 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'RBAC', href: '/admin/rbac' },
 ];
 
-const roleColors: Record<string, string> = {
-    admin: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
-    staff: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-    student:
-        'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+const ROLE_PERMISSION_GROUPS: Record<string, string[]> = {
+    admin: [
+        'category',
+        'equipment',
+        'history',
+        'report',
+        'request',
+        'rbac',
+        'settings',
+        'subscription',
+        'transaction',
+        'user',
+    ],
+    staff: ['equipment', 'history', 'request', 'transaction'],
+    student: ['equipment', 'history', 'request'],
 };
-
-const rolePermissionMap: Record<string, string[]> = {
-    admin: [],
-    staff: ['equipment', 'transaction', 'request'],
-    student: ['equipment', 'request'],
-};
-
-function hasPermission(
-    permission: string,
-    role: Role,
-    overrides: Map<string, Map<string, boolean>>,
-): boolean {
-    const roleOverrides = overrides.get(role.name);
-    if (roleOverrides?.has(permission)) {
-        return roleOverrides.get(permission) ?? false;
-    }
-
-    return role.permissions.includes(permission);
-}
 
 export default function RbacIndex({ roles, allPermissions }: Props) {
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const [pending, setPending] = useState<Set<string>>(new Set());
-    const [overrides, setOverrides] = useState<
-        Map<string, Map<string, boolean>>
-    >(() => new Map(roles.map((r) => [r.name, new Map()])));
-    const [filter, setFilter] = useState<string>('all');
 
-    const visibleRoles =
-        filter === 'all' ? roles : roles.filter((r) => r.name === filter);
+    const currentRole = roles.find((r) => r.name === selectedRole);
 
-    const visiblePermissions =
-        filter === 'all'
-            ? allPermissions
-            : allPermissions.filter((g) =>
-                  rolePermissionMap[filter]?.includes(g.resource),
-              );
+    const allowedGroups = selectedRole
+        ? (ROLE_PERMISSION_GROUPS[selectedRole] ?? [])
+        : [];
+    const filteredPermissions = allPermissions.filter((group) =>
+        allowedGroups.includes(group.resource),
+    );
 
     async function handleToggle(
         roleName: string,
@@ -87,10 +69,6 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
     ) {
         const key = `${roleName}:${permission}`;
         setPending((prev) => new Set(prev).add(key));
-
-        const roleOverrides = overrides.get(roleName) ?? new Map();
-        roleOverrides.set(permission, checked);
-        setOverrides(new Map(overrides).set(roleName, roleOverrides));
 
         router.patch(
             '/admin/rbac',
@@ -108,14 +86,10 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
                         return next;
                     });
                     toast.success(
-                        `${roleName} ${checked ? 'granted' : 'revoked'} ${permission}`,
+                        `${roleName} ${checked ? 'granted' : 'revoked'}: ${permission}`,
                     );
                 },
                 onError: () => {
-                    roleOverrides.set(permission, !checked);
-                    setOverrides(
-                        new Map(overrides).set(roleName, roleOverrides),
-                    );
                     setPending((prev) => {
                         const next = new Set(prev);
                         next.delete(key);
@@ -127,221 +101,217 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
         );
     }
 
-    function isPending(roleName: string, permission: string): boolean {
-        return pending.has(`${roleName}:${permission}`);
-    }
-
-    const filterOptions = ['all', 'admin', 'staff', 'student'];
-
     return (
         <AdminLayout breadcrumbs={breadcrumbs}>
             <Head title="RBAC Permissions" />
 
-            <div className="flex flex-col gap-6 p-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                            <ShieldCheck className="size-5 text-primary" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight">
-                                Role Permissions
-                            </h1>
-                            <p className="text-sm text-muted-foreground">
-                                Manage permissions for each role. Changes take
-                                effect immediately.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    title="Role Permissions"
+                    description="Manage permissions for each role."
+                />
 
-                <Card>
-                    <CardContent className="pt-4">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-2">
-                                {filterOptions.map((option) => (
-                                    <Button
-                                        key={option}
-                                        size="sm"
-                                        variant={
-                                            filter === option
-                                                ? 'default'
-                                                : 'outline'
-                                        }
-                                        onClick={() => setFilter(option)}
-                                    >
-                                        {option === 'all'
-                                            ? 'All Roles'
-                                            : option.charAt(0).toUpperCase() +
-                                              option.slice(1)}
-                                    </Button>
-                                ))}
-                            </div>
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <div className="flex items-center gap-1.5">
-                                    <div className="size-2 rounded-full bg-green-500" />
-                                    Granted
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <div className="size-2 rounded-full bg-muted-foreground/30" />
-                                    Revoked
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <Lock className="size-3" />
-                                    Protected
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
+                {/* Table */}
+                <Card className="overflow-hidden border-border/60 p-0">
+                    <DataTable
+                        columns={[
+                            {
+                                key: 'role',
+                                label: 'Role',
+                                width: '22%',
+                                render: (role) => (
+                                    <span className="font-semibold text-foreground capitalize">
+                                        {role.name}
+                                    </span>
+                                ),
+                            },
+                            {
+                                key: 'permissions',
+                                label: 'Permissions',
+                                width: '60%',
+                                render: (role) => (
+                                    <div className="flex flex-wrap gap-1">
+                                        {role.name === 'admin' ? (
+                                            <span className="text-xs font-medium text-emerald-600">
+                                                All Permissions Granted
+                                            </span>
+                                        ) : role.name === 'staff' ? (
+                                            <span className="block truncate text-xs text-muted-foreground">
+                                                Staff permission
+                                            </span>
+                                        ) : role.name === 'student' &&
+                                          role.permissions.length > 0 ? (
+                                            <span className="block truncate text-xs text-muted-foreground">
+                                                {role.permissions.join(', ')}
+                                            </span>
+                                        ) : role.name === 'student' ? (
+                                            <span className="block truncate text-xs text-muted-foreground">
+                                                No permissions granted
+                                            </span>
+                                        ) : (
+                                            <span className="block truncate text-xs text-muted-foreground">
+                                                {role.permissions.join(', ')}
+                                            </span>
+                                        )}
+                                    </div>
+                                ),
+                            },
+                            {
+                                key: 'actions',
+                                label: '',
+                                width: '18%',
+                                align: 'right',
+                                render: (role) =>
+                                    role.name !== 'admin' ? (
+                                        <Button
+                                            variant={
+                                                selectedRole === role.name
+                                                    ? 'default'
+                                                    : 'outline'
+                                            }
+                                            size="sm"
+                                            onClick={() =>
+                                                setSelectedRole(role.name)
+                                            }
+                                        >
+                                            {selectedRole === role.name
+                                                ? 'Managing'
+                                                : 'Manage'}
+                                        </Button>
+                                    ) : (
+                                        <span className="text-xs text-muted-foreground italic">
+                                            Protected
+                                        </span>
+                                    ),
+                            },
+                        ]}
+                        data={roles}
+                        keyExtractor={(role) => role.name}
+                    />
                 </Card>
 
-                <Card>
-                    <CardContent className="p-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[220px] pl-6">
-                                        Permission
-                                    </TableHead>
-                                    {visibleRoles.map((role) => (
-                                        <TableHead
-                                            key={role.name}
-                                            className="w-[120px] text-center"
-                                        >
-                                            <Badge
-                                                variant="outline"
-                                                className={`gap-1.5 font-semibold ${roleColors[role.name] ?? ''}`}
-                                            >
-                                                {role.name === 'admin' && (
-                                                    <Lock className="size-3" />
-                                                )}
-                                                {role.name
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                    role.name.slice(1)}
-                                            </Badge>
-                                        </TableHead>
-                                    ))}
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {visiblePermissions.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={visibleRoles.length + 1}
-                                            className="py-8 text-center text-muted-foreground"
-                                        >
-                                            No permissions to display for this
-                                            role.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    visiblePermissions.map((group) => (
-                                        <>
-                                            <TableRow
-                                                key={`group-${group.resource}`}
-                                                className="bg-muted/40"
-                                            >
-                                                <TableCell
-                                                    colSpan={
-                                                        visibleRoles.length + 1
-                                                    }
-                                                    className="py-2.5 pl-6"
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="size-1 rounded-full bg-primary" />
-                                                        <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                                            {group.resource}
-                                                        </span>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
+                {/* Permission Management Panel */}
+                {selectedRole && currentRole && (
+                    <Card className="overflow-hidden border-border/60 p-0">
+                        <div className="flex items-center gap-2 border-b px-6 py-4">
+                            <ShieldCheck className="size-5 text-primary" />
+                            <h3 className="font-semibold capitalize">
+                                {currentRole.name} Permissions
+                            </h3>
+                            {currentRole.name === 'admin' && (
+                                <span className="ml-auto text-xs text-muted-foreground">
+                                    Read-only
+                                </span>
+                            )}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedRole(null)}
+                            >
+                                Close
+                            </Button>
+                        </div>
+                        <ScrollArea className="h-[60vh]">
+                            <div className="space-y-8 p-6">
+                                {filteredPermissions.map((group) => (
+                                    <div
+                                        key={group.resource}
+                                        className="space-y-4"
+                                    >
+                                        <h4 className="px-1 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
+                                            {group.resource}
+                                        </h4>
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                             {group.permissions.map((action) => {
                                                 const fullPermission = `${group.resource}.${action}`;
+                                                const granted =
+                                                    currentRole.permissions.includes(
+                                                        fullPermission,
+                                                    );
+                                                const isPending = pending.has(
+                                                    `${currentRole.name}:${fullPermission}`,
+                                                );
+                                                const isAdmin =
+                                                    currentRole.name ===
+                                                    'admin';
+                                                const isStudent =
+                                                    currentRole.name ===
+                                                    'student';
+                                                const isLockedForStudent =
+                                                    isStudent &&
+                                                    ((group.resource ===
+                                                        'equipment' &&
+                                                        [
+                                                            'create',
+                                                            'update',
+                                                            'delete',
+                                                        ].includes(action)) ||
+                                                        (group.resource ===
+                                                            'request' &&
+                                                            [
+                                                                'approve',
+                                                                'reject',
+                                                            ].includes(
+                                                                action,
+                                                            )));
 
                                                 return (
-                                                    <TableRow
+                                                    <div
                                                         key={fullPermission}
-                                                        className="transition-colors hover:bg-muted/30"
+                                                        className="flex items-center justify-between rounded-lg border bg-muted/20 p-3"
                                                     >
-                                                        <TableCell className="pl-8 text-sm font-medium">
+                                                        <div className="text-sm font-medium capitalize">
                                                             {action}
-                                                        </TableCell>
-                                                        {visibleRoles.map(
-                                                            (role) => {
-                                                                const granted =
-                                                                    hasPermission(
-                                                                        fullPermission,
-                                                                        role,
-                                                                        overrides,
+                                                        </div>
+                                                        <Switch
+                                                            checked={
+                                                                granted ?? false
+                                                            }
+                                                            disabled={
+                                                                isPending ||
+                                                                isAdmin ||
+                                                                isLockedForStudent
+                                                            }
+                                                            onCheckedChange={(
+                                                                checked,
+                                                            ) => {
+                                                                if (
+                                                                    isLockedForStudent
+                                                                ) {
+                                                                    toast.error(
+                                                                        'This permission is locked for students',
                                                                     );
-                                                                const isPendingState =
-                                                                    isPending(
-                                                                        role.name,
-                                                                        fullPermission,
-                                                                    );
-                                                                const isAdmin =
-                                                                    role.name ===
-                                                                    'admin';
-                                                                const isDisabled =
-                                                                    isAdmin ||
-                                                                    isPendingState;
-
-                                                                return (
-                                                                    <TableCell
-                                                                        key={`${role.name}-${fullPermission}`}
-                                                                        className="text-center"
-                                                                    >
-                                                                        <div className="flex items-center justify-center gap-2">
-                                                                            {granted &&
-                                                                                !isPendingState && (
-                                                                                    <div className="flex size-4 items-center justify-center rounded-full bg-green-500/10">
-                                                                                        <Check className="size-3 text-green-600 dark:text-green-400" />
-                                                                                    </div>
-                                                                                )}
-                                                                            {!granted &&
-                                                                                !isPendingState && (
-                                                                                    <div className="size-4 rounded-full bg-muted" />
-                                                                                )}
-                                                                            {isAdmin ? (
-                                                                                <Lock className="size-3.5 text-muted-foreground/50" />
-                                                                            ) : (
-                                                                                <Switch
-                                                                                    aria-label={`${role.name} - ${fullPermission}`}
-                                                                                    checked={
-                                                                                        granted
-                                                                                    }
-                                                                                    disabled={
-                                                                                        isDisabled
-                                                                                    }
-                                                                                    size="sm"
-                                                                                    onCheckedChange={(
-                                                                                        checked,
-                                                                                    ) => {
-                                                                                        handleToggle(
-                                                                                            role.name,
-                                                                                            fullPermission,
-                                                                                            checked,
-                                                                                        );
-                                                                                    }}
-                                                                                />
-                                                                            )}
-                                                                        </div>
-                                                                    </TableCell>
+                                                                    return;
+                                                                }
+                                                                if (
+                                                                    isPending ||
+                                                                    isAdmin
+                                                                ) {
+                                                                    return;
+                                                                }
+                                                                handleToggle(
+                                                                    currentRole.name,
+                                                                    fullPermission,
+                                                                    checked,
                                                                 );
-                                                            },
-                                                        )}
-                                                    </TableRow>
+                                                            }}
+                                                        />
+                                                    </div>
                                                 );
                                             })}
-                                        </>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    </Card>
+                )}
+            </motion.div>
         </AdminLayout>
     );
 }

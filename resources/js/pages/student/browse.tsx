@@ -1,14 +1,16 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, Package } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Package, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Browse Equipment', href: '/student/browse' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Browse Equipment', href: '/student/browse' }];
 
 interface Category {
     id: number;
@@ -24,6 +26,7 @@ interface Equipment {
     available_quantity: number;
     quantity: number;
     image_url: string | null;
+    status: string;
     category: { id: number; name: string } | null;
 }
 
@@ -39,14 +42,9 @@ interface Props {
     filters: { search?: string; category?: string };
 }
 
-export default function BrowseEquipment({
-    equipment,
-    categories,
-    filters,
-}: Props) {
+export default function BrowseEquipment({ equipment, categories, filters }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
 
-    // Debounce search — fire request 400ms after user stops typing
     useEffect(() => {
         const timeout = setTimeout(() => {
             if (search !== (filters.search ?? '')) {
@@ -72,185 +70,98 @@ export default function BrowseEquipment({
         <StudentLayout breadcrumbs={breadcrumbs}>
             <Head title="Browse Equipment" />
 
-            <div className="flex flex-col">
-                {/* ── Sticky search + filter bar ── */}
-                <div className="sticky top-14 z-30 border-b bg-background/95 px-4 pt-3 pb-3 backdrop-blur lg:top-0">
-                    {/* Search input */}
-                    <div className="relative">
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader title="Browse Equipment" description="Find and borrow ICT equipment for your school needs." />
+
+                <div className="flex flex-col gap-4">
+                    <div className="relative max-w-sm">
                         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search equipment..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-9"
+                            className="pl-9 h-10"
                         />
                     </div>
 
-                    {/* Category filter pills */}
-                    <div className="scrollbar-hide mt-2.5 flex gap-2 overflow-x-auto pb-0.5">
-                        <button
+                    <div className="flex flex-wrap gap-2">
+                        <Button
+                            variant={!filters.category ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8 rounded-full px-4 text-xs"
                             onClick={() => setCategory('')}
-                            className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                                !filters.category
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                            }`}
                         >
                             All
-                        </button>
+                        </Button>
                         {categories.map((cat) => (
-                            <button
+                            <Button
                                 key={cat.id}
+                                variant={filters.category === String(cat.id) ? 'default' : 'outline'}
+                                size="sm"
+                                className="h-8 rounded-full px-4 text-xs"
                                 onClick={() => setCategory(String(cat.id))}
-                                className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                                    filters.category === String(cat.id)
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                                }`}
                             >
                                 {cat.name}
-                            </button>
+                            </Button>
                         ))}
                     </div>
                 </div>
 
-                {/* ── Equipment grid ── */}
-                <div className="p-4">
-                    {equipment.data.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-16 text-center">
-                            <Package className="mb-3 size-12 text-muted-foreground/30" />
-                            <p className="font-medium text-muted-foreground">
-                                No equipment found
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Try a different search or category.
-                            </p>
-                        </div>
-                    ) : (
-                        <>
-                            <p className="mb-3 text-xs text-muted-foreground">
-                                {equipment.data.length} item
-                                {equipment.data.length !== 1 ? 's' : ''}{' '}
-                                available
-                                {filters.search && ` for "${filters.search}"`}
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                                {equipment.data.map((item) => (
-                                    <EquipmentCard key={item.id} item={item} />
-                                ))}
-                            </div>
-
-                            {/* Pagination */}
-                            {equipment.last_page > 1 && (
-                                <div className="mt-6 flex items-center justify-between border-t pt-4">
-                                    <p className="text-xs text-muted-foreground">
-                                        Page {equipment.current_page} of{' '}
-                                        {equipment.last_page}
-                                    </p>
-                                    <div className="flex gap-2">
-                                        {equipment.prev_page_url && (
-                                            <Link
-                                                href={equipment.prev_page_url}
-                                            >
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                >
-                                                    ← Prev
-                                                </Button>
-                                            </Link>
-                                        )}
-                                        {equipment.next_page_url && (
-                                            <Link
-                                                href={equipment.next_page_url}
-                                            >
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                >
-                                                    Next →
-                                                </Button>
-                                            </Link>
-                                        )}
-                                    </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {equipment.data.map((item, i) => (
+                        <motion.div
+                            key={item.id}
+                            initial={{ opacity: 0, scale: 0.96 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.04, duration: 0.2, ease: 'easeOut' }}
+                        >
+                            <Card className="flex flex-col overflow-hidden hover:border-primary/40 transition-colors duration-150 h-full">
+                                <div className="h-36 bg-muted flex items-center justify-center border-b border-border">
+                                    {item.image_url ? (
+                                        <img src={item.image_url} className="h-full w-full object-cover" alt={item.name} />
+                                    ) : (
+                                        <Package className="size-10 text-muted-foreground/30" />
+                                    )}
                                 </div>
-                            )}
-                        </>
-                    )}
+                                <CardContent className="p-3 flex flex-col gap-2 flex-1">
+                                    <div>
+                                        <p className="font-medium text-sm text-foreground leading-tight line-clamp-2">{item.name}</p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">{item.category?.name}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between mt-auto pt-1">
+                                        <StatusBadge status={item.status} />
+                                        <Button
+                                            size="sm"
+                                            variant={item.status === 'available' ? 'default' : 'outline'}
+                                            disabled={item.status !== 'available'}
+                                            asChild={item.status === 'available'}
+                                            className="h-7 text-xs"
+                                        >
+                                            {item.status === 'available' ? (
+                                                <Link href={`/student/borrow-requests/create?equipment=${item.id}`}>Borrow</Link>
+                                            ) : (
+                                                <span>Unavailable</span>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    ))}
                 </div>
-            </div>
-        </StudentLayout>
-    );
-}
 
-// ── Equipment Card ─────────────────────────────────────────────
-function EquipmentCard({ item }: { item: Equipment }) {
-    return (
-        <div className="flex flex-col overflow-hidden rounded-xl border bg-card transition-colors hover:bg-muted/30">
-            {/* Image */}
-            <div className="relative aspect-square w-full overflow-hidden bg-muted/50">
-                {item.image_url ? (
-                    <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                    />
-                ) : (
-                    <div className="flex h-full w-full flex-col items-center justify-center">
-                        <Package className="size-10 text-muted-foreground/25" />
+                {equipment.data.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
+                        <Package className="size-12 mb-4 opacity-20" />
+                        <p>No equipment found matching your criteria.</p>
                     </div>
                 )}
-
-                {/* Available quantity badge */}
-                <div className="absolute right-2 bottom-2">
-                    <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                            item.available_quantity > 0
-                                ? 'bg-emerald-500/90 text-white'
-                                : 'bg-red-500/90 text-white'
-                        }`}
-                    >
-                        {item.available_quantity} left
-                    </span>
-                </div>
-            </div>
-
-            {/* Info */}
-            <div className="flex flex-1 flex-col p-3">
-                <p className="line-clamp-2 text-[13px] leading-snug font-semibold text-foreground">
-                    {item.name}
-                </p>
-                {(item.brand || item.model) && (
-                    <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">
-                        {[item.brand, item.model].filter(Boolean).join(' · ')}
-                    </p>
-                )}
-                {item.category && (
-                    <span className="mt-1.5 inline-block self-start rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                        {item.category.name}
-                    </span>
-                )}
-
-                {/* Borrow button */}
-                <div className="mt-auto pt-3">
-                    <Link
-                        href={`/student/borrow-requests/create?equipment_id=${item.id}`}
-                        className="block"
-                    >
-                        <Button
-                            size="sm"
-                            className="w-full text-xs"
-                            disabled={item.available_quantity === 0}
-                        >
-                            {item.available_quantity > 0
-                                ? 'Borrow'
-                                : 'Unavailable'}
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-        </div>
+            </motion.div>
+        </StudentLayout>
     );
 }

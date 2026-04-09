@@ -1,10 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {
-    LayoutDashboard,
-    Package,
-    ArrowLeftRight,
-    ClipboardList,
-} from 'lucide-react';
+import { LayoutDashboard, Package, ArrowLeftRight, ClipboardList } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
@@ -28,11 +23,7 @@ const navItems = [
     { title: 'Dashboard', href: '/staff/dashboard', icon: LayoutDashboard },
     { title: 'Requests', href: '/staff/requests', icon: ClipboardList },
     { title: 'Equipment', href: '/staff/equipment', icon: Package },
-    {
-        title: 'Transactions',
-        href: '/staff/transactions',
-        icon: ArrowLeftRight,
-    },
+    { title: 'Transactions', href: '/staff/transactions', icon: ArrowLeftRight },
 ];
 
 interface Props extends PropsWithChildren {
@@ -50,24 +41,21 @@ export default function StaffLayout({ children, breadcrumbs = [] }: Props) {
                             <SidebarMenuButton size="lg" asChild>
                                 <Link href="/staff/dashboard">
                                     <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                                        <LayoutDashboard className="size-5" />
+                                        <LayoutDashboard className="size-4" />
                                     </div>
-                                    <div className="ml-1 grid flex-1 text-left text-sm">
-                                        <span className="truncate leading-tight font-semibold">
-                                            Borrowix
-                                        </span>
-                                        <span className="truncate text-xs text-muted-foreground">
-                                            Staff
-                                        </span>
+                                    <div className="grid flex-1 text-left text-sm leading-tight">
+                                        <span className="truncate font-semibold text-foreground">Borrowix</span>
+                                        <span className="truncate text-xs text-muted-foreground uppercase tracking-wide font-medium">Staff</span>
                                     </div>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarHeader>
+
                 <SidebarContent>
-                    <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel>Menu</SidebarGroupLabel>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Operations</SidebarGroupLabel>
                         <SidebarMenu>
                             {navItems.map((item) => (
                                 <SidebarMenuItem key={item.title}>
@@ -75,6 +63,7 @@ export default function StaffLayout({ children, breadcrumbs = [] }: Props) {
                                         asChild
                                         isActive={isCurrentUrl(item.href)}
                                         tooltip={{ children: item.title }}
+                                        className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
                                     >
                                         <Link href={item.href}>
                                             <item.icon className="size-4" />
@@ -86,10 +75,12 @@ export default function StaffLayout({ children, breadcrumbs = [] }: Props) {
                         </SidebarMenu>
                     </SidebarGroup>
                 </SidebarContent>
+
                 <SidebarFooter>
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>
+
             <AppContent variant="sidebar" className="overflow-x-hidden">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 {children}

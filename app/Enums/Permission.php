@@ -24,6 +24,7 @@ enum Permission: string
     case UserDelete = 'user.delete';
 
     case CategoryManage = 'category.manage';
+    case HistoryViewAny = 'history.viewAny';
     case ReportView = 'report.view';
     case ReportExport = 'report.export';
     case SettingsManage = 'settings.manage';

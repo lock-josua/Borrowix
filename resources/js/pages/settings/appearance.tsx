@@ -1,35 +1,22 @@
 import { Head } from '@inertiajs/react';
 import AppearanceTabs from '@/components/appearance-tabs';
-import Heading from '@/components/heading';
-import AppLayout from '@/layouts/app-layout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import SettingsLayout from '@/layouts/settings/layout';
-import { edit as editAppearance } from '@/routes/appearance';
-import type { BreadcrumbItem } from '@/types';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Appearance settings',
-        href: editAppearance().url,
-    },
-];
 
 export default function Appearance() {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Appearance settings" />
+        <SettingsLayout>
+            <Head title="Appearance" />
 
-            <h1 className="sr-only">Appearance Settings</h1>
-
-            <SettingsLayout>
-                <div className="space-y-6">
-                    <Heading
-                        variant="small"
-                        title="Appearance settings"
-                        description="Update your account's appearance settings"
-                    />
+            <Card>
+                <CardHeader className="border-b">
+                    <CardTitle className="text-sm font-semibold">Appearance</CardTitle>
+                    <CardDescription className="text-xs">Customize the look and feel of your Borrowix dashboard.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
                     <AppearanceTabs />
-                </div>
-            </SettingsLayout>
-        </AppLayout>
+                </CardContent>
+            </Card>
+        </SettingsLayout>
     );
 }

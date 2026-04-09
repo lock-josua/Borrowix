@@ -17,6 +17,8 @@ class BorrowTransactionController extends Controller
 {
     public function index(Request $request): Response
     {
+        $this->authorize(Permission::TransactionViewAny->value);
+
         $transactions = BorrowTransaction::with(['borrower', 'equipment'])
             ->when($request->status, fn ($q) => $q->where('status', BorrowTransactionStatus::from($request->status)))
             ->when($request->search, fn ($q) => $q->whereHas('borrower', fn ($q) => $q->where('name', 'like', "%{$request->search}%")))
@@ -32,6 +34,8 @@ class BorrowTransactionController extends Controller
 
     public function show(BorrowTransaction $borrowTransaction): Response
     {
+        $this->authorize(Permission::TransactionViewAny->value);
+
         $borrowTransaction->load(['borrower', 'equipment', 'issuedBy', 'borrowRequest']);
 
         return Inertia::render('staff/transactions/show', [

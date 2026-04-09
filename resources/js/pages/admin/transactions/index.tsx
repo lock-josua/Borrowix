@@ -1,17 +1,17 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Eye, RotateCcw, ArrowLeftRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeftRight, Eye, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
+import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@/components/ui/dialog';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -41,16 +41,14 @@ interface Props {
     filters: { status?: string; search?: string };
 }
 
-const statusBadge: Record<string, string> = {
-    active: 'badge-info',
-    returned: 'badge-success',
-    overdue: 'badge-error',
-};
-
 export default function TransactionsIndex({ transactions, filters }: Props) {
     const [returnTarget, setReturnTarget] = useState<Transaction | null>(null);
     const [notes, setNotes] = useState('');
     const [fine, setFine] = useState('');
+
+    function handleFilterChange(key: string, value: string) {
+        router.get('/admin/transactions', { ...filters, [key]: value || undefined }, { preserveState: true });
+    }
 
     function handleReturn() {
         if (!returnTarget) return;
@@ -74,262 +72,140 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
         <AdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Transactions" />
 
-            <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">
-                            Transactions
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Track active loans and returns.
-                        </p>
-                    </div>
-                </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader title="Transactions" description="Track active loans and returns." />
 
-                {/* Filter pills */}
-                <div className="flex flex-wrap gap-2">
-                    {['', 'active', 'overdue', 'returned'].map((s) => (
-                        <Button
-                            key={s}
-                            size="sm"
-                            variant={
-                                filters.status === s ||
-                                (!filters.status && s === '')
-                                    ? 'default'
-                                    : 'outline'
-                            }
-                            onClick={() =>
-                                router.get(
-                                    '/admin/transactions',
-                                    { status: s },
-                                    { preserveState: true },
-                                )
-                            }
-                        >
-                            {s === ''
-                                ? 'All'
-                                : s.charAt(0).toUpperCase() + s.slice(1)}
-                        </Button>
-                    ))}
-                </div>
+                {/* Filter bar */}
+                <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
+                    <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
+                        <SelectTrigger className="h-9 w-[150px] text-sm bg-muted/20">
+                            <SelectValue placeholder="All statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All statuses</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="overdue">Overdue</SelectItem>
+                            <SelectItem value="returned">Returned</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Card>
 
                 {/* Table */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            {transactions.data.length} transaction
-                            {transactions.data.length !== 1 ? 's' : ''}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {transactions.data.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <ArrowLeftRight className="mb-3 size-10 text-muted-foreground/40" />
-                                <p className="font-medium text-muted-foreground">
-                                    No transactions found
-                                </p>
-                                <p className="mt-1 text-xs text-muted-foreground">
-                                    Approved borrow requests will appear here.
-                                </p>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="overflow-x-auto rounded-md border">
-                                    <table className="w-full text-sm">
-                                        <thead>
-                                            <tr className="border-b bg-muted/50">
-                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                                                    Borrower
-                                                </th>
-                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                                                    Equipment
-                                                </th>
-                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                                                    Issued
-                                                </th>
-                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                                                    Due
-                                                </th>
-                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                                                    Status
-                                                </th>
-                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                                                    Fine
-                                                </th>
-                                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                                                    Actions
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {transactions.data.map((t) => (
-                                                <tr
-                                                    key={t.id}
-                                                    className="border-b transition-colors last:border-0 hover:bg-muted/50"
-                                                >
-                                                    <td className="px-4 py-3 font-medium">
-                                                        {t.borrower.name}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        {t.equipment.name}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-xs text-muted-foreground">
-                                                        {new Date(
-                                                            t.issued_at,
-                                                        ).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-xs text-muted-foreground">
-                                                        {new Date(
-                                                            t.due_date,
-                                                        ).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <span
-                                                            className={`badge badge-sm capitalize ${statusBadge[t.status] ?? 'badge-ghost'}`}
-                                                        >
-                                                            {t.status.replace(
-                                                                /_/g,
-                                                                ' ',
-                                                            )}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm">
-                                                        {t.fine_amount > 0 ? (
-                                                            <span className="font-medium text-amber-600">
-                                                                ₱{t.fine_amount}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-muted-foreground">
-                                                                —
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex gap-1">
-                                                            <Link
-                                                                href={`/admin/transactions/${t.id}`}
-                                                            >
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                >
-                                                                    <Eye className="mr-1 size-3.5" />
-                                                                    View
-                                                                </Button>
-                                                            </Link>
-                                                            {t.status !==
-                                                                'returned' && (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    className="text-primary hover:bg-primary/5"
-                                                                    onClick={() =>
-                                                                        setReturnTarget(
-                                                                            t,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <RotateCcw className="mr-1 size-3.5" />
-                                                                    Return
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                {/* Pagination */}
-                                {transactions.last_page > 1 && (
-                                    <div className="flex items-center justify-between border-t pt-4">
-                                        <p className="text-xs text-muted-foreground">
-                                            Page {transactions.current_page} of{' '}
-                                            {transactions.last_page}
-                                        </p>
-                                        <div className="flex gap-2">
-                                            {transactions.prev_page_url && (
-                                                <Link
-                                                    href={
-                                                        transactions.prev_page_url
-                                                    }
-                                                >
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                    >
-                                                        ← Previous
-                                                    </Button>
-                                                </Link>
-                                            )}
-                                            {transactions.next_page_url && (
-                                                <Link
-                                                    href={
-                                                        transactions.next_page_url
-                                                    }
-                                                >
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                    >
-                                                        Next →
-                                                    </Button>
-                                                </Link>
-                                            )}
-                                        </div>
+                <Card className="overflow-hidden p-0 border-border/60">
+                    <DataTable
+                        columns={[
+                            {
+                                key: 'borrower',
+                                label: 'Borrower',
+                                width: '25%',
+                                render: (t) => <span className="font-medium text-foreground truncate block">{t.borrower.name}</span>,
+                            },
+                            {
+                                key: 'equipment',
+                                label: 'Equipment',
+                                width: '25%',
+                                render: (t) => <span className="text-muted-foreground truncate block">{t.equipment.name}</span>,
+                            },
+                            {
+                                key: 'borrowed',
+                                label: 'Borrowed',
+                                width: '14%',
+                                render: (t) => <span className="text-muted-foreground text-xs">{t.issued_at}</span>,
+                            },
+                            {
+                                key: 'due',
+                                label: 'Due',
+                                width: '13%',
+                                render: (t) => (
+                                    <div className="flex flex-col">
+                                        <span className="text-muted-foreground text-xs">{t.due_date}</span>
+                                        {t.fine_amount > 0 && <span className="text-[10px] font-bold text-destructive">₱{t.fine_amount}</span>}
                                     </div>
-                                )}
-                            </>
-                        )}
-                    </CardContent>
+                                ),
+                            },
+                            {
+                                key: 'status',
+                                label: 'Status',
+                                width: '11%',
+                                align: 'center',
+                                render: (t) => <StatusBadge status={t.status} />,
+                            },
+                            {
+                                key: 'overdue',
+                                label: 'Overdue',
+                                width: '7%',
+                                align: 'center',
+                                render: (t) => (t.status === 'overdue' ? <span className="text-destructive font-bold">!</span> : null),
+                            },
+                            {
+                                key: 'actions',
+                                label: '',
+                                width: '5%',
+                                align: 'right',
+                                render: (t) => (
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button variant="ghost" size="icon" className="size-7" asChild>
+                                            <Link href={`/admin/transactions/${t.id}`}>
+                                                <Eye className="size-3.5" />
+                                            </Link>
+                                        </Button>
+                                        {t.status !== 'returned' && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-7 text-primary hover:bg-primary/5"
+                                                onClick={() => setReturnTarget(t)}
+                                            >
+                                                <RotateCcw className="size-3.5" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                ),
+                            },
+                        ]}
+                        data={transactions.data}
+                        keyExtractor={(t) => t.id}
+                    />
+                    <TablePagination
+                        currentPage={transactions.current_page}
+                        lastPage={transactions.last_page}
+                        nextUrl={transactions.next_page_url}
+                        prevUrl={transactions.prev_page_url}
+                    />
                 </Card>
-            </div>
 
-            <Dialog
-                open={!!returnTarget}
-                onOpenChange={() => setReturnTarget(null)}
-            >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Mark as Returned</DialogTitle>
-                    </DialogHeader>
-                    <p className="text-sm text-muted-foreground">
-                        <strong>{returnTarget?.borrower.name}</strong> returning{' '}
-                        <strong>{returnTarget?.equipment.name}</strong>.
-                    </p>
-                    <div className="space-y-3">
-                        <div className="space-y-1">
-                            <Label>Condition Notes</Label>
-                            <Input
-                                placeholder="Any damage or notes..."
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                            />
+                <Dialog open={!!returnTarget} onOpenChange={() => setReturnTarget(null)}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Mark as Returned</DialogTitle>
+                        </DialogHeader>
+                        <p className="text-sm text-muted-foreground">
+                            <strong>{returnTarget?.borrower.name}</strong> returning <strong>{returnTarget?.equipment.name}</strong>.
+                        </p>
+                        <div className="space-y-4 py-2">
+                            <div className="space-y-1.5">
+                                <Label className="text-sm font-medium">Condition Notes</Label>
+                                <Input placeholder="Any damage or notes..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-sm font-medium">Fine Amount (₱)</Label>
+                                <Input type="number" min="0" placeholder="0" value={fine} onChange={(e) => setFine(e.target.value)} />
+                            </div>
                         </div>
-                        <div className="space-y-1">
-                            <Label>Fine Amount (₱)</Label>
-                            <Input
-                                type="number"
-                                min="0"
-                                placeholder="0"
-                                value={fine}
-                                onChange={(e) => setFine(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setReturnTarget(null)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button onClick={handleReturn}>Confirm Return</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setReturnTarget(null)}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleReturn}>Confirm Return</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </motion.div>
         </AdminLayout>
     );
 }

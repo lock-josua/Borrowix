@@ -1,14 +1,14 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Plus, Eye, XCircle, ClipboardList } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Eye, Plus, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
+import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@/components/ui/dialog';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -23,6 +23,7 @@ interface BorrowRequest {
     borrow_date: string;
     expected_return_date: string;
     status: string;
+    purpose: string;
 }
 
 interface Props {
@@ -35,187 +36,125 @@ interface Props {
     };
 }
 
-const statusBadge: Record<string, string> = {
-    pending: 'badge-warning',
-    approved: 'badge-success',
-    rejected: 'badge-error',
-    canceled: 'badge-neutral',
-};
-
-const statusLabel: Record<string, string> = {
-    pending: 'Pending',
-    approved: 'Approved',
-    rejected: 'Rejected',
-    canceled: 'Canceled',
-};
-
 export default function StudentRequestsIndex({ requests }: Props) {
-    const [cancelTarget, setCancelTarget] = useState<BorrowRequest | null>(
-        null,
-    );
+    const [cancelTarget, setCancelTarget] = useState<BorrowRequest | null>(null);
 
     function handleCancel() {
         if (!cancelTarget) return;
-        router.post(
-            `/student/borrow-requests/${cancelTarget.id}/cancel`,
-            {},
-            {
-                onSuccess: () => setCancelTarget(null),
-            },
-        );
+        router.post(`/student/borrow-requests/${cancelTarget.id}/cancel`, {}, { onSuccess: () => setCancelTarget(null) });
     }
 
     return (
         <StudentLayout breadcrumbs={breadcrumbs}>
             <Head title="My Requests" />
 
-            <div className="flex flex-col gap-4 p-4 lg:p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-semibold tracking-tight">
-                            My Requests
-                        </h1>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                            Track your borrow requests.
-                        </p>
-                    </div>
-                    <Link href="/student/borrow-requests/create">
-                        <Button size="sm">
-                            <Plus className="mr-1.5 size-3.5" />
-                            New
-                        </Button>
-                    </Link>
-                </div>
-
-                {/* Request list */}
-                {requests.data.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 text-center">
-                        <ClipboardList className="mb-3 size-10 text-muted-foreground/30" />
-                        <p className="font-medium text-muted-foreground">
-                            No requests yet
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                            Submit a borrow request to get started.
-                        </p>
-                        <Link href="/student/browse" className="mt-4">
-                            <Button size="sm">Browse equipment</Button>
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="space-y-2.5">
-                        {requests.data.map((r) => (
-                            <div
-                                key={r.id}
-                                className="flex items-start gap-3 rounded-xl border bg-card p-3.5 transition-colors hover:bg-muted/30"
-                            >
-                                {/* Status dot */}
-                                <div className="mt-1 shrink-0">
-                                    <span
-                                        className={`badge badge-sm capitalize ${statusBadge[r.status] ?? 'badge-ghost'}`}
-                                    >
-                                        {statusLabel[r.status] ?? r.status}
-                                    </span>
-                                </div>
-
-                                {/* Details */}
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-medium">
-                                        {r.equipment.name}
-                                    </p>
-                                    <p className="mt-0.5 text-xs text-muted-foreground">
-                                        {new Date(
-                                            r.borrow_date,
-                                        ).toLocaleDateString()}{' '}
-                                        →{' '}
-                                        {new Date(
-                                            r.expected_return_date,
-                                        ).toLocaleDateString()}
-                                    </p>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex shrink-0 items-center gap-1">
-                                    <Link
-                                        href={`/student/borrow-requests/${r.id}`}
-                                    >
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="size-8"
-                                        >
-                                            <Eye className="size-3.5" />
-                                        </Button>
-                                    </Link>
-                                    {r.status === 'pending' && (
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="size-8 text-destructive hover:text-destructive"
-                                            onClick={() => setCancelTarget(r)}
-                                        >
-                                            <XCircle className="size-3.5" />
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Pagination */}
-                {requests.last_page > 1 && (
-                    <div className="flex items-center justify-between border-t pt-4">
-                        <p className="text-xs text-muted-foreground">
-                            Page {requests.current_page} of {requests.last_page}
-                        </p>
-                        <div className="flex gap-2">
-                            {requests.prev_page_url && (
-                                <Link href={requests.prev_page_url}>
-                                    <Button variant="outline" size="sm">
-                                        ← Prev
-                                    </Button>
-                                </Link>
-                            )}
-                            {requests.next_page_url && (
-                                <Link href={requests.next_page_url}>
-                                    <Button variant="outline" size="sm">
-                                        Next →
-                                    </Button>
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Cancel dialog */}
-            <Dialog
-                open={!!cancelTarget}
-                onOpenChange={() => setCancelTarget(null)}
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
             >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Cancel Request?</DialogTitle>
-                    </DialogHeader>
-                    <p className="text-sm text-muted-foreground">
-                        Cancel your request for{' '}
-                        <strong>{cancelTarget?.equipment.name}</strong>? This
-                        cannot be undone.
-                    </p>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setCancelTarget(null)}
-                        >
-                            Keep
+                <PageHeader
+                    title="My Requests"
+                    description="Track your borrow requests."
+                    actions={
+                        <Button size="sm" asChild>
+                            <Link href="/student/borrow-requests/create">
+                                <Plus className="size-3.5 mr-1.5" />
+                                New Request
+                            </Link>
                         </Button>
-                        <Button variant="destructive" onClick={handleCancel}>
-                            Cancel Request
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    }
+                />
+
+                <Card className="overflow-hidden p-0">
+                    <DataTable
+                        columns={[
+                            {
+                                key: 'equipment',
+                                label: 'Equipment',
+                                width: '35%',
+                                render: (r) => <span className="font-medium text-foreground">{r.equipment.name}</span>,
+                            },
+                            {
+                                key: 'purpose',
+                                label: 'Purpose',
+                                width: '25%',
+                                render: (r) => <span className="text-muted-foreground truncate block">{r.purpose}</span>,
+                            },
+                            {
+                                key: 'borrow_date',
+                                label: 'Borrow Date',
+                                width: '15%',
+                                render: (r) => <span className="text-xs">{r.borrow_date}</span>,
+                            },
+                            {
+                                key: 'return_date',
+                                label: 'Return Date',
+                                width: '15%',
+                                render: (r) => <span className="text-xs">{r.expected_return_date}</span>,
+                            },
+                            {
+                                key: 'status',
+                                label: 'Status',
+                                width: '10%',
+                                align: 'center',
+                                render: (r) => <StatusBadge status={r.status} />,
+                            },
+                            {
+                                key: 'actions',
+                                label: '',
+                                width: '8%',
+                                align: 'right',
+                                render: (r) => (
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button variant="ghost" size="icon" className="size-7" asChild>
+                                            <Link href={`/student/borrow-requests/${r.id}`}>
+                                                <Eye className="size-3.5" />
+                                            </Link>
+                                        </Button>
+                                        {r.status === 'pending' && (
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-7 hover:text-destructive"
+                                                onClick={() => setCancelTarget(r)}
+                                            >
+                                                <XCircle className="size-3.5" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                ),
+                            },
+                        ]}
+                        data={requests.data}
+                        keyExtractor={(r) => r.id}
+                    />
+                    <TablePagination
+                        currentPage={requests.current_page}
+                        lastPage={requests.last_page}
+                        nextUrl={requests.next_page_url}
+                        prevUrl={requests.prev_page_url}
+                    />
+                </Card>
+
+                <Dialog open={!!cancelTarget} onOpenChange={() => setCancelTarget(null)}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Cancel Request?</DialogTitle>
+                        </DialogHeader>
+                        <p className="text-sm text-muted-foreground">Are you sure you want to cancel this request?</p>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setCancelTarget(null)}>
+                                No
+                            </Button>
+                            <Button variant="destructive" onClick={handleCancel}>
+                                Yes, Cancel
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </motion.div>
         </StudentLayout>
     );
 }

@@ -1,12 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {
-    LayoutDashboard,
-    School,
-    Tag,
-    BarChart3,
-    CreditCard,
-    Settings,
-} from 'lucide-react';
+import { LayoutDashboard, School, Tag, BarChart3, CreditCard, Settings } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
@@ -26,18 +19,10 @@ import {
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { BreadcrumbItem } from '@/types';
 
-const navItems = [
-    {
-        title: 'Dashboard',
-        href: '/super-admin/dashboard',
-        icon: LayoutDashboard,
-    },
+const platformNav = [
+    { title: 'Dashboard', href: '/super-admin/dashboard', icon: LayoutDashboard },
     { title: 'Schools', href: '/super-admin/schools', icon: School },
-    {
-        title: 'Subscriptions',
-        href: '/super-admin/subscriptions',
-        icon: CreditCard,
-    },
+    { title: 'Subscriptions', href: '/super-admin/subscriptions', icon: CreditCard },
     { title: 'Promo Codes', href: '/super-admin/promo-codes', icon: Tag },
     { title: 'Analytics', href: '/super-admin/analytics', icon: BarChart3 },
 ];
@@ -46,29 +31,23 @@ interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default function SuperAdminLayout({
-    children,
-    breadcrumbs = [],
-}: Props) {
+export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
         <AppShell variant="sidebar">
             <Sidebar collapsible="icon" variant="inset">
-                {/* Logo */}
                 <SidebarHeader>
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" asChild>
                                 <Link href="/super-admin/dashboard">
                                     <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                                        <LayoutDashboard className="size-5" />
+                                        <LayoutDashboard className="size-4" />
                                     </div>
-                                    <div className="ml-1 grid flex-1 text-left text-sm">
-                                        <span className="truncate leading-tight font-semibold">
-                                            Borrowix
-                                        </span>
-                                        <span className="badge badge-xs badge-outline truncate">
+                                    <div className="grid flex-1 text-left text-sm leading-tight">
+                                        <span className="truncate font-semibold text-foreground">Borrowix</span>
+                                        <span className="truncate text-xs text-muted-foreground uppercase tracking-wide font-medium">
                                             Super Admin
                                         </span>
                                     </div>
@@ -78,17 +57,17 @@ export default function SuperAdminLayout({
                     </SidebarMenu>
                 </SidebarHeader>
 
-                {/* Nav */}
                 <SidebarContent>
-                    <SidebarGroup className="px-2 py-0">
+                    <SidebarGroup>
                         <SidebarGroupLabel>Platform</SidebarGroupLabel>
                         <SidebarMenu>
-                            {navItems.map((item) => (
+                            {platformNav.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton
                                         asChild
                                         isActive={isCurrentUrl(item.href)}
                                         tooltip={{ children: item.title }}
+                                        className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
                                     >
                                         <Link href={item.href}>
                                             <item.icon className="size-4" />
@@ -100,19 +79,19 @@ export default function SuperAdminLayout({
                         </SidebarMenu>
                     </SidebarGroup>
 
-                    {/* Account */}
-                    <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel>Account</SidebarGroupLabel>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Insights</SidebarGroupLabel>
                         <SidebarMenu>
-                            <SidebarMenuItem key="Profile">
+                            <SidebarMenuItem>
                                 <SidebarMenuButton
                                     asChild
                                     isActive={isCurrentUrl('/settings/profile')}
-                                    tooltip={{ children: 'Profile' }}
+                                    tooltip={{ children: 'Settings' }}
+                                    className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
                                 >
                                     <Link href="/settings/profile">
                                         <Settings className="size-4" />
-                                        <span>Profile</span>
+                                        <span>Settings</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
@@ -120,7 +99,6 @@ export default function SuperAdminLayout({
                     </SidebarGroup>
                 </SidebarContent>
 
-                {/* User */}
                 <SidebarFooter>
                     <NavUser />
                 </SidebarFooter>

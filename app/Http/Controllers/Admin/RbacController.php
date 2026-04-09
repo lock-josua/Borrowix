@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -47,7 +46,7 @@ class RbacController extends Controller
         ]);
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request): Response
     {
         $this->authorize(Permission::RbacManage->value);
 
@@ -69,6 +68,31 @@ class RbacController extends Controller
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        return redirect()->route('admin.rbac.index');
+        $roles = Role::with('permissions')
+            ->whereIn('name', ['admin', 'staff', 'student'])
+            ->get()
+            ->map(fn ($role) => [
+                'name' => $role->name,
+                'permissions' => $role->permissions->pluck('name')->values(),
+            ]);
+
+        $allPermissions = SpatiePermission::pluck('name')
+            ->map(fn ($full) => [
+                'full' => $full,
+                'resource' => str($full)->before('.')->toString(),
+                'action' => str($full)->after('.')->toString(),
+            ])
+            ->groupBy('resource')
+            ->map(fn ($group) => $group->pluck('action')->values())
+            ->map(fn ($actions, $resource) => [
+                'resource' => $resource,
+                'permissions' => $actions,
+            ])
+            ->values();
+
+        return Inertia::render('admin/rbac/index', [
+            'roles' => $roles,
+            'allPermissions' => $allPermissions,
+        ]);
     }
 }
