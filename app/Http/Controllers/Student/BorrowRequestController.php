@@ -48,16 +48,22 @@ class BorrowRequestController extends Controller
     {
         $this->authorize(Permission::RequestCreate->value);
 
+        $equipment = Equipment::where('id', $request->equipment_id)->firstOrFail();
+
         $validated = $request->validate([
-            'equipment_id' => ['required', 'exists:equipment,id'],
+            'equipment_id' => [
+                'required',
+                'exists:equipment,id',
+                function ($attribute, $value, $fail) use ($equipment) {
+                    if (! $equipment->isAvailable()) {
+                        $fail('This equipment is not available for borrowing.');
+                    }
+                },
+            ],
             'purpose' => ['required', 'string', 'max:500'],
             'borrow_date' => ['required', 'date', 'after_or_equal:now'],
             'expected_return_date' => ['required', 'date', 'after:borrow_date'],
         ]);
-
-        $equipment = Equipment::where('id', $validated['equipment_id'])->firstOrFail();
-
-        abort_if(! $equipment->isAvailable(), 422, 'This equipment is not available for borrowing.');
 
         BorrowRequest::create([
             ...$validated,
