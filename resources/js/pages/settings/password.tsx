@@ -1,131 +1,82 @@
 import { Transition } from '@headlessui/react';
 import { Form, Head } from '@inertiajs/react';
+import { CheckCircle, Lock } from 'lucide-react';
 import { useRef } from 'react';
-import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
+import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import type { BreadcrumbItem } from '@/types';
-import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
-import { edit } from '@/routes/user-password';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Password settings',
-        href: edit().url,
-    },
-];
 
 export default function Password() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Password settings" />
+        <SettingsLayout>
+            <Head title="Password" />
 
-            <h1 className="sr-only">Password Settings</h1>
-
-            <SettingsLayout>
-                <div className="space-y-6">
-                    <Heading
-                        variant="small"
-                        title="Update password"
-                        description="Ensure your account is using a long, random password to stay secure"
-                    />
-
-                    <Form
-                        {...PasswordController.update.form()}
-                        options={{
-                            preserveScroll: true,
-                        }}
-                        resetOnError={[
-                            'password',
-                            'password_confirmation',
-                            'current_password',
-                        ]}
-                        resetOnSuccess
-                        onError={(errors) => {
-                            if (errors.password) {
-                                passwordInput.current?.focus();
-                            }
-
-                            if (errors.current_password) {
-                                currentPasswordInput.current?.focus();
-                            }
-                        }}
-                        className="space-y-6"
-                    >
-                        {({ errors, processing, recentlySuccessful }) => (
-                            <>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="current_password">
-                                        Current password
-                                    </Label>
-
+            <Card>
+                <CardHeader className="border-b">
+                    <CardTitle className="text-sm font-semibold">Update Password</CardTitle>
+                    <CardDescription className="text-xs">Ensure your account is using a long, random password to stay secure.</CardDescription>
+                </CardHeader>
+                <Form
+                    {...PasswordController.update.form()}
+                    options={{ preserveScroll: true }}
+                    resetOnError={['password', 'password_confirmation', 'current_password']}
+                    resetOnSuccess
+                    onError={(errors) => {
+                        if (errors.password) passwordInput.current?.focus();
+                        if (errors.current_password) currentPasswordInput.current?.focus();
+                    }}
+                >
+                    {({ errors, processing, recentlySuccessful, data, setData }) => (
+                        <>
+                            <CardContent className="space-y-5 pt-6">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="current_password">Current Password</Label>
                                     <Input
                                         id="current_password"
                                         ref={currentPasswordInput}
-                                        name="current_password"
                                         type="password"
-                                        className="mt-1 block w-full"
+                                        value={data.current_password}
+                                        onChange={(e) => setData('current_password', e.target.value)}
                                         autoComplete="current-password"
-                                        placeholder="Current password"
                                     />
-
-                                    <InputError
-                                        message={errors.current_password}
-                                    />
+                                    {errors.current_password && <p className="text-xs text-destructive">{errors.current_password}</p>}
                                 </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="password">
-                                        New password
-                                    </Label>
-
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="password">New Password</Label>
                                     <Input
                                         id="password"
                                         ref={passwordInput}
-                                        name="password"
                                         type="password"
-                                        className="mt-1 block w-full"
+                                        value={data.password}
+                                        onChange={(e) => setData('password', e.target.value)}
                                         autoComplete="new-password"
-                                        placeholder="New password"
                                     />
-
-                                    <InputError message={errors.password} />
+                                    {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
                                 </div>
 
-                                <div className="grid gap-2">
-                                    <Label htmlFor="password_confirmation">
-                                        Confirm password
-                                    </Label>
-
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="password_confirmation">Confirm Password</Label>
                                     <Input
                                         id="password_confirmation"
-                                        name="password_confirmation"
                                         type="password"
-                                        className="mt-1 block w-full"
+                                        value={data.password_confirmation}
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
                                         autoComplete="new-password"
-                                        placeholder="Confirm password"
                                     />
-
-                                    <InputError
-                                        message={errors.password_confirmation}
-                                    />
+                                    {errors.password_confirmation && (
+                                        <p className="text-xs text-destructive">{errors.password_confirmation}</p>
+                                    )}
                                 </div>
-
-                                <div className="flex items-center gap-4">
-                                    <Button
-                                        disabled={processing}
-                                        data-test="update-password-button"
-                                    >
-                                        Save password
-                                    </Button>
-
+                            </CardContent>
+                            <CardFooter className="border-t bg-muted/30 flex items-center justify-between py-3">
+                                <div>
                                     <Transition
                                         show={recentlySuccessful}
                                         enter="transition ease-in-out"
@@ -133,16 +84,19 @@ export default function Password() {
                                         leave="transition ease-in-out"
                                         leaveTo="opacity-0"
                                     >
-                                        <p className="text-sm text-neutral-600">
-                                            Saved
+                                        <p className="text-xs text-emerald-600 flex items-center gap-1">
+                                            <CheckCircle className="size-3" /> Updated
                                         </p>
                                     </Transition>
                                 </div>
-                            </>
-                        )}
-                    </Form>
-                </div>
-            </SettingsLayout>
-        </AppLayout>
+                                <Button disabled={processing} size="sm">
+                                    {processing ? 'Saving...' : 'Update Password'}
+                                </Button>
+                            </CardFooter>
+                        </>
+                    )}
+                </Form>
+            </Card>
+        </SettingsLayout>
     );
 }

@@ -34,7 +34,7 @@ import { cn, toUrl } from '@/lib/utils';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
-import { dashboard } from '@/routes';
+import { dashboard } from '@/routes/tenant';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];

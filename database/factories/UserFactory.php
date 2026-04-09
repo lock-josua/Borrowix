@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -54,6 +56,30 @@ class UserFactory extends Factory
             'two_factor_secret' => encrypt('secret'),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),
+        ]);
+    }
+
+    public function admin(): static
+    {
+        // The User::booted() observer calls syncRoles() automatically on create.
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Admin,
+        ]);
+    }
+
+    public function staff(): static
+    {
+        // The User::booted() observer calls syncRoles() automatically on create.
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Staff,
+        ]);
+    }
+
+    public function student(): static
+    {
+        // The User::booted() observer calls syncRoles() automatically on create.
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Student,
         ]);
     }
 }
