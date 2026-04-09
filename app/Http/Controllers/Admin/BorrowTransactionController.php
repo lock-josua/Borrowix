@@ -6,6 +6,7 @@ use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
+use App\Notifications\TransactionReturned;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,9 @@ class BorrowTransactionController extends Controller
         if ($equipment->fresh()->available_quantity > 0 && $equipment->status === EquipmentStatus::Borrowed) {
             $equipment->update(['status' => EquipmentStatus::Available]);
         }
+
+        // Send notification to the borrower
+        $borrowTransaction->borrower->notify(new TransactionReturned($borrowTransaction, Auth::user()->name));
 
         return redirect()
             ->route('admin.transactions.index')

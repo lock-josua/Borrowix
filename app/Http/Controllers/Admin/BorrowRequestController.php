@@ -9,6 +9,8 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
+use App\Notifications\BorrowRequestApproved;
+use App\Notifications\BorrowRequestRejected;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,12 +51,17 @@ class BorrowRequestController extends Controller
     {
         $this->authorize(Permission::RequestApprove->value);
 
-        abort_if(! $borrowRequest->isPending(), 422, 'This request has already been processed.');
-        abort_if(! $borrowRequest->equipment->isAvailable(), 422, 'This equipment is no longer available.');
-
         $request->validate([
             'remarks' => ['nullable', 'string', 'max:500'],
         ]);
+
+        if (! $borrowRequest->isPending()) {
+            return back()->with('error', 'This request has already been processed.');
+        }
+
+        if (! $borrowRequest->equipment->isAvailable()) {
+            return back()->with('error', 'This equipment is no longer available.');
+        }
 
         // Approve the request
         $borrowRequest->update([
@@ -83,6 +90,9 @@ class BorrowRequestController extends Controller
             $borrowRequest->equipment->update(['status' => EquipmentStatus::Borrowed]);
         }
 
+        // Send notification to the student
+        $borrowRequest->requester->notify(new BorrowRequestApproved($borrowRequest, Auth::user()->name));
+
         return redirect()
             ->route($this->getRedirectRoute())
             ->with('success', 'Request approved and transaction created.');
@@ -104,6 +114,9 @@ class BorrowRequestController extends Controller
             'remarks' => $request->remarks,
             'processed_at' => now(),
         ]);
+
+        // Send notification to the student
+        $borrowRequest->requester->notify(new BorrowRequestRejected($borrowRequest, Auth::user()->name));
 
         return redirect()
             ->route($this->getRedirectRoute())
