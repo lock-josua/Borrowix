@@ -30,6 +30,8 @@ Route::prefix('admin')
             ->name('users.store');
         Route::get('/users/{user}', [UserController::class, 'show'])
             ->name('users.show');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])
+            ->name('users.edit');
         Route::patch('/users/{user}', [UserController::class, 'update'])
             ->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])
