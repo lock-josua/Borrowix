@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Student;
 
 use App\Enums\BorrowRequestStatus;
+use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
+use App\Models\BorrowTransaction;
 use App\Models\Equipment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -59,10 +61,29 @@ class BorrowRequestController extends Controller
                         $fail('This equipment is not available for borrowing.');
                     }
                 },
+                function ($attribute, $value, $fail) {
+                    $hasActiveTransaction = BorrowTransaction::where('borrower_id', auth()->id())
+                        ->where('equipment_id', $value)
+                        ->where('status', BorrowTransactionStatus::Active)
+                        ->exists();
+
+                    if ($hasActiveTransaction) {
+                        $fail('You already have an active transaction for this equipment.');
+                    }
+
+                    $hasPendingRequest = BorrowRequest::where('user_id', auth()->id())
+                        ->where('equipment_id', $value)
+                        ->where('status', BorrowRequestStatus::Pending)
+                        ->exists();
+
+                    if ($hasPendingRequest) {
+                        $fail('You already have a pending request for this equipment.');
+                    }
+                },
             ],
             'purpose' => ['required', 'string', 'max:500'],
             'borrow_date' => ['required', 'date', 'after_or_equal:now'],
-            'expected_return_date' => ['required', 'date', 'after:borrow_date'],
+            'expected_return_date' => ['required', 'date', 'after:borrow_date', 'before_or_equal:+30 days'],
         ]);
 
         BorrowRequest::create([
