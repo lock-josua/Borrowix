@@ -15,6 +15,7 @@ enum Permission: string
     case RequestReject = 'request.reject';
 
     case TransactionViewAny = 'transaction.viewAny';
+    case TransactionView = 'transaction.view';
     case TransactionCreate = 'transaction.create';
     case TransactionReturn = 'transaction.return';
 

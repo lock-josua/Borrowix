@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
 use App\Notifications\TransactionReturned;
@@ -32,6 +33,7 @@ class BorrowTransactionController extends Controller
 
     public function show(BorrowTransaction $borrowTransaction): Response
     {
+        $this->authorize(Permission::TransactionViewAny->value);
 
         $borrowTransaction->load(['borrower', 'equipment.category', 'issuedBy', 'returnedTo', 'borrowRequest']);
 
