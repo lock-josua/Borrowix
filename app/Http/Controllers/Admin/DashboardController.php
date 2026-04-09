@@ -10,6 +10,7 @@ use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use App\Models\Equipment;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -40,12 +41,43 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Chart data: Daily transactions for last 30 days
+        $dailyTransactions = BorrowTransaction::selectRaw('DATE(issued_at) as date, COUNT(*) as count')
+            ->where('issued_at', '>=', Carbon::now()->subDays(30))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => Carbon::parse($item->date)->format('M d'),
+                    'count' => (int) $item->count,
+                ];
+            });
+
+        // Chart data: Top 5 most borrowed equipment
+        $topEquipment = BorrowTransaction::selectRaw('equipment_id, COUNT(*) as count')
+            ->groupBy('equipment_id')
+            ->orderByDesc('count')
+            ->take(5)
+            ->with('equipment:id,name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => $item->equipment->name ?? 'Unknown',
+                    'count' => (int) $item->count,
+                ];
+            });
+
         $tenant = tenant();
 
         return Inertia::render('admin/dashboard', [
             'stats' => $stats,
             'pendingRequests' => $pendingRequests,
             'overdueTransactions' => $overdueTransactions,
+            'chartData' => [
+                'dailyTransactions' => $dailyTransactions,
+                'topEquipment' => $topEquipment,
+            ],
             'school' => [
                 'name' => $tenant->school_name ?? $tenant->id,
                 'plan' => $tenant->plan ?? 'free',
