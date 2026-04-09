@@ -14,6 +14,7 @@ use App\Notifications\BorrowRequestRejected;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -59,43 +60,49 @@ class BorrowRequestController extends Controller
             return back()->with('error', 'This request has already been processed.');
         }
 
-        if (! $borrowRequest->equipment->isAvailable()) {
-            return back()->with('error', 'This equipment is no longer available.');
-        }
+        // Use DB transaction with row lock to prevent race conditions
+        return DB::transaction(function () use ($borrowRequest, $request) {
+            // Lock the equipment row to prevent concurrent approvals
+            $equipment = \App\Models\Equipment::where('id', $borrowRequest->equipment_id)->lockForUpdate()->first();
 
-        // Approve the request
-        $borrowRequest->update([
-            'status' => BorrowRequestStatus::Approved,
-            'processed_by' => Auth::id(),
-            'remarks' => $request->remarks,
-            'processed_at' => now(),
-        ]);
+            if (! $equipment->isAvailable()) {
+                return back()->with('error', 'This equipment is no longer available.');
+            }
 
-        // Create the active transaction
-        BorrowTransaction::create([
-            'borrow_request_id' => $borrowRequest->id,
-            'borrower_id' => $borrowRequest->user_id,
-            'equipment_id' => $borrowRequest->equipment_id,
-            'issued_by' => Auth::id(),
-            'issued_at' => now(),
-            'due_date' => $borrowRequest->expected_return_date,
-            'status' => BorrowTransactionStatus::Active,
-        ]);
+            // Approve the request
+            $borrowRequest->update([
+                'status' => BorrowRequestStatus::Approved,
+                'processed_by' => Auth::id(),
+                'remarks' => $request->remarks,
+                'processed_at' => now(),
+            ]);
 
-        // Decrement available quantity
-        $borrowRequest->equipment->decrement('available_quantity');
+            // Create the active transaction
+            BorrowTransaction::create([
+                'borrow_request_id' => $borrowRequest->id,
+                'borrower_id' => $borrowRequest->user_id,
+                'equipment_id' => $borrowRequest->equipment_id,
+                'issued_by' => Auth::id(),
+                'issued_at' => now(),
+                'due_date' => $borrowRequest->expected_return_date,
+                'status' => BorrowTransactionStatus::Active,
+            ]);
 
-        // Update equipment status if fully borrowed
-        if ($borrowRequest->equipment->fresh()->available_quantity === 0) {
-            $borrowRequest->equipment->update(['status' => EquipmentStatus::Borrowed]);
-        }
+            // Decrement available quantity
+            $equipment->decrement('available_quantity');
 
-        // Send notification to the student
-        $borrowRequest->requester->notify(new BorrowRequestApproved($borrowRequest, Auth::user()->name));
+            // Update equipment status if fully borrowed
+            if ($equipment->fresh()->available_quantity === 0) {
+                $equipment->update(['status' => EquipmentStatus::Borrowed]);
+            }
 
-        return redirect()
-            ->route($this->getRedirectRoute())
-            ->with('success', 'Request approved and transaction created.');
+            // Send notification to the student
+            $borrowRequest->requester->notify(new BorrowRequestApproved($borrowRequest, Auth::user()->name));
+
+            return redirect()
+                ->route($this->getRedirectRoute())
+                ->with('success', 'Request approved and transaction created.');
+        });
     }
 
     public function reject(Request $request, BorrowRequest $borrowRequest): RedirectResponse
