@@ -1,4 +1,4 @@
-import { Form, Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ type Props = {
 
 export default function Login({
     status,
-    canResetPassword, 
+    canResetPassword,
     canRegister,
 }: Props) {
     const { data, setData, post, processing, errors } = useForm({
@@ -34,9 +34,7 @@ export default function Login({
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         post('/login', {
-            onSuccess: () => {
-                // Password is automatically reset due to Fortify
-            },
+            onSuccess: () => {},
         });
     }
 
@@ -44,29 +42,6 @@ export default function Login({
         <div className="flex min-h-screen flex-col bg-background lg:flex-row">
             <Head title="Log in" />
 
-<<<<<<< HEAD
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="email"
-                                    placeholder="Enter email address"
-                                />
-                                <InputError message={errors.email} />
-=======
             <div className="order-2 flex flex-1 items-center justify-center p-6 sm:p-10 lg:order-1">
                 <motion.div
                     initial={{ opacity: 0, x: -12 }}
@@ -78,7 +53,6 @@ export default function Login({
                         <CardHeader className="space-y-1 px-0 sm:px-6">
                             <div className="mb-4 flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
                                 <LayoutDashboard className="size-4" />
->>>>>>> 65b9d549be5954929b98db672d6bddd487df64ee
                             </div>
                             <h1 className="text-xl font-semibold tracking-tight text-foreground">
                                 Welcome back
@@ -112,35 +86,6 @@ export default function Login({
                                     )}
                                 </div>
 
-<<<<<<< HEAD
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="remember"
-                                    name="remember"
-                                    tabIndex={3}
-                                />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
-                            <div className='flex flex-col gap-4'>
-                                <Button
-                                    type="submit"
-                                    className="mt-4 w-full"
-                                    tabIndex={4}
-                                    disabled={processing}
-                                    data-test="login-button"
-                                >
-                                    {processing && <Spinner />}
-                                    Log in
-                                </Button>
-                                <div className="flex items-center">
-                                    <div className="flex-1 h-px bg-muted"></div>
-                                    <span className="px-4 text-sm text-muted-foreground text-white-600">or</span>
-                                    <div className="flex-1 h-px bg-muted"></div>
-                                </div>
-                                <GoogleAuthButton />
-                            </div>
-                            
-=======
                                 <div className="space-y-1">
                                     <div className="flex items-center justify-between">
                                         <Label htmlFor="password">
@@ -223,7 +168,6 @@ export default function Login({
                     {status && (
                         <div className="mt-4 text-center text-sm font-medium text-emerald-600">
                             {status}
->>>>>>> 65b9d549be5954929b98db672d6bddd487df64ee
                         </div>
                     )}
                 </motion.div>

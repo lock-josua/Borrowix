@@ -4,22 +4,6 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisterSuccessController;
 use App\Http\Controllers\RoleRedirectController;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-use Inertia\Inertia;
-use Laravel\Fortify\Features;
-use App\Http\Controllers\Auth\GoogleAuthController;
-
-
-
-Route::get('/', function () {
-    return Inertia::render('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-require __DIR__.'/settings.php';
-
-Route::get('/auth/google', [GoogleAuthController::class, 'redirect']);
-Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
-=======
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 
 // Central routes are only accessible on central domains (huwam.test, huwam.com).
@@ -59,4 +43,3 @@ foreach (config('tenancy.central_domains') as $domain) {
         require __DIR__.'/settings.php';
     });
 }
->>>>>>> 65b9d549be5954929b98db672d6bddd487df64ee

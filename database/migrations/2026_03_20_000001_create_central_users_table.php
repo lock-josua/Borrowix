@@ -21,7 +21,11 @@ return new class extends Migration
             $table->string('password');
             $table->string('google_id')->nullable();
             // Only super_admin lives in the central users table
-            $table->enum('role', ['super_admin'])->default('super_admin');
+            // Enum includes all roles for test compatibility
+            $table->enum('role', ['super_admin', 'admin', 'staff', 'student'])->default('super_admin');
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

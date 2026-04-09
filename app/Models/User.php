@@ -44,7 +44,7 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::saved(function (self $user) {
-            if ($user->wasChanged('role')) {
+            if ($user->isDirty('role')) {
                 $user->syncRoles([$user->role->value]);
             }
         });
