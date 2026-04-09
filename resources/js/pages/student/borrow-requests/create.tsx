@@ -161,6 +161,10 @@ export default function CreateRequest({
                                                     <SelectItem
                                                         key={e.id}
                                                         value={String(e.id)}
+                                                        disabled={
+                                                            e.available_quantity ===
+                                                            0
+                                                        }
                                                     >
                                                         {e.name} (
                                                         {e.available_quantity}{' '}
