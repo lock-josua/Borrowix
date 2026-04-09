@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Eye, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, XCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
@@ -61,6 +62,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
         null,
     );
     const [remarks, setRemarks] = useState('');
+    const [processing, setProcessing] = useState(false);
 
     function handleFilterChange(key: string, value: string) {
         router.get(
@@ -72,6 +74,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
 
     function handleApprove() {
         if (!approveTarget) return;
+        setProcessing(true);
         router.post(
             `/admin/requests/${approveTarget.id}/approve`,
             { remarks },
@@ -79,6 +82,11 @@ export default function RequestsIndex({ requests, filters }: Props) {
                 onSuccess: () => {
                     setApproveTarget(null);
                     setRemarks('');
+                    setProcessing(false);
+                },
+                onError: (errors) => {
+                    setProcessing(false);
+                    toast.error(errors.message || 'Failed to approve request');
                 },
             },
         );
@@ -86,6 +94,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
 
     function handleReject() {
         if (!rejectTarget) return;
+        setProcessing(true);
         router.post(
             `/admin/requests/${rejectTarget.id}/reject`,
             { remarks },
@@ -93,6 +102,11 @@ export default function RequestsIndex({ requests, filters }: Props) {
                 onSuccess: () => {
                     setRejectTarget(null);
                     setRemarks('');
+                    setProcessing(false);
+                },
+                onError: (errors) => {
+                    setProcessing(false);
+                    toast.error(errors.message || 'Failed to reject request');
                 },
             },
         );
@@ -235,6 +249,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                         ]}
                         data={requests.data}
                         keyExtractor={(r) => r.id}
+                        emptyMessage="No borrow requests to display"
                     />
                     <TablePagination
                         currentPage={requests.current_page}
@@ -272,10 +287,19 @@ export default function RequestsIndex({ requests, filters }: Props) {
                             <Button
                                 variant="outline"
                                 onClick={() => setApproveTarget(null)}
+                                disabled={processing}
                             >
                                 Cancel
                             </Button>
-                            <Button onClick={handleApprove}>Approve</Button>
+                            <Button
+                                onClick={handleApprove}
+                                disabled={processing}
+                            >
+                                {processing && (
+                                    <Loader2 className="mr-2 size-4 animate-spin" />
+                                )}
+                                Approve
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -307,14 +331,18 @@ export default function RequestsIndex({ requests, filters }: Props) {
                             <Button
                                 variant="outline"
                                 onClick={() => setRejectTarget(null)}
+                                disabled={processing}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 variant="destructive"
                                 onClick={handleReject}
-                                disabled={!remarks}
+                                disabled={!remarks || processing}
                             >
+                                {processing && (
+                                    <Loader2 className="mr-2 size-4 animate-spin" />
+                                )}
                                 Reject
                             </Button>
                         </DialogFooter>

@@ -1,12 +1,19 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -46,15 +53,26 @@ export default function TransactionShow({ transaction: t }: Props) {
     const [returnOpen, setReturnOpen] = useState(false);
     const [notes, setNotes] = useState('');
     const [fine, setFine] = useState('');
+    const [processing, setProcessing] = useState(false);
 
     function handleReturn() {
+        setProcessing(true);
         router.post(
             `/admin/transactions/${t.id}/return`,
             {
                 return_condition_notes: notes,
                 fine_amount: fine,
             },
-            { onSuccess: () => setReturnOpen(false) },
+            {
+                onSuccess: () => {
+                    setReturnOpen(false);
+                    setProcessing(false);
+                },
+                onError: (errors) => {
+                    setProcessing(false);
+                    toast.error(errors.message || 'Failed to mark as returned');
+                },
+            },
         );
     }
 
@@ -75,12 +93,17 @@ export default function TransactionShow({ transaction: t }: Props) {
                         <div className="flex gap-2">
                             <Button variant="outline" size="sm" asChild>
                                 <Link href="/admin/transactions">
-                                    <ArrowLeft className="size-3.5 mr-1.5" /> Back
+                                    <ArrowLeft className="mr-1.5 size-3.5" />{' '}
+                                    Back
                                 </Link>
                             </Button>
                             {t.status !== 'returned' && (
-                                <Button size="sm" onClick={() => setReturnOpen(true)}>
-                                    <RotateCcw className="size-3.5 mr-1.5" /> Mark Returned
+                                <Button
+                                    size="sm"
+                                    onClick={() => setReturnOpen(true)}
+                                >
+                                    <RotateCcw className="mr-1.5 size-3.5" />{' '}
+                                    Mark Returned
                                 </Button>
                             )}
                         </div>
@@ -88,10 +111,12 @@ export default function TransactionShow({ transaction: t }: Props) {
                 />
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-4">
+                    <div className="space-y-4 lg:col-span-2">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-sm">Details</CardTitle>
+                                <CardTitle className="text-sm">
+                                    Details
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <dl className="space-y-3">
@@ -101,11 +126,16 @@ export default function TransactionShow({ transaction: t }: Props) {
                                         ['Issued Date', t.issued_at],
                                         ['Due Date', t.due_date],
                                     ].map(([label, value]) => (
-                                        <div key={label} className="flex items-start justify-between py-2 border-b border-border last:border-0">
-                                            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground w-32 shrink-0">
+                                        <div
+                                            key={label}
+                                            className="flex items-start justify-between border-b border-border py-2 last:border-0"
+                                        >
+                                            <dt className="w-32 shrink-0 text-xs font-medium tracking-wide text-muted-foreground uppercase">
                                                 {label}
                                             </dt>
-                                            <dd className="text-sm text-foreground text-right">{value}</dd>
+                                            <dd className="text-right text-sm text-foreground">
+                                                {value}
+                                            </dd>
                                         </div>
                                     ))}
                                 </dl>
@@ -115,20 +145,30 @@ export default function TransactionShow({ transaction: t }: Props) {
                         {(t.fine_amount > 0 || t.return_condition_notes) && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-sm">Return Info</CardTitle>
+                                    <CardTitle className="text-sm">
+                                        Return Info
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <dl className="space-y-3">
                                         {t.fine_amount > 0 && (
-                                            <div className="flex items-start justify-between py-2 border-b border-border last:border-0">
-                                                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Fine</dt>
-                                                <dd className="text-sm font-bold text-destructive text-right">₱{t.fine_amount}</dd>
+                                            <div className="flex items-start justify-between border-b border-border py-2 last:border-0">
+                                                <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                                    Fine
+                                                </dt>
+                                                <dd className="text-right text-sm font-bold text-destructive">
+                                                    ₱{t.fine_amount}
+                                                </dd>
                                             </div>
                                         )}
                                         {t.return_condition_notes && (
-                                            <div className="flex flex-col gap-1 py-2 border-b border-border last:border-0">
-                                                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Condition Notes</dt>
-                                                <dd className="text-sm text-foreground">{t.return_condition_notes}</dd>
+                                            <div className="flex flex-col gap-1 border-b border-border py-2 last:border-0">
+                                                <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                                    Condition Notes
+                                                </dt>
+                                                <dd className="text-sm text-foreground">
+                                                    {t.return_condition_notes}
+                                                </dd>
                                             </div>
                                         )}
                                     </dl>
@@ -140,7 +180,9 @@ export default function TransactionShow({ transaction: t }: Props) {
                     <div className="space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-sm">Status</CardTitle>
+                                <CardTitle className="text-sm">
+                                    Status
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <StatusBadge status={t.status} />
@@ -149,19 +191,33 @@ export default function TransactionShow({ transaction: t }: Props) {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-sm">Timeline</CardTitle>
+                                <CardTitle className="text-sm">
+                                    Timeline
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4 text-xs">
                                 <div>
-                                    <div className="text-muted-foreground uppercase font-bold text-[10px]">Issued</div>
+                                    <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                                        Issued
+                                    </div>
                                     <div>{t.issued_at}</div>
-                                    {t.issuedBy && <div className="italic">By {t.issuedBy.name}</div>}
+                                    {t.issuedBy && (
+                                        <div className="italic">
+                                            By {t.issuedBy.name}
+                                        </div>
+                                    )}
                                 </div>
                                 {t.returned_at && (
                                     <div>
-                                        <div className="text-muted-foreground uppercase font-bold text-[10px]">Returned</div>
+                                        <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                                            Returned
+                                        </div>
                                         <div>{t.returned_at}</div>
-                                        {t.returnedTo && <div className="italic">To {t.returnedTo.name}</div>}
+                                        {t.returnedTo && (
+                                            <div className="italic">
+                                                To {t.returnedTo.name}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </CardContent>
@@ -177,18 +233,40 @@ export default function TransactionShow({ transaction: t }: Props) {
                         <div className="space-y-4 py-2">
                             <div className="space-y-1.5">
                                 <Label>Condition Notes</Label>
-                                <Input placeholder="Any damage or notes..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+                                <Input
+                                    placeholder="Any damage or notes..."
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                />
                             </div>
                             <div className="space-y-1.5">
                                 <Label>Fine Amount (₱)</Label>
-                                <Input type="number" min="0" placeholder="0" value={fine} onChange={(e) => setFine(e.target.value)} />
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    placeholder="0"
+                                    value={fine}
+                                    onChange={(e) => setFine(e.target.value)}
+                                />
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setReturnOpen(false)}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setReturnOpen(false)}
+                                disabled={processing}
+                            >
                                 Cancel
                             </Button>
-                            <Button onClick={handleReturn}>Confirm Return</Button>
+                            <Button
+                                onClick={handleReturn}
+                                disabled={processing}
+                            >
+                                {processing && (
+                                    <Loader2 className="mr-2 size-4 animate-spin" />
+                                )}
+                                Confirm Return
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

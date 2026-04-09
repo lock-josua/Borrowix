@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -51,14 +52,25 @@ export default function TransactionShow({ transaction: t }: Props) {
 
     const [returnOpen, setReturnOpen] = useState(false);
     const [notes, setNotes] = useState('');
+    const [processing, setProcessing] = useState(false);
 
     function handleReturn() {
+        setProcessing(true);
         router.post(
             `/staff/transactions/${t.id}/return`,
             {
                 return_condition_notes: notes,
             },
-            { onSuccess: () => setReturnOpen(false) },
+            {
+                onSuccess: () => {
+                    setReturnOpen(false);
+                    setProcessing(false);
+                },
+                onError: (errors) => {
+                    setProcessing(false);
+                    toast.error(errors.message || 'Failed to mark as returned');
+                },
+            },
         );
     }
 

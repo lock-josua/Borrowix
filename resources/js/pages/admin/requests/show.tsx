@@ -1,7 +1,8 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
@@ -51,20 +52,41 @@ export default function RequestShow({ borrowRequest: r }: Props) {
     const [approveOpen, setApproveOpen] = useState(false);
     const [rejectOpen, setRejectOpen] = useState(false);
     const [remarks, setRemarks] = useState('');
+    const [processing, setProcessing] = useState(false);
 
     function handleApprove() {
+        setProcessing(true);
         router.post(
             `/admin/requests/${r.id}/approve`,
             { remarks },
-            { onSuccess: () => setApproveOpen(false) },
+            {
+                onSuccess: () => {
+                    setApproveOpen(false);
+                    setProcessing(false);
+                },
+                onError: (errors) => {
+                    setProcessing(false);
+                    toast.error(errors.message || 'Failed to approve request');
+                },
+            },
         );
     }
 
     function handleReject() {
+        setProcessing(true);
         router.post(
             `/admin/requests/${r.id}/reject`,
             { remarks },
-            { onSuccess: () => setRejectOpen(false) },
+            {
+                onSuccess: () => {
+                    setRejectOpen(false);
+                    setProcessing(false);
+                },
+                onError: (errors) => {
+                    setProcessing(false);
+                    toast.error(errors.message || 'Failed to reject request');
+                },
+            },
         );
     }
 
@@ -237,13 +259,18 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                             <Button
                                 variant="outline"
                                 onClick={() => setApproveOpen(false)}
+                                disabled={processing}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleApprove}
                                 className="bg-emerald-600 hover:bg-emerald-700"
+                                disabled={processing}
                             >
+                                {processing && (
+                                    <Loader2 className="mr-2 size-4 animate-spin" />
+                                )}
                                 Approve
                             </Button>
                         </DialogFooter>
@@ -273,14 +300,18 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                             <Button
                                 variant="outline"
                                 onClick={() => setRejectOpen(false)}
+                                disabled={processing}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 variant="destructive"
                                 onClick={handleReject}
-                                disabled={!remarks}
+                                disabled={!remarks || processing}
                             >
+                                {processing && (
+                                    <Loader2 className="mr-2 size-4 animate-spin" />
+                                )}
                                 Reject
                             </Button>
                         </DialogFooter>
