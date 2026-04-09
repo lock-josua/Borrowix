@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, Trash2, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { DetailCard } from '@/components/detail-card';
 import { DetailRow } from '@/components/detail-row';

@@ -8,7 +8,7 @@ import {
     ShieldAlert,
     ShieldCheck,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -76,8 +76,13 @@ export default function SchoolShow({ school, subscription }: Props) {
     const { flash } = usePage().props as {
         flash?: { credentials?: Credentials };
     };
-    const [showCredentials, setShowCredentials] = useState(false);
-    const [credentials, setCredentials] = useState<Credentials | null>(null);
+    const [showCredentials, setShowCredentials] = useState(
+        !!flash?.credentials,
+    );
+    const [credentials, setCredentials] = useState<Credentials | null>(() => {
+        if (flash?.credentials) return flash.credentials;
+        return null;
+    });
     const [copied, setCopied] = useState<string | null>(null);
     const [showSuspend, setShowSuspend] = useState(false);
     const [suspendReason, setSuspendReason] = useState('');
@@ -87,13 +92,6 @@ export default function SchoolShow({ school, subscription }: Props) {
         { title: 'Schools', href: '/super-admin/schools' },
         { title: school.name, href: `/super-admin/schools/${school.id}` },
     ];
-
-    useEffect(() => {
-        if (flash?.credentials) {
-            setCredentials(flash.credentials);
-            setShowCredentials(true);
-        }
-    }, [flash]);
 
     function handleReactivate() {
         router.post(`/super-admin/schools/${school.id}/reactivate`);

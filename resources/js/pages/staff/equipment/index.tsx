@@ -1,12 +1,11 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Eye, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import StaffLayout from '@/layouts/StaffLayout';
@@ -57,14 +56,20 @@ export default function StaffEquipmentIndex({ equipment, filters }: Props) {
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="flex flex-col gap-6 p-6"
             >
-                <PageHeader title="Equipment" description="View ICT equipment inventory." />
+                <PageHeader
+                    title="Equipment"
+                    description="View ICT equipment inventory."
+                />
 
                 {/* Filter bar */}
                 <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
-                    <form onSubmit={handleSearch} className="relative min-w-[220px] flex-1 max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                    <form
+                        onSubmit={handleSearch}
+                        className="relative max-w-xs min-w-[220px] flex-1"
+                    >
+                        <Search className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            className="pl-8 h-9 text-sm bg-muted/20"
+                            className="h-9 bg-muted/20 pl-8 text-sm"
                             placeholder="Search equipment..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -73,7 +78,7 @@ export default function StaffEquipmentIndex({ equipment, filters }: Props) {
                 </Card>
 
                 {/* Table */}
-                <Card className="overflow-hidden p-0 border-border/60">
+                <Card className="overflow-hidden border-border/60 p-0">
                     <DataTable
                         columns={[
                             {
@@ -82,9 +87,13 @@ export default function StaffEquipmentIndex({ equipment, filters }: Props) {
                                 width: '35%',
                                 render: (item) => (
                                     <div className="flex flex-col">
-                                        <span className="font-medium text-foreground truncate">{item.name}</span>
-                                        <span className="text-[10px] text-muted-foreground truncate">
-                                            {[item.brand, item.model].filter(Boolean).join(' / ') || '—'}
+                                        <span className="truncate font-medium text-foreground">
+                                            {item.name}
+                                        </span>
+                                        <span className="truncate text-[10px] text-muted-foreground">
+                                            {[item.brand, item.model]
+                                                .filter(Boolean)
+                                                .join(' / ') || '—'}
                                         </span>
                                     </div>
                                 ),
@@ -93,28 +102,42 @@ export default function StaffEquipmentIndex({ equipment, filters }: Props) {
                                 key: 'category',
                                 label: 'Category',
                                 width: '20%',
-                                render: (item) => <span className="text-muted-foreground text-xs">{item.category?.name ?? '—'}</span>,
+                                render: (item) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {item.category?.name ?? '—'}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'available',
                                 label: 'Available',
                                 width: '15%',
                                 align: 'center',
-                                render: (item) => <span className="font-bold text-primary">{item.available_quantity}</span>,
+                                render: (item) => (
+                                    <span className="font-bold text-primary">
+                                        {item.available_quantity}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'total',
                                 label: 'Total',
                                 width: '15%',
                                 align: 'center',
-                                render: (item) => <span className="text-muted-foreground">{item.quantity}</span>,
+                                render: (item) => (
+                                    <span className="text-muted-foreground">
+                                        {item.quantity}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'status',
                                 label: 'Status',
                                 width: '15%',
                                 align: 'center',
-                                render: (item) => <StatusBadge status={item.status} />,
+                                render: (item) => (
+                                    <StatusBadge status={item.status} />
+                                ),
                             },
                         ]}
                         data={equipment.data}

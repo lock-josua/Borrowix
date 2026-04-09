@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Eye, Package, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
@@ -8,9 +8,21 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -47,17 +59,30 @@ interface Props {
     };
 }
 
-export default function EquipmentIndex({ equipment, categories, filters, can }: Props) {
+export default function EquipmentIndex({
+    equipment,
+    categories,
+    filters,
+    can,
+}: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
     const [deleteTarget, setDeleteTarget] = useState<Equipment | null>(null);
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
-        router.get('/admin/equipment', { ...filters, search }, { preserveState: true });
+        router.get(
+            '/admin/equipment',
+            { ...filters, search },
+            { preserveState: true },
+        );
     }
 
     function handleFilterChange(key: string, value: string) {
-        router.get('/admin/equipment', { ...filters, [key]: value || undefined }, { preserveState: true });
+        router.get(
+            '/admin/equipment',
+            { ...filters, [key]: value || undefined },
+            { preserveState: true },
+        );
     }
 
     function handleDelete() {
@@ -94,17 +119,25 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
 
                 {/* Filter bar */}
                 <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
-                    <form onSubmit={handleSearch} className="relative min-w-[220px] flex-1 max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                    <form
+                        onSubmit={handleSearch}
+                        className="relative max-w-xs min-w-[220px] flex-1"
+                    >
+                        <Search className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            className="pl-8 h-9 text-sm bg-muted/20"
+                            className="h-9 bg-muted/20 pl-8 text-sm"
                             placeholder="Search equipment..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </form>
-                    <Select value={filters.category ?? 'all'} onValueChange={(v) => handleFilterChange('category', v === 'all' ? '' : v)}>
-                        <SelectTrigger className="h-9 w-[150px] text-sm bg-muted/20">
+                    <Select
+                        value={filters.category ?? 'all'}
+                        onValueChange={(v) =>
+                            handleFilterChange('category', v === 'all' ? '' : v)
+                        }
+                    >
+                        <SelectTrigger className="h-9 w-[150px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All categories" />
                         </SelectTrigger>
                         <SelectContent>
@@ -116,22 +149,29 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
                             ))}
                         </SelectContent>
                     </Select>
-                    <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
-                        <SelectTrigger className="h-9 w-[140px] text-sm bg-muted/20">
+                    <Select
+                        value={filters.status ?? 'all'}
+                        onValueChange={(v) =>
+                            handleFilterChange('status', v === 'all' ? '' : v)
+                        }
+                    >
+                        <SelectTrigger className="h-9 w-[140px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All statuses</SelectItem>
                             <SelectItem value="available">Available</SelectItem>
                             <SelectItem value="borrowed">Borrowed</SelectItem>
-                            <SelectItem value="under_repair">Under Repair</SelectItem>
+                            <SelectItem value="under_repair">
+                                Under Repair
+                            </SelectItem>
                             <SelectItem value="retired">Retired</SelectItem>
                         </SelectContent>
                     </Select>
                 </Card>
 
                 {/* Table */}
-                <Card className="overflow-hidden p-0 border-border/60">
+                <Card className="overflow-hidden border-border/60 p-0">
                     <DataTable
                         columns={[
                             {
@@ -140,9 +180,12 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
                                 width: '28%',
                                 render: (item) => (
                                     <div>
-                                        <p className="font-medium text-foreground truncate">{item.name}</p>
+                                        <p className="truncate font-medium text-foreground">
+                                            {item.name}
+                                        </p>
                                         <p className="text-xs text-muted-foreground">
-                                            {item.available_quantity}/{item.quantity} available
+                                            {item.available_quantity}/
+                                            {item.quantity} available
                                         </p>
                                     </div>
                                 ),
@@ -151,15 +194,21 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
                                 key: 'category',
                                 label: 'Category',
                                 width: '16%',
-                                render: (item) => <span className="text-muted-foreground text-xs truncate block">{item.category?.name ?? '—'}</span>,
+                                render: (item) => (
+                                    <span className="block truncate text-xs text-muted-foreground">
+                                        {item.category?.name ?? '—'}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'brand',
                                 label: 'Brand/Model',
                                 width: '18%',
                                 render: (item) => (
-                                    <span className="text-muted-foreground text-xs truncate block">
-                                        {[item.brand, item.model].filter(Boolean).join(' · ') || '—'}
+                                    <span className="block truncate text-xs text-muted-foreground">
+                                        {[item.brand, item.model]
+                                            .filter(Boolean)
+                                            .join(' · ') || '—'}
                                     </span>
                                 ),
                             },
@@ -168,14 +217,20 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
                                 label: 'Qty',
                                 width: '9%',
                                 align: 'center',
-                                render: (item) => <span className="font-medium">{item.quantity}</span>,
+                                render: (item) => (
+                                    <span className="font-medium">
+                                        {item.quantity}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'status',
                                 label: 'Status',
                                 width: '14%',
                                 align: 'center',
-                                render: (item) => <StatusBadge status={item.status} />,
+                                render: (item) => (
+                                    <StatusBadge status={item.status} />
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -184,14 +239,28 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
                                 align: 'right',
                                 render: (item) => (
                                     <div className="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon" className="size-7" asChild>
-                                            <Link href={`/admin/equipment/${item.id}`}>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={`/admin/equipment/${item.id}`}
+                                            >
                                                 <Eye className="size-3.5" />
                                             </Link>
                                         </Button>
                                         {can.manage_equipment && (
-                                            <Button variant="ghost" size="icon" className="size-7" asChild>
-                                                <Link href={`/admin/equipment/${item.id}/edit`}>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-7"
+                                                asChild
+                                            >
+                                                <Link
+                                                    href={`/admin/equipment/${item.id}/edit`}
+                                                >
                                                     <Pencil className="size-3.5" />
                                                 </Link>
                                             </Button>
@@ -201,7 +270,9 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
                                                 variant="ghost"
                                                 size="icon"
                                                 className="size-7 hover:text-destructive"
-                                                onClick={() => setDeleteTarget(item)}
+                                                onClick={() =>
+                                                    setDeleteTarget(item)
+                                                }
                                             >
                                                 <Trash2 className="size-3.5" />
                                             </Button>
@@ -221,17 +292,30 @@ export default function EquipmentIndex({ equipment, categories, filters, can }: 
                     />
                 </Card>
 
-                <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+                <Dialog
+                    open={!!deleteTarget}
+                    onOpenChange={() => setDeleteTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Delete "{deleteTarget?.name}"?</DialogTitle>
+                            <DialogTitle>
+                                Delete "{deleteTarget?.name}"?
+                            </DialogTitle>
                         </DialogHeader>
-                        <p className="text-sm text-muted-foreground">This equipment will be permanently deleted.</p>
+                        <p className="text-sm text-muted-foreground">
+                            This equipment will be permanently deleted.
+                        </p>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setDeleteTarget(null)}
+                            >
                                 Cancel
                             </Button>
-                            <Button variant="destructive" onClick={handleDelete}>
+                            <Button
+                                variant="destructive"
+                                onClick={handleDelete}
+                            >
                                 Delete
                             </Button>
                         </DialogFooter>

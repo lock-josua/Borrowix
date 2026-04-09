@@ -29,10 +29,6 @@ export function NotificationBell() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        setUnreadCount(initialUnreadCount ?? 0);
-    }, [initialUnreadCount]);
-
-    useEffect(() => {
         const interval = setInterval(() => {
             fetch('/api/notifications/unread-count')
                 .then((res) => res.json())

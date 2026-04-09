@@ -1,4 +1,4 @@
-import { Form, Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

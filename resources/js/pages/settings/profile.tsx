@@ -1,10 +1,17 @@
 import { Transition } from '@headlessui/react';
 import { Form, Head, Link, usePage } from '@inertiajs/react';
-import { CheckCircle, User } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -15,7 +22,11 @@ import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import { send } from '@/routes/verification';
 import type { BreadcrumbItem } from '@/types';
 
-export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
+export default function Profile({
+    mustVerifyEmail,
+}: {
+    mustVerifyEmail: boolean;
+}) {
     const { auth } = usePage().props;
 
     const Layout = (() => {
@@ -45,11 +56,25 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
             <SettingsLayout>
                 <Card>
                     <CardHeader className="border-b">
-                        <CardTitle className="text-sm font-semibold">Profile Information</CardTitle>
-                        <CardDescription className="text-xs">Update your account's profile information and email address.</CardDescription>
+                        <CardTitle className="text-sm font-semibold">
+                            Profile Information
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Update your account's profile information and email
+                            address.
+                        </CardDescription>
                     </CardHeader>
-                    <Form {...ProfileController.update.form()} options={{ preserveScroll: true }}>
-                        {({ processing, recentlySuccessful, errors, data, setData }) => (
+                    <Form
+                        {...ProfileController.update.form()}
+                        options={{ preserveScroll: true }}
+                    >
+                        {({
+                            processing,
+                            recentlySuccessful,
+                            errors,
+                            data,
+                            setData,
+                        }) => (
                             <>
                                 <CardContent className="space-y-5 pt-6">
                                     <div className="space-y-1.5">
@@ -57,38 +82,58 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                         <Input
                                             id="name"
                                             value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('name', e.target.value)
+                                            }
                                             required
                                             autoComplete="name"
                                         />
-                                        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                                        {errors.name && (
+                                            <p className="text-xs text-destructive">
+                                                {errors.name}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="email">Email Address</Label>
+                                        <Label htmlFor="email">
+                                            Email Address
+                                        </Label>
                                         <Input
                                             id="email"
                                             type="email"
                                             value={data.email}
-                                            onChange={(e) => setData('email', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('email', e.target.value)
+                                            }
                                             required
                                             autoComplete="username"
                                         />
-                                        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                                        {errors.email && (
+                                            <p className="text-xs text-destructive">
+                                                {errors.email}
+                                            </p>
+                                        )}
                                     </div>
 
-                                    {mustVerifyEmail && auth.user.email_verified_at === null && (
-                                        <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
-                                            <p className="text-xs text-amber-700">
-                                                Your email is unverified.{' '}
-                                                <Link href={send()} as="button" className="underline font-bold">
-                                                    Resend verification
-                                                </Link>
-                                            </p>
-                                        </div>
-                                    )}
+                                    {mustVerifyEmail &&
+                                        auth.user.email_verified_at ===
+                                            null && (
+                                            <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+                                                <p className="text-xs text-amber-700">
+                                                    Your email is unverified.{' '}
+                                                    <Link
+                                                        href={send()}
+                                                        as="button"
+                                                        className="font-bold underline"
+                                                    >
+                                                        Resend verification
+                                                    </Link>
+                                                </p>
+                                            </div>
+                                        )}
                                 </CardContent>
-                                <CardFooter className="border-t bg-muted/30 flex items-center justify-between py-3">
+                                <CardFooter className="flex items-center justify-between border-t bg-muted/30 py-3">
                                     <div>
                                         <Transition
                                             show={recentlySuccessful}
@@ -97,13 +142,16 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                             leave="transition ease-in-out"
                                             leaveTo="opacity-0"
                                         >
-                                            <p className="text-xs text-emerald-600 flex items-center gap-1">
-                                                <CheckCircle className="size-3" /> Saved
+                                            <p className="flex items-center gap-1 text-xs text-emerald-600">
+                                                <CheckCircle className="size-3" />{' '}
+                                                Saved
                                             </p>
                                         </Transition>
                                     </div>
                                     <Button disabled={processing} size="sm">
-                                        {processing ? 'Saving...' : 'Save Profile'}
+                                        {processing
+                                            ? 'Saving...'
+                                            : 'Save Profile'}
                                     </Button>
                                 </CardFooter>
                             </>
@@ -113,8 +161,13 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                 <Card className="border-destructive/20">
                     <CardHeader className="border-b bg-destructive/[0.02]">
-                        <CardTitle className="text-sm font-semibold text-destructive">Danger Zone</CardTitle>
-                        <CardDescription className="text-xs">Once you delete your account, there is no going back.</CardDescription>
+                        <CardTitle className="text-sm font-semibold text-destructive">
+                            Danger Zone
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Once you delete your account, there is no going
+                            back.
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                         <DeleteUser />

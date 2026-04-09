@@ -1,6 +1,13 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { ExternalLink, Eye, Plus, School as SchoolIcon, Search, ShieldAlert, ShieldCheck } from 'lucide-react';
+import {
+    ExternalLink,
+    Eye,
+    Plus,
+    Search,
+    ShieldAlert,
+    ShieldCheck,
+} from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
@@ -8,9 +15,21 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -47,21 +66,33 @@ export default function SchoolsIndex({ schools, filters }: Props) {
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
-        router.get('/super-admin/schools', { ...filters, search }, { preserveState: true });
+        router.get(
+            '/super-admin/schools',
+            { ...filters, search },
+            { preserveState: true },
+        );
     }
 
     function handleFilterChange(key: string, value: string) {
-        router.get('/super-admin/schools', { ...filters, [key]: value || undefined }, { preserveState: true });
+        router.get(
+            '/super-admin/schools',
+            { ...filters, [key]: value || undefined },
+            { preserveState: true },
+        );
     }
 
     function handleSuspend() {
         if (!suspendTarget) return;
-        router.post(`/super-admin/schools/${suspendTarget.id}/suspend`, { reason }, {
-            onSuccess: () => {
-                setSuspendTarget(null);
-                setReason('');
-            }
-        });
+        router.post(
+            `/super-admin/schools/${suspendTarget.id}/suspend`,
+            { reason },
+            {
+                onSuccess: () => {
+                    setSuspendTarget(null);
+                    setReason('');
+                },
+            },
+        );
     }
 
     function handleReactivate(school: School) {
@@ -92,17 +123,25 @@ export default function SchoolsIndex({ schools, filters }: Props) {
 
                 {/* Filter bar */}
                 <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
-                    <form onSubmit={handleSearch} className="relative min-w-[220px] flex-1 max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                    <form
+                        onSubmit={handleSearch}
+                        className="relative max-w-xs min-w-[220px] flex-1"
+                    >
+                        <Search className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            className="pl-8 h-9 text-sm bg-muted/20"
+                            className="h-9 bg-muted/20 pl-8 text-sm"
                             placeholder="Search school or email..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </form>
-                    <Select value={filters.plan ?? 'all'} onValueChange={(v) => handleFilterChange('plan', v === 'all' ? '' : v)}>
-                        <SelectTrigger className="h-9 w-[130px] text-sm bg-muted/20">
+                    <Select
+                        value={filters.plan ?? 'all'}
+                        onValueChange={(v) =>
+                            handleFilterChange('plan', v === 'all' ? '' : v)
+                        }
+                    >
+                        <SelectTrigger className="h-9 w-[130px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All Plans" />
                         </SelectTrigger>
                         <SelectContent>
@@ -112,8 +151,13 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                             <SelectItem value="pro">Pro</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
-                        <SelectTrigger className="h-9 w-[130px] text-sm bg-muted/20">
+                    <Select
+                        value={filters.status ?? 'all'}
+                        onValueChange={(v) =>
+                            handleFilterChange('status', v === 'all' ? '' : v)
+                        }
+                    >
+                        <SelectTrigger className="h-9 w-[130px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -124,7 +168,7 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                     </Select>
                 </Card>
 
-                <Card className="overflow-hidden p-0 border-border/60">
+                <Card className="overflow-hidden border-border/60 p-0">
                     <DataTable
                         columns={[
                             {
@@ -133,8 +177,19 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                 width: '28%',
                                 render: (s) => (
                                     <div>
-                                        <p className="font-medium text-foreground truncate">{s.name}</p>
-                                        {s.school_url && <a href={s.school_url} target="_blank" className="text-[10px] text-primary hover:underline flex items-center gap-1"><ExternalLink className="size-2.5" /> Portal</a>}
+                                        <p className="truncate font-medium text-foreground">
+                                            {s.name}
+                                        </p>
+                                        {s.school_url && (
+                                            <a
+                                                href={s.school_url}
+                                                target="_blank"
+                                                className="flex items-center gap-1 text-[10px] text-primary hover:underline"
+                                            >
+                                                <ExternalLink className="size-2.5" />{' '}
+                                                Portal
+                                            </a>
+                                        )}
                                     </div>
                                 ),
                             },
@@ -142,7 +197,11 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                 key: 'email',
                                 label: 'Email',
                                 width: '25%',
-                                render: (s) => <span className="text-muted-foreground truncate block">{s.email}</span>,
+                                render: (s) => (
+                                    <span className="block truncate text-muted-foreground">
+                                        {s.email}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'plan',
@@ -156,13 +215,19 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                 label: 'Status',
                                 width: '12%',
                                 align: 'center',
-                                render: (s) => <StatusBadge status={s.status} />,
+                                render: (s) => (
+                                    <StatusBadge status={s.status} />
+                                ),
                             },
                             {
                                 key: 'created',
                                 label: 'Created',
                                 width: '13%',
-                                render: (s) => <span className="text-muted-foreground text-xs">{s.created_at}</span>,
+                                render: (s) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {s.created_at}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -171,13 +236,40 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                 align: 'right',
                                 render: (s) => (
                                     <div className="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon" className="size-7" asChild>
-                                            <Link href={`/super-admin/schools/${s.id}`}><Eye className="size-3.5" /></Link>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={`/super-admin/schools/${s.id}`}
+                                            >
+                                                <Eye className="size-3.5" />
+                                            </Link>
                                         </Button>
                                         {s.status === 'active' ? (
-                                            <Button variant="ghost" size="icon" className="size-7 hover:text-destructive" onClick={() => setSuspendTarget(s)}><ShieldAlert className="size-3.5" /></Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-7 hover:text-destructive"
+                                                onClick={() =>
+                                                    setSuspendTarget(s)
+                                                }
+                                            >
+                                                <ShieldAlert className="size-3.5" />
+                                            </Button>
                                         ) : (
-                                            <Button variant="ghost" size="icon" className="size-7 text-emerald-600" onClick={() => handleReactivate(s)}><ShieldCheck className="size-3.5" /></Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-7 text-emerald-600"
+                                                onClick={() =>
+                                                    handleReactivate(s)
+                                                }
+                                            >
+                                                <ShieldCheck className="size-3.5" />
+                                            </Button>
                                         )}
                                     </div>
                                 ),
@@ -194,16 +286,39 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                     />
                 </Card>
 
-                <Dialog open={!!suspendTarget} onOpenChange={() => setSuspendTarget(null)}>
+                <Dialog
+                    open={!!suspendTarget}
+                    onOpenChange={() => setSuspendTarget(null)}
+                >
                     <DialogContent>
-                        <DialogHeader><DialogTitle>Suspend School?</DialogTitle></DialogHeader>
+                        <DialogHeader>
+                            <DialogTitle>Suspend School?</DialogTitle>
+                        </DialogHeader>
                         <div className="space-y-4 py-2">
-                            <p className="text-sm text-muted-foreground">This will disable access for all users of this school.</p>
-                            <Input placeholder="Reason for suspension" value={reason} onChange={(e) => setReason(e.target.value)} />
+                            <p className="text-sm text-muted-foreground">
+                                This will disable access for all users of this
+                                school.
+                            </p>
+                            <Input
+                                placeholder="Reason for suspension"
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                            />
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setSuspendTarget(null)}>Cancel</Button>
-                            <Button variant="destructive" onClick={handleSuspend} disabled={!reason}>Suspend</Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setSuspendTarget(null)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={handleSuspend}
+                                disabled={!reason}
+                            >
+                                Suspend
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

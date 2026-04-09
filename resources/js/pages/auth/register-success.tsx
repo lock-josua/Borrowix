@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { CheckCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/auth-layout';

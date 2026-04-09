@@ -1,11 +1,17 @@
 import { Form, Head } from '@inertiajs/react';
-import { ShieldBan, ShieldCheck } from 'lucide-react';
+import { ShieldBan } from 'lucide-react';
 import { useState } from 'react';
 import TwoFactorRecoveryCodes from '@/components/two-factor-recovery-codes';
 import TwoFactorSetupModal from '@/components/two-factor-setup-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
 import SettingsLayout from '@/layouts/settings/layout';
 import { disable, enable } from '@/routes/two-factor';
@@ -15,7 +21,10 @@ type Props = {
     twoFactorEnabled?: boolean;
 };
 
-export default function TwoFactor({ requiresConfirmation = false, twoFactorEnabled = false }: Props) {
+export default function TwoFactor({
+    requiresConfirmation = false,
+    twoFactorEnabled = false,
+}: Props) {
     const {
         qrCodeSvg,
         hasSetupData,
@@ -34,22 +43,33 @@ export default function TwoFactor({ requiresConfirmation = false, twoFactorEnabl
 
             <Card>
                 <CardHeader className="border-b">
-                    <CardTitle className="text-sm font-semibold">Two-Factor Authentication</CardTitle>
-                    <CardDescription className="text-xs">Add additional security to your account using two-factor authentication.</CardDescription>
+                    <CardTitle className="text-sm font-semibold">
+                        Two-Factor Authentication
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                        Add additional security to your account using two-factor
+                        authentication.
+                    </CardDescription>
                 </CardHeader>
-                <CardContent className="pt-6 space-y-6">
+                <CardContent className="space-y-6 pt-6">
                     {twoFactorEnabled ? (
                         <div className="space-y-4">
                             <div className="flex items-center gap-2">
-                                <Badge className="bg-emerald-600">Enabled</Badge>
-                                <span className="text-xs text-muted-foreground">Your account is secured.</span>
+                                <Badge className="bg-emerald-600">
+                                    Enabled
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                    Your account is secured.
+                                </span>
                             </div>
 
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                                With two-factor authentication enabled, you will be prompted for a secure, random pin during login.
+                            <p className="text-sm leading-relaxed text-muted-foreground">
+                                With two-factor authentication enabled, you will
+                                be prompted for a secure, random pin during
+                                login.
                             </p>
 
-                            <div className="rounded-lg border p-4 bg-muted/20">
+                            <div className="rounded-lg border bg-muted/20 p-4">
                                 <TwoFactorRecoveryCodes
                                     recoveryCodesList={recoveryCodesList}
                                     fetchRecoveryCodes={fetchRecoveryCodes}
@@ -59,8 +79,14 @@ export default function TwoFactor({ requiresConfirmation = false, twoFactorEnabl
 
                             <Form {...disable.form()}>
                                 {({ processing }) => (
-                                    <Button variant="destructive" size="sm" type="submit" disabled={processing}>
-                                        <ShieldBan className="size-3.5 mr-1.5" /> Disable 2FA
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        type="submit"
+                                        disabled={processing}
+                                    >
+                                        <ShieldBan className="mr-1.5 size-3.5" />{' '}
+                                        Disable 2FA
                                     </Button>
                                 )}
                             </Form>
@@ -69,17 +95,29 @@ export default function TwoFactor({ requiresConfirmation = false, twoFactorEnabl
                         <div className="space-y-4">
                             <Badge variant="outline">Disabled</Badge>
                             <p className="text-sm text-muted-foreground">
-                                When enabled, you will be prompted for a secure pin from your phone's authenticator app during login.
+                                When enabled, you will be prompted for a secure
+                                pin from your phone's authenticator app during
+                                login.
                             </p>
 
                             {hasSetupData ? (
-                                <Button onClick={() => setShowSetupModal(true)} size="sm">
+                                <Button
+                                    onClick={() => setShowSetupModal(true)}
+                                    size="sm"
+                                >
                                     Continue Setup
                                 </Button>
                             ) : (
-                                <Form {...enable.form()} onSuccess={() => setShowSetupModal(true)}>
+                                <Form
+                                    {...enable.form()}
+                                    onSuccess={() => setShowSetupModal(true)}
+                                >
                                     {({ processing }) => (
-                                        <Button type="submit" disabled={processing} size="sm">
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            size="sm"
+                                        >
                                             Enable 2FA
                                         </Button>
                                     )}

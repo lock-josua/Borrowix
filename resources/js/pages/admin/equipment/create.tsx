@@ -1,12 +1,25 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, Package } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -55,48 +68,73 @@ export default function EquipmentCreate({ categories }: Props) {
                     actions={
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/equipment">
-                                <ArrowLeft className="size-3.5 mr-1.5" /> Back
+                                <ArrowLeft className="mr-1.5 size-3.5" /> Back
                             </Link>
                         </Button>
                     }
                 />
 
-                <div className="max-w-2xl mx-auto w-full">
+                <div className="mx-auto w-full max-w-2xl">
                     <Card shadow-sm>
                         <CardHeader>
                             <CardTitle>Equipment Information</CardTitle>
-                            <CardDescription>Fill in the details for this equipment item.</CardDescription>
+                            <CardDescription>
+                                Fill in the details for this equipment item.
+                            </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleSubmit}>
                             <CardContent className="space-y-5">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="name">
-                                            Name <span className="text-destructive">*</span>
+                                            Name{' '}
+                                            <span className="text-destructive">
+                                                *
+                                            </span>
                                         </Label>
                                         <Input
                                             id="name"
                                             placeholder="Dell Latitude 5520"
                                             value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('name', e.target.value)
+                                            }
                                         />
-                                        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                                        {errors.name && (
+                                            <p className="text-xs text-destructive">
+                                                {errors.name}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="category">Category</Label>
-                                        <Select value={data.category_id} onValueChange={(v) => setData('category_id', v)}>
+                                        <Label htmlFor="category">
+                                            Category
+                                        </Label>
+                                        <Select
+                                            value={data.category_id}
+                                            onValueChange={(v) =>
+                                                setData('category_id', v)
+                                            }
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select category" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {categories.map((c) => (
-                                                    <SelectItem key={c.id} value={String(c.id)}>
+                                                    <SelectItem
+                                                        key={c.id}
+                                                        value={String(c.id)}
+                                                    >
                                                         {c.name}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.category_id && <p className="text-xs text-destructive">{errors.category_id}</p>}
+                                        {errors.category_id && (
+                                            <p className="text-xs text-destructive">
+                                                {errors.category_id}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -107,7 +145,9 @@ export default function EquipmentCreate({ categories }: Props) {
                                             id="brand"
                                             placeholder="e.g. Dell"
                                             value={data.brand}
-                                            onChange={(e) => setData('brand', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('brand', e.target.value)
+                                            }
                                         />
                                     </div>
                                     <div className="space-y-1.5">
@@ -116,28 +156,44 @@ export default function EquipmentCreate({ categories }: Props) {
                                             id="model"
                                             placeholder="e.g. Latitude"
                                             value={data.model}
-                                            onChange={(e) => setData('model', e.target.value)}
+                                            onChange={(e) =>
+                                                setData('model', e.target.value)
+                                            }
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="serial_number">Serial Number</Label>
+                                    <Label htmlFor="serial_number">
+                                        Serial Number
+                                    </Label>
                                     <Input
                                         id="serial_number"
                                         placeholder="Optional"
                                         value={data.serial_number}
-                                        onChange={(e) => setData('serial_number', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'serial_number',
+                                                e.target.value,
+                                            )
+                                        }
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">
+                                        Description
+                                    </Label>
                                     <Textarea
                                         id="description"
                                         placeholder="Extra details..."
                                         value={data.description}
-                                        onChange={(e) => setData('description', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'description',
+                                                e.target.value,
+                                            )
+                                        }
                                         className="min-h-[100px]"
                                     />
                                 </div>
@@ -145,27 +201,50 @@ export default function EquipmentCreate({ categories }: Props) {
                                 <div className="grid grid-cols-2 gap-4 pt-2">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="quantity">
-                                            Total Quantity <span className="text-destructive">*</span>
+                                            Total Quantity{' '}
+                                            <span className="text-destructive">
+                                                *
+                                            </span>
                                         </Label>
                                         <Input
                                             id="quantity"
                                             type="number"
                                             min="1"
                                             value={data.quantity}
-                                            onChange={(e) => setData('quantity', e.target.value)}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'quantity',
+                                                    e.target.value,
+                                                )
+                                            }
                                         />
-                                        {errors.quantity && <p className="text-xs text-destructive">{errors.quantity}</p>}
+                                        {errors.quantity && (
+                                            <p className="text-xs text-destructive">
+                                                {errors.quantity}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label htmlFor="status">Status</Label>
-                                        <Select value={data.status} onValueChange={(v) => setData('status', v)}>
+                                        <Select
+                                            value={data.status}
+                                            onValueChange={(v) =>
+                                                setData('status', v)
+                                            }
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="available">Available</SelectItem>
-                                                <SelectItem value="under_repair">Under Repair</SelectItem>
-                                                <SelectItem value="retired">Retired</SelectItem>
+                                                <SelectItem value="available">
+                                                    Available
+                                                </SelectItem>
+                                                <SelectItem value="under_repair">
+                                                    Under Repair
+                                                </SelectItem>
+                                                <SelectItem value="retired">
+                                                    Retired
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -176,7 +255,9 @@ export default function EquipmentCreate({ categories }: Props) {
                                     <Link href="/admin/equipment">Cancel</Link>
                                 </Button>
                                 <Button type="submit" disabled={processing}>
-                                    {processing && <Loader2 className="mr-2 size-3.5 animate-spin" />}
+                                    {processing && (
+                                        <Loader2 className="mr-2 size-3.5 animate-spin" />
+                                    )}
                                     Save Equipment
                                 </Button>
                             </CardFooter>

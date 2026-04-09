@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { CheckCircle, ClipboardList, Eye, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
@@ -8,9 +8,21 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -41,12 +53,20 @@ interface Props {
 }
 
 export default function RequestsIndex({ requests, filters }: Props) {
-    const [approveTarget, setApproveTarget] = useState<BorrowRequest | null>(null);
-    const [rejectTarget, setRejectTarget] = useState<BorrowRequest | null>(null);
+    const [approveTarget, setApproveTarget] = useState<BorrowRequest | null>(
+        null,
+    );
+    const [rejectTarget, setRejectTarget] = useState<BorrowRequest | null>(
+        null,
+    );
     const [remarks, setRemarks] = useState('');
 
     function handleFilterChange(key: string, value: string) {
-        router.get('/admin/requests', { ...filters, [key]: value || undefined }, { preserveState: true });
+        router.get(
+            '/admin/requests',
+            { ...filters, [key]: value || undefined },
+            { preserveState: true },
+        );
     }
 
     function handleApprove() {
@@ -87,12 +107,20 @@ export default function RequestsIndex({ requests, filters }: Props) {
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="flex flex-col gap-6 p-6"
             >
-                <PageHeader title="Borrow Requests" description="Review and process student borrow requests." />
+                <PageHeader
+                    title="Borrow Requests"
+                    description="Review and process student borrow requests."
+                />
 
                 {/* Filter bar */}
                 <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
-                    <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
-                        <SelectTrigger className="h-9 w-[150px] text-sm bg-muted/20">
+                    <Select
+                        value={filters.status ?? 'all'}
+                        onValueChange={(v) =>
+                            handleFilterChange('status', v === 'all' ? '' : v)
+                        }
+                    >
+                        <SelectTrigger className="h-9 w-[150px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -105,39 +133,57 @@ export default function RequestsIndex({ requests, filters }: Props) {
                 </Card>
 
                 {/* Table */}
-                <Card className="overflow-hidden p-0 border-border/60">
+                <Card className="overflow-hidden border-border/60 p-0">
                     <DataTable
                         columns={[
                             {
                                 key: 'requester',
                                 label: 'Requester',
                                 width: '28%',
-                                render: (r) => <span className="font-medium text-foreground truncate block">{r.requester.name}</span>,
+                                render: (r) => (
+                                    <span className="block truncate font-medium text-foreground">
+                                        {r.requester.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'equipment',
                                 label: 'Equipment',
                                 width: '25%',
-                                render: (r) => <span className="text-muted-foreground truncate block">{r.equipment.name}</span>,
+                                render: (r) => (
+                                    <span className="block truncate text-muted-foreground">
+                                        {r.equipment.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'borrow_date',
                                 label: 'Borrow Date',
                                 width: '14%',
-                                render: (r) => <span className="text-muted-foreground text-xs">{r.borrow_date}</span>,
+                                render: (r) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {r.borrow_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'return_date',
                                 label: 'Return Date',
                                 width: '14%',
-                                render: (r) => <span className="text-muted-foreground text-xs">{r.expected_return_date}</span>,
+                                render: (r) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {r.expected_return_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'status',
                                 label: 'Status',
                                 width: '11%',
                                 align: 'center',
-                                render: (r) => <StatusBadge status={r.status} />,
+                                render: (r) => (
+                                    <StatusBadge status={r.status} />
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -146,8 +192,15 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 align: 'right',
                                 render: (r) => (
                                     <div className="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon" className="size-7" asChild>
-                                            <Link href={`/admin/requests/${r.id}`}>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={`/admin/requests/${r.id}`}
+                                            >
                                                 <Eye className="size-3.5" />
                                             </Link>
                                         </Button>
@@ -157,7 +210,9 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                                     variant="ghost"
                                                     size="icon"
                                                     className="size-7 text-emerald-600 hover:bg-emerald-50"
-                                                    onClick={() => setApproveTarget(r)}
+                                                    onClick={() =>
+                                                        setApproveTarget(r)
+                                                    }
                                                 >
                                                     <CheckCircle className="size-3.5" />
                                                 </Button>
@@ -165,7 +220,9 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                                     variant="ghost"
                                                     size="icon"
                                                     className="size-7 text-destructive hover:bg-red-50"
-                                                    onClick={() => setRejectTarget(r)}
+                                                    onClick={() =>
+                                                        setRejectTarget(r)
+                                                    }
                                                 >
                                                     <XCircle className="size-3.5" />
                                                 </Button>
@@ -187,18 +244,30 @@ export default function RequestsIndex({ requests, filters }: Props) {
                 </Card>
 
                 {/* Dialogs */}
-                <Dialog open={!!approveTarget} onOpenChange={() => setApproveTarget(null)}>
+                <Dialog
+                    open={!!approveTarget}
+                    onOpenChange={() => setApproveTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Approve Request</DialogTitle>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">
-                            Approving <strong>{approveTarget?.requester.name}</strong>'s request for{' '}
+                            Approving{' '}
+                            <strong>{approveTarget?.requester.name}</strong>'s
+                            request for{' '}
                             <strong>{approveTarget?.equipment.name}</strong>.
                         </p>
-                        <Input placeholder="Remarks (optional)" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+                        <Input
+                            placeholder="Remarks (optional)"
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
+                        />
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setApproveTarget(null)}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setApproveTarget(null)}
+                            >
                                 Cancel
                             </Button>
                             <Button onClick={handleApprove}>Approve</Button>
@@ -206,13 +275,18 @@ export default function RequestsIndex({ requests, filters }: Props) {
                     </DialogContent>
                 </Dialog>
 
-                <Dialog open={!!rejectTarget} onOpenChange={() => setRejectTarget(null)}>
+                <Dialog
+                    open={!!rejectTarget}
+                    onOpenChange={() => setRejectTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Reject Request</DialogTitle>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">
-                            Rejecting <strong>{rejectTarget?.requester.name}</strong>'s request for{' '}
+                            Rejecting{' '}
+                            <strong>{rejectTarget?.requester.name}</strong>'s
+                            request for{' '}
                             <strong>{rejectTarget?.equipment.name}</strong>.
                         </p>
                         <Input
@@ -221,10 +295,17 @@ export default function RequestsIndex({ requests, filters }: Props) {
                             onChange={(e) => setRemarks(e.target.value)}
                         />
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setRejectTarget(null)}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setRejectTarget(null)}
+                            >
                                 Cancel
                             </Button>
-                            <Button variant="destructive" onClick={handleReject} disabled={!remarks}>
+                            <Button
+                                variant="destructive"
+                                onClick={handleReject}
+                                disabled={!remarks}
+                            >
                                 Reject
                             </Button>
                         </DialogFooter>
