@@ -1,0 +1,213 @@
+import { Head, Link, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import { ExternalLink, Eye, Plus, School as SchoolIcon, Search, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { DataTable } from '@/components/data-table';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
+import { TablePagination } from '@/components/table-pagination';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import SuperAdminLayout from '@/layouts/SuperAdminLayout';
+import type { BreadcrumbItem } from '@/types';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/super-admin/dashboard' },
+    { title: 'Schools', href: '/super-admin/schools' },
+];
+
+interface School {
+    id: string;
+    name: string;
+    email: string;
+    plan: string;
+    status: string;
+    school_url: string | null;
+    created_at: string;
+}
+
+interface Props {
+    schools: {
+        data: School[];
+        current_page: number;
+        last_page: number;
+        next_page_url: string | null;
+        prev_page_url: string | null;
+    };
+    filters: { search?: string; plan?: string; status?: string };
+}
+
+export default function SchoolsIndex({ schools, filters }: Props) {
+    const [search, setSearch] = useState(filters.search ?? '');
+    const [suspendTarget, setSuspendTarget] = useState<School | null>(null);
+    const [reason, setReason] = useState('');
+
+    function handleSearch(e: React.FormEvent) {
+        e.preventDefault();
+        router.get('/super-admin/schools', { ...filters, search }, { preserveState: true });
+    }
+
+    function handleFilterChange(key: string, value: string) {
+        router.get('/super-admin/schools', { ...filters, [key]: value || undefined }, { preserveState: true });
+    }
+
+    function handleSuspend() {
+        if (!suspendTarget) return;
+        router.post(`/super-admin/schools/${suspendTarget.id}/suspend`, { reason }, {
+            onSuccess: () => {
+                setSuspendTarget(null);
+                setReason('');
+            }
+        });
+    }
+
+    function handleReactivate(school: School) {
+        router.post(`/super-admin/schools/${school.id}/reactivate`);
+    }
+
+    return (
+        <SuperAdminLayout breadcrumbs={breadcrumbs}>
+            <Head title="Schools" />
+
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    title="Schools"
+                    description="All registered schools on Borrowix."
+                    actions={
+                        <Button asChild size="sm" className="gap-1.5">
+                            <Link href="/super-admin/schools/create">
+                                <Plus className="size-3.5" /> Add School
+                            </Link>
+                        </Button>
+                    }
+                />
+
+                {/* Filter bar */}
+                <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
+                    <form onSubmit={handleSearch} className="relative min-w-[220px] flex-1 max-w-xs">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                        <Input
+                            className="pl-8 h-9 text-sm bg-muted/20"
+                            placeholder="Search school or email..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </form>
+                    <Select value={filters.plan ?? 'all'} onValueChange={(v) => handleFilterChange('plan', v === 'all' ? '' : v)}>
+                        <SelectTrigger className="h-9 w-[130px] text-sm bg-muted/20">
+                            <SelectValue placeholder="All Plans" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Plans</SelectItem>
+                            <SelectItem value="free">Free</SelectItem>
+                            <SelectItem value="basic">Basic</SelectItem>
+                            <SelectItem value="pro">Pro</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
+                        <SelectTrigger className="h-9 w-[130px] text-sm bg-muted/20">
+                            <SelectValue placeholder="All Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="suspended">Suspended</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Card>
+
+                <Card className="overflow-hidden p-0 border-border/60">
+                    <DataTable
+                        columns={[
+                            {
+                                key: 'name',
+                                label: 'School',
+                                width: '28%',
+                                render: (s) => (
+                                    <div>
+                                        <p className="font-medium text-foreground truncate">{s.name}</p>
+                                        {s.school_url && <a href={s.school_url} target="_blank" className="text-[10px] text-primary hover:underline flex items-center gap-1"><ExternalLink className="size-2.5" /> Portal</a>}
+                                    </div>
+                                ),
+                            },
+                            {
+                                key: 'email',
+                                label: 'Email',
+                                width: '25%',
+                                render: (s) => <span className="text-muted-foreground truncate block">{s.email}</span>,
+                            },
+                            {
+                                key: 'plan',
+                                label: 'Plan',
+                                width: '12%',
+                                align: 'center',
+                                render: (s) => <StatusBadge status={s.plan} />,
+                            },
+                            {
+                                key: 'status',
+                                label: 'Status',
+                                width: '12%',
+                                align: 'center',
+                                render: (s) => <StatusBadge status={s.status} />,
+                            },
+                            {
+                                key: 'created',
+                                label: 'Created',
+                                width: '13%',
+                                render: (s) => <span className="text-muted-foreground text-xs">{s.created_at}</span>,
+                            },
+                            {
+                                key: 'actions',
+                                label: '',
+                                width: '10%',
+                                align: 'right',
+                                render: (s) => (
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button variant="ghost" size="icon" className="size-7" asChild>
+                                            <Link href={`/super-admin/schools/${s.id}`}><Eye className="size-3.5" /></Link>
+                                        </Button>
+                                        {s.status === 'active' ? (
+                                            <Button variant="ghost" size="icon" className="size-7 hover:text-destructive" onClick={() => setSuspendTarget(s)}><ShieldAlert className="size-3.5" /></Button>
+                                        ) : (
+                                            <Button variant="ghost" size="icon" className="size-7 text-emerald-600" onClick={() => handleReactivate(s)}><ShieldCheck className="size-3.5" /></Button>
+                                        )}
+                                    </div>
+                                ),
+                            },
+                        ]}
+                        data={schools.data}
+                        keyExtractor={(s) => s.id}
+                    />
+                    <TablePagination
+                        currentPage={schools.current_page}
+                        lastPage={schools.last_page}
+                        nextUrl={schools.next_page_url}
+                        prevUrl={schools.prev_page_url}
+                    />
+                </Card>
+
+                <Dialog open={!!suspendTarget} onOpenChange={() => setSuspendTarget(null)}>
+                    <DialogContent>
+                        <DialogHeader><DialogTitle>Suspend School?</DialogTitle></DialogHeader>
+                        <div className="space-y-4 py-2">
+                            <p className="text-sm text-muted-foreground">This will disable access for all users of this school.</p>
+                            <Input placeholder="Reason for suspension" value={reason} onChange={(e) => setReason(e.target.value)} />
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setSuspendTarget(null)}>Cancel</Button>
+                            <Button variant="destructive" onClick={handleSuspend} disabled={!reason}>Suspend</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </motion.div>
+        </SuperAdminLayout>
+    );
+}

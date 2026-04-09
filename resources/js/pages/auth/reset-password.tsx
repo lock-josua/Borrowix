@@ -26,40 +26,39 @@ export default function ResetPassword({ token, email }: Props) {
                 resetOnSuccess={['password', 'password_confirmation']}
             >
                 {({ processing, errors }) => (
-                    <div className="grid gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                    <div className="grid gap-5">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 name="email"
                                 autoComplete="email"
                                 value={email}
-                                className="mt-1 block w-full"
+                                className="h-10 bg-muted/50 cursor-not-allowed"
                                 readOnly
                             />
                             <InputError
                                 message={errors.email}
-                                className="mt-2"
                             />
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
                             <Input
                                 id="password"
                                 type="password"
                                 name="password"
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
+                                className="h-10 transition-shadow duration-150 focus:ring-2 focus:ring-ring/30"
                                 autoFocus
                                 placeholder="Password"
                             />
                             <InputError message={errors.password} />
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-foreground">
                                 Confirm password
                             </Label>
                             <Input
@@ -67,22 +66,21 @@ export default function ResetPassword({ token, email }: Props) {
                                 type="password"
                                 name="password_confirmation"
                                 autoComplete="new-password"
-                                className="mt-1 block w-full"
+                                className="h-10 transition-shadow duration-150 focus:ring-2 focus:ring-ring/30"
                                 placeholder="Confirm password"
                             />
                             <InputError
                                 message={errors.password_confirmation}
-                                className="mt-2"
                             />
                         </div>
 
                         <Button
                             type="submit"
-                            className="mt-4 w-full"
+                            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-150 h-10 font-medium mt-2"
                             disabled={processing}
                             data-test="reset-password-button"
                         >
-                            {processing && <Spinner />}
+                            {processing && <Spinner className="mr-2 size-4" />}
                             Reset password
                         </Button>
                     </div>

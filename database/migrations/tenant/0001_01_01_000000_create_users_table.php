@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -18,6 +15,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // No 'super_admin' here — super_admin only lives in the central DB
+            $table->enum('role', ['admin', 'staff', 'student'])->default('student');
+            // school_id REMOVED: each tenant DB is already one school
             $table->rememberToken();
             $table->timestamps();
         });
@@ -28,6 +28,8 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
         });
 
+        // Sessions in the tenant DB isolates sessions per school.
+        // This is what prevents the cross-tenant logout bug.
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -38,9 +40,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
