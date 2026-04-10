@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('fine_reason')->nullable();
             $table->text('return_condition_notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

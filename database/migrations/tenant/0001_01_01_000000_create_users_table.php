@@ -20,6 +20,7 @@ return new class extends Migration
             // school_id REMOVED: each tenant DB is already one school
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

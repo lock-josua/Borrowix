@@ -37,11 +37,6 @@ class PromoCodeController extends Controller
             'expires_at' => ['nullable', 'date', 'after:today'],
         ]);
 
-        // Convert "all" to null for database storage
-        // if ($validated['applicable_plan'] === 'all') {
-        //     $validated['applicable_plan'] = null;
-        // }
-
         PromoCode::create($validated);
 
         return redirect()
