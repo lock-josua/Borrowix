@@ -1,6 +1,6 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CreditCard, HelpCircle, Loader2, Receipt } from 'lucide-react';
+import { CreditCard, HelpCircle, Loader2, Receipt } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
@@ -116,7 +116,9 @@ export default function SubscriptionShow({
                         {/* Current Subscription */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                                <CardTitle className="text-base">Current Subscription</CardTitle>
+                                <CardTitle className="text-base">
+                                    Current Subscription
+                                </CardTitle>
                                 {!sub && (
                                     <span className="text-xs text-muted-foreground">
                                         No subscription
@@ -191,16 +193,16 @@ export default function SubscriptionShow({
                                         <table className="w-full text-sm">
                                             <thead>
                                                 <tr className="border-b bg-muted/30 hover:bg-muted/30">
-                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                         Plan
                                                     </th>
-                                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                    <th className="px-4 py-3 text-center text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                         Status
                                                     </th>
-                                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                    <th className="px-4 py-3 text-center text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                         Cycle
                                                     </th>
-                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                         Period
                                                     </th>
                                                 </tr>
@@ -212,13 +214,20 @@ export default function SubscriptionShow({
                                                         className="border-b border-border transition-colors last:border-0 hover:bg-muted/40"
                                                     >
                                                         <td className="px-4 py-3">
-                                                            <StatusBadge status={h.plan} />
+                                                            <StatusBadge
+                                                                status={h.plan}
+                                                            />
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <StatusBadge status={h.status} />
+                                                            <StatusBadge
+                                                                status={
+                                                                    h.status
+                                                                }
+                                                            />
                                                         </td>
-                                                        <td className="px-4 py-3 text-center capitalize text-muted-foreground">
-                                                            {h.billing_cycle ?? '—'}
+                                                        <td className="px-4 py-3 text-center text-muted-foreground capitalize">
+                                                            {h.billing_cycle ??
+                                                                '—'}
                                                         </td>
                                                         <td className="px-4 py-3 text-xs text-muted-foreground">
                                                             {h.current_period_start
@@ -239,7 +248,9 @@ export default function SubscriptionShow({
                         {/* Update Subscription */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Update Subscription</CardTitle>
+                                <CardTitle className="text-base">
+                                    Update Subscription
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-2 gap-3">
@@ -247,49 +258,79 @@ export default function SubscriptionShow({
                                         <Label className="text-xs">Plan</Label>
                                         <Select
                                             value={data.plan}
-                                            onValueChange={(v) => setData('plan', v)}
+                                            onValueChange={(v) =>
+                                                setData('plan', v)
+                                            }
                                         >
                                             <SelectTrigger className="h-10">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="free">Free</SelectItem>
-                                                <SelectItem value="basic">Basic</SelectItem>
-                                                <SelectItem value="pro">Pro</SelectItem>
+                                                <SelectItem value="free">
+                                                    Free
+                                                </SelectItem>
+                                                <SelectItem value="basic">
+                                                    Basic
+                                                </SelectItem>
+                                                <SelectItem value="pro">
+                                                    Pro
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <Label className="text-xs">Status</Label>
+                                        <Label className="text-xs">
+                                            Status
+                                        </Label>
                                         <Select
                                             value={data.status}
-                                            onValueChange={(v) => setData('status', v)}
+                                            onValueChange={(v) =>
+                                                setData('status', v)
+                                            }
                                         >
                                             <SelectTrigger className="h-10">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="active">Active</SelectItem>
-                                                <SelectItem value="trialing">Trialing</SelectItem>
-                                                <SelectItem value="past_due">Past Due</SelectItem>
-                                                <SelectItem value="canceled">Canceled</SelectItem>
-                                                <SelectItem value="paused">Paused</SelectItem>
+                                                <SelectItem value="active">
+                                                    Active
+                                                </SelectItem>
+                                                <SelectItem value="trialing">
+                                                    Trialing
+                                                </SelectItem>
+                                                <SelectItem value="past_due">
+                                                    Past Due
+                                                </SelectItem>
+                                                <SelectItem value="canceled">
+                                                    Canceled
+                                                </SelectItem>
+                                                <SelectItem value="paused">
+                                                    Paused
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label className="text-xs">Billing cycle</Label>
+                                    <Label className="text-xs">
+                                        Billing cycle
+                                    </Label>
                                     <Select
                                         value={data.billing_cycle}
-                                        onValueChange={(v) => setData('billing_cycle', v)}
+                                        onValueChange={(v) =>
+                                            setData('billing_cycle', v)
+                                        }
                                     >
                                         <SelectTrigger className="h-10">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="monthly">Monthly</SelectItem>
-                                            <SelectItem value="annual">Annual</SelectItem>
+                                            <SelectItem value="monthly">
+                                                Monthly
+                                            </SelectItem>
+                                            <SelectItem value="annual">
+                                                Annual
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -302,7 +343,9 @@ export default function SubscriptionShow({
                                     {processing && (
                                         <Loader2 className="mr-2 size-4 animate-spin" />
                                     )}
-                                    {processing ? 'Updating...' : 'Update subscription'}
+                                    {processing
+                                        ? 'Updating...'
+                                        : 'Update subscription'}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -310,7 +353,9 @@ export default function SubscriptionShow({
                         {/* Payment Method */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Payment Method</CardTitle>
+                                <CardTitle className="text-base">
+                                    Payment Method
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {sub?.card_last_four ? (
@@ -322,7 +367,7 @@ export default function SubscriptionShow({
                                             <p className="font-mono text-sm font-medium">
                                                 •••• {sub.card_last_four}
                                             </p>
-                                            <p className="text-xs capitalize text-muted-foreground">
+                                            <p className="text-xs text-muted-foreground capitalize">
                                                 {sub.card_brand}
                                             </p>
                                         </div>
