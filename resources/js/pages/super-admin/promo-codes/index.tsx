@@ -1,14 +1,18 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, CheckCircle, XCircle, Tag } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { CheckCircle, Pencil, Plus, Tag, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from '@/components/ui/dialog';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -49,68 +53,73 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Promo Codes" />
 
-            <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">
-                            Promo Codes
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Manage discount codes for school subscriptions.
-                        </p>
-                    </div>
-                    <Link href="/super-admin/promo-codes/create">
-                        <Button>
-                            <Plus className="mr-2 size-4" />
-                            New Code
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    title="Promo Codes"
+                    description="Manage discount codes for school subscriptions."
+                    actions={
+                        <Button asChild size="sm" className="gap-1.5">
+                            <Link href="/super-admin/promo-codes/create">
+                                <Plus className="size-3.5" /> New Code
+                            </Link>
                         </Button>
-                    </Link>
-                </div>
+                    }
+                />
 
-                {/* Table */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            {promoCodes.data.length} code
-                            {promoCodes.data.length !== 1 ? 's' : ''}
+                <Card className="overflow-hidden border-border/60 p-0">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
+                        <CardTitle className="text-sm font-semibold">
+                            {promoCodes.data.length} code{promoCodes.data.length !== 1 ? 's' : ''}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         {promoCodes.data.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <Tag className="mb-3 size-10 text-muted-foreground/40" />
-                                <p className="font-medium text-muted-foreground">
+                            <div className="flex flex-col items-center justify-center py-16 text-center">
+                                <div className="mb-4 rounded-full bg-muted p-4">
+                                    <Tag className="size-8 text-muted-foreground" />
+                                </div>
+                                <h3 className="mb-1 text-base font-semibold text-foreground">
                                     No promo codes yet
-                                </p>
-                                <p className="mt-1 text-xs text-muted-foreground">
+                                </h3>
+                                <p className="mb-4 max-w-sm text-sm text-muted-foreground">
                                     Create your first discount code for schools.
                                 </p>
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href="/super-admin/promo-codes/create">
+                                        <Plus className="mr-1.5 size-3.5" />
+                                        Create Code
+                                    </Link>
+                                </Button>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded-md border">
+                            <div className="w-full overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
-                                        <tr className="border-b bg-muted/50">
-                                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                        <tr className="border-b bg-muted/30 hover:bg-muted/30">
+                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                                 Code
                                             </th>
-                                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                                 Discount
                                             </th>
-                                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                                 Plan
                                             </th>
-                                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                                 Usage
                                             </th>
-                                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                                 Expires
                                             </th>
-                                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                            <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                                 Active
                                             </th>
-                                            <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                                            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                                                 Actions
                                             </th>
                                         </tr>
@@ -119,7 +128,7 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                                         {promoCodes.data.map((code) => (
                                             <tr
                                                 key={code.id}
-                                                className="border-b transition-colors last:border-0 hover:bg-muted/50"
+                                                className="border-b border-border transition-colors last:border-0 hover:bg-muted/40"
                                             >
                                                 <td className="px-4 py-3">
                                                     <code className="rounded bg-muted px-2 py-0.5 font-mono text-sm font-semibold tracking-wide">
@@ -131,65 +140,56 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-3 text-sm font-medium">
-                                                    {code.discount_type ===
-                                                    'percentage'
+                                                <td className="px-4 py-3 text-sm font-medium text-foreground">
+                                                    {code.discount_type === 'percentage'
                                                         ? `${code.discount_value}%`
                                                         : `₱${code.discount_value}`}
                                                 </td>
-                                                <td className="px-4 py-3 text-sm capitalize">
-                                                    {code.applicable_plan ??
-                                                        'All'}
+                                                <td className="px-4 py-3 text-sm capitalize text-muted-foreground">
+                                                    {code.applicable_plan ?? 'All'}
                                                 </td>
-                                                <td className="px-4 py-3 text-sm">
-                                                    {code.times_used} /{' '}
-                                                    {code.max_uses ?? '∞'}
+                                                <td className="px-4 py-3 text-sm text-muted-foreground">
+                                                    {code.times_used} / {code.max_uses ?? '∞'}
                                                 </td>
                                                 <td className="px-4 py-3 text-xs text-muted-foreground">
                                                     {code.expires_at
-                                                        ? new Date(
-                                                              code.expires_at,
-                                                          ).toLocaleDateString()
+                                                        ? new Date(code.expires_at).toLocaleDateString()
                                                         : 'Never'}
                                                 </td>
-                                                <td className="px-4 py-3">
+                                                <td className="px-4 py-3 text-center">
                                                     {code.is_active ? (
-                                                        <span className="inline-flex items-center gap-1 text-sm text-emerald-600">
-                                                            <CheckCircle className="size-4" />
+                                                        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                                                            <CheckCircle className="size-3.5" />
                                                             Active
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-                                                            <XCircle className="size-4" />
+                                                        <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                                                            <XCircle className="size-3.5" />
                                                             Inactive
                                                         </span>
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <div className="flex gap-1">
-                                                        <Link
-                                                            href={`/super-admin/promo-codes/${code.id}/edit`}
-                                                        >
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                            >
-                                                                <Pencil className="mr-1 size-3.5" />
-                                                                Edit
-                                                            </Button>
-                                                        </Link>
+                                                    <div className="flex items-center justify-end gap-1">
                                                         <Button
                                                             variant="ghost"
-                                                            size="sm"
-                                                            className="text-destructive hover:text-destructive"
-                                                            onClick={() =>
-                                                                setDeleteTarget(
-                                                                    code,
-                                                                )
-                                                            }
+                                                            size="icon"
+                                                            className="size-7"
+                                                            aria-label="Edit promo code"
+                                                            asChild
                                                         >
-                                                            <Trash2 className="mr-1 size-3.5" />
-                                                            Delete
+                                                            <Link href={`/super-admin/promo-codes/${code.id}/edit`}>
+                                                                <Pencil className="size-3.5" />
+                                                            </Link>
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="size-7 hover:text-destructive"
+                                                            aria-label="Delete promo code"
+                                                            onClick={() => setDeleteTarget(code)}
+                                                        >
+                                                            <Trash2 className="size-3.5" />
                                                         </Button>
                                                     </div>
                                                 </td>
@@ -201,23 +201,19 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                         )}
                     </CardContent>
                 </Card>
-            </div>
+            </motion.div>
 
-            {/* Delete Confirm Dialog */}
             <Dialog
                 open={!!deleteTarget}
                 onOpenChange={() => setDeleteTarget(null)}
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
-                            Delete "{deleteTarget?.code}"?
-                        </DialogTitle>
+                        <DialogTitle>Delete "{deleteTarget?.code}"?</DialogTitle>
+                        <DialogDescription>
+                            This promo code will be permanently deleted. This cannot be undone.
+                        </DialogDescription>
                     </DialogHeader>
-                    <p className="text-sm text-muted-foreground">
-                        This promo code will be permanently deleted. This cannot
-                        be undone.
-                    </p>
                     <DialogFooter>
                         <Button
                             variant="outline"

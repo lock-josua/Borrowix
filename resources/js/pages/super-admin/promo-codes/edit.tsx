@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,9 +17,9 @@ import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard',    href: '/super-admin/dashboard' },
-    { title: 'Promo Codes',  href: '/super-admin/promo-codes' },
-    { title: 'Edit',         href: '' },
+    { title: 'Dashboard', href: '/super-admin/dashboard' },
+    { title: 'Promo Codes', href: '/super-admin/promo-codes' },
+    { title: 'Edit', href: '' },
 ];
 
 interface PromoCode {
@@ -46,7 +47,9 @@ export default function EditPromoCode({ promoCode }: Props) {
         applicable_plan: promoCode.applicable_plan || 'all',
         max_uses: promoCode.max_uses?.toString() || '',
         is_active: promoCode.is_active,
-        expires_at: promoCode.expires_at ? new Date(promoCode.expires_at).toISOString().split('T')[0] : '',
+        expires_at: promoCode.expires_at
+            ? new Date(promoCode.expires_at).toISOString().split('T')[0]
+            : '',
     });
 
     function handleSubmit(e: React.FormEvent) {
@@ -59,19 +62,11 @@ export default function EditPromoCode({ promoCode }: Props) {
             <Head title="Edit Promo Code" />
 
             <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center gap-3">
-                    <Link href="/super-admin/promo-codes">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="size-4" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold">Edit Promo Code</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Update discount code details.
-                        </p>
-                    </div>
-                </div>
+                <PageHeader
+                    backHref="/super-admin/promo-codes"
+                    title="Edit Promo Code"
+                    description="Update discount code details."
+                />
 
                 <Card className="max-w-lg">
                     <CardHeader>
@@ -80,7 +75,7 @@ export default function EditPromoCode({ promoCode }: Props) {
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Code (Read Only) */}
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>Code</Label>
                                 <Input
                                     value={promoCode.code}
@@ -89,9 +84,11 @@ export default function EditPromoCode({ promoCode }: Props) {
                                 />
                             </div>
 
-                            {/* Description */}
-                            <div className="space-y-1">
-                                <Label>Description <span className="text-muted-foreground">(optional)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Description{' '}
+                                    <span className="text-muted-foreground">(optional)</span>
+                                </Label>
                                 <Input
                                     placeholder="Launch discount for early adopters"
                                     value={data.description}
@@ -99,12 +96,13 @@ export default function EditPromoCode({ promoCode }: Props) {
                                 />
                             </div>
 
-                            {/* Discount Type */}
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>Discount Type</Label>
                                 <Select
                                     value={data.discount_type}
-                                    onValueChange={(v: 'percentage' | 'fixed') => setData('discount_type', v)}
+                                    onValueChange={(v: 'percentage' | 'fixed') =>
+                                        setData('discount_type', v)
+                                    }
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
@@ -116,8 +114,7 @@ export default function EditPromoCode({ promoCode }: Props) {
                                 </Select>
                             </div>
 
-                            {/* Discount Value */}
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>
                                     Discount Value{' '}
                                     <span className="text-muted-foreground">
@@ -127,16 +124,24 @@ export default function EditPromoCode({ promoCode }: Props) {
                                 <Input
                                     type="number"
                                     min="1"
-                                    placeholder={data.discount_type === 'percentage' ? '50' : '100'}
+                                    placeholder={
+                                        data.discount_type === 'percentage' ? '50' : '100'
+                                    }
                                     value={data.discount_value}
                                     onChange={(e) => setData('discount_value', e.target.value)}
                                 />
-                                {errors.discount_value && <p className="text-xs text-destructive">{errors.discount_value}</p>}
+                                {errors.discount_value && (
+                                    <p className="text-xs text-destructive">
+                                        {errors.discount_value}
+                                    </p>
+                                )}
                             </div>
 
-                            {/* Applicable Plan */}
-                            <div className="space-y-1">
-                                <Label>Applicable Plan <span className="text-muted-foreground">(optional)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Applicable Plan{' '}
+                                    <span className="text-muted-foreground">(optional)</span>
+                                </Label>
                                 <Select
                                     value={data.applicable_plan}
                                     onValueChange={(v) => setData('applicable_plan', v)}
@@ -152,9 +157,13 @@ export default function EditPromoCode({ promoCode }: Props) {
                                 </Select>
                             </div>
 
-                            {/* Max Uses */}
-                            <div className="space-y-1">
-                                <Label>Max Uses <span className="text-muted-foreground">(optional — blank = unlimited)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Max Uses{' '}
+                                    <span className="text-muted-foreground">
+                                        (optional — blank = unlimited)
+                                    </span>
+                                </Label>
                                 <Input
                                     type="number"
                                     min="1"
@@ -164,9 +173,11 @@ export default function EditPromoCode({ promoCode }: Props) {
                                 />
                             </div>
 
-                            {/* Expires At */}
-                            <div className="space-y-1">
-                                <Label>Expiry Date <span className="text-muted-foreground">(optional)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Expiry Date{' '}
+                                    <span className="text-muted-foreground">(optional)</span>
+                                </Label>
                                 <Input
                                     type="date"
                                     value={data.expires_at}
@@ -175,7 +186,7 @@ export default function EditPromoCode({ promoCode }: Props) {
                             </div>
 
                             {/* Active Status */}
-                            <div className="flex items-center justify-between space-x-4 p-3 border rounded-lg">
+                            <div className="flex items-center justify-between rounded-lg border border-border p-3">
                                 <div>
                                     <Label>Active</Label>
                                     <p className="text-sm text-muted-foreground">
@@ -188,13 +199,16 @@ export default function EditPromoCode({ promoCode }: Props) {
                                 />
                             </div>
 
-                            <div className="flex gap-2 pt-2">
+                            <div className="flex gap-3 pt-4">
                                 <Button type="submit" disabled={processing}>
+                                    {processing && (
+                                        <Loader2 className="mr-2 size-4 animate-spin" />
+                                    )}
                                     {processing ? 'Updating...' : 'Update Code'}
                                 </Button>
-                                <Link href="/super-admin/promo-codes">
-                                    <Button variant="outline" type="button">Cancel</Button>
-                                </Link>
+                                <Button variant="outline" type="button" asChild>
+                                    <Link href="/super-admin/promo-codes">Cancel</Link>
+                                </Button>
                             </div>
                         </form>
                     </CardContent>

@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,9 +16,9 @@ import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard',    href: '/super-admin/dashboard' },
-    { title: 'Promo Codes',  href: '/super-admin/promo-codes' },
-    { title: 'Create',       href: '/super-admin/promo-codes/create' },
+    { title: 'Dashboard', href: '/super-admin/dashboard' },
+    { title: 'Promo Codes', href: '/super-admin/promo-codes' },
+    { title: 'Create', href: '/super-admin/promo-codes/create' },
 ];
 
 export default function CreatePromoCode() {
@@ -41,19 +42,11 @@ export default function CreatePromoCode() {
             <Head title="Create Promo Code" />
 
             <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center gap-3">
-                    <Link href="/super-admin/promo-codes">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="size-4" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold">Create Promo Code</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Add a new discount code for schools.
-                        </p>
-                    </div>
-                </div>
+                <PageHeader
+                    backHref="/super-admin/promo-codes"
+                    title="Create Promo Code"
+                    description="Add a new discount code for schools."
+                />
 
                 <Card className="max-w-lg">
                     <CardHeader>
@@ -61,8 +54,7 @@ export default function CreatePromoCode() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Code */}
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>Code</Label>
                                 <Input
                                     placeholder="Enter promo code"
@@ -70,12 +62,16 @@ export default function CreatePromoCode() {
                                     onChange={(e) => setData('code', e.target.value.toUpperCase())}
                                     className="font-mono uppercase"
                                 />
-                                {errors.code && <p className="text-xs text-destructive">{errors.code}</p>}
+                                {errors.code && (
+                                    <p className="text-xs text-destructive">{errors.code}</p>
+                                )}
                             </div>
 
-                            {/* Description */}
-                            <div className="space-y-1">
-                                <Label>Description <span className="text-muted-foreground">(optional)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Description{' '}
+                                    <span className="text-muted-foreground">(optional)</span>
+                                </Label>
                                 <Input
                                     placeholder="Launch discount for early adopters"
                                     value={data.description}
@@ -83,8 +79,7 @@ export default function CreatePromoCode() {
                                 />
                             </div>
 
-                            {/* Discount Type */}
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>Discount Type</Label>
                                 <Select
                                     value={data.discount_type}
@@ -100,8 +95,7 @@ export default function CreatePromoCode() {
                                 </Select>
                             </div>
 
-                            {/* Discount Value */}
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>
                                     Discount Value{' '}
                                     <span className="text-muted-foreground">
@@ -115,12 +109,16 @@ export default function CreatePromoCode() {
                                     value={data.discount_value}
                                     onChange={(e) => setData('discount_value', e.target.value)}
                                 />
-                                {errors.discount_value && <p className="text-xs text-destructive">{errors.discount_value}</p>}
+                                {errors.discount_value && (
+                                    <p className="text-xs text-destructive">{errors.discount_value}</p>
+                                )}
                             </div>
 
-                            {/* Applicable Plan */}
-                            <div className="space-y-1">
-                                <Label>Applicable Plan <span className="text-muted-foreground">(optional)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Applicable Plan{' '}
+                                    <span className="text-muted-foreground">(optional)</span>
+                                </Label>
                                 <Select
                                     value={data.applicable_plan}
                                     onValueChange={(v) => setData('applicable_plan', v)}
@@ -136,9 +134,13 @@ export default function CreatePromoCode() {
                                 </Select>
                             </div>
 
-                            {/* Max Uses */}
-                            <div className="space-y-1">
-                                <Label>Max Uses <span className="text-muted-foreground">(optional — blank = unlimited)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Max Uses{' '}
+                                    <span className="text-muted-foreground">
+                                        (optional — blank = unlimited)
+                                    </span>
+                                </Label>
                                 <Input
                                     type="number"
                                     min="1"
@@ -148,9 +150,11 @@ export default function CreatePromoCode() {
                                 />
                             </div>
 
-                            {/* Expires At */}
-                            <div className="space-y-1">
-                                <Label>Expiry Date <span className="text-muted-foreground">(optional)</span></Label>
+                            <div className="space-y-1.5">
+                                <Label>
+                                    Expiry Date{' '}
+                                    <span className="text-muted-foreground">(optional)</span>
+                                </Label>
                                 <Input
                                     type="date"
                                     value={data.expires_at}
@@ -158,13 +162,16 @@ export default function CreatePromoCode() {
                                 />
                             </div>
 
-                            <div className="flex gap-2 pt-2">
+                            <div className="flex gap-3 pt-4">
                                 <Button type="submit" disabled={processing}>
+                                    {processing && (
+                                        <Loader2 className="mr-2 size-4 animate-spin" />
+                                    )}
                                     {processing ? 'Creating...' : 'Create Code'}
                                 </Button>
-                                <Link href="/super-admin/promo-codes">
-                                    <Button variant="outline" type="button">Cancel</Button>
-                                </Link>
+                                <Button variant="outline" type="button" asChild>
+                                    <Link href="/super-admin/promo-codes">Cancel</Link>
+                                </Button>
                             </div>
                         </form>
                     </CardContent>
