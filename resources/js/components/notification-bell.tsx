@@ -1,6 +1,6 @@
 import { usePage, router } from '@inertiajs/react';
 import { Bell, Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -32,23 +32,7 @@ export function NotificationBell() {
     const [notifications, setNotifications] = useState<Notification[]>(
         propNotifications ?? [],
     );
-    const [loading, setLoading] = useState(false);
-
-    function fetchNotifications() {
-        setLoading(true);
-        fetch('/api/notifications')
-            .then((res) => res.json())
-            .then((data) => {
-                setNotifications(data.notifications ?? []);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    }
-
-    function handleOpen(isOpen: boolean) {
-        // Notifications are loaded via Inertia props - no need to fetch again
-        // API is still used for markAsRead and markAllAsRead actions
-    }
+    const [loading] = useState(false);
 
     function handleNotificationClick(notification: Notification) {
         if (!notification.read_at) {
@@ -96,7 +80,7 @@ export function NotificationBell() {
     }
 
     return (
-        <DropdownMenu onOpenChange={handleOpen}>
+        <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"

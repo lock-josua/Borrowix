@@ -1,4 +1,4 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, UserCog } from 'lucide-react';
 import { FormField } from '@/components/form-field';
 import { PageHeader } from '@/components/page-header';

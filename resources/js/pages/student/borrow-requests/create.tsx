@@ -60,6 +60,7 @@ export default function CreateRequest({
         if (preselectedEquipmentId) {
             setData('equipment_id', preselectedEquipmentId);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [preselectedEquipmentId]);
 
     const selectedEquipment =
