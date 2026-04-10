@@ -18,6 +18,7 @@ import { Card } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -240,6 +241,7 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                             variant="ghost"
                                             size="icon"
                                             className="size-7"
+                                            aria-label="View school"
                                             asChild
                                         >
                                             <Link
@@ -253,6 +255,7 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="size-7 hover:text-destructive"
+                                                aria-label="Suspend school"
                                                 onClick={() =>
                                                     setSuspendTarget(s)
                                                 }
@@ -264,6 +267,7 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="size-7 text-emerald-600"
+                                                aria-label="Reactivate school"
                                                 onClick={() =>
                                                     handleReactivate(s)
                                                 }
@@ -293,12 +297,12 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Suspend School?</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-2">
-                            <p className="text-sm text-muted-foreground">
+                            <DialogDescription>
                                 This will disable access for all users of this
                                 school.
-                            </p>
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-2">
                             <Input
                                 placeholder="Reason for suspension"
                                 value={reason}

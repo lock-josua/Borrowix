@@ -1,19 +1,27 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
+    ArrowLeftRight,
     Check,
     Copy,
+    Loader2,
     Pencil,
     RefreshCw,
     ShieldAlert,
     ShieldCheck,
+    Users,
+    Wrench,
 } from 'lucide-react';
 import { useState } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { StatCard } from '@/components/stat-card';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
@@ -60,22 +68,13 @@ interface Props {
     } | null;
 }
 
-const statusBadge: Record<string, string> = {
-    active: 'badge-success',
-    suspended: 'badge-error',
-    canceled: 'badge-neutral',
-};
 
-const planBadge: Record<string, string> = {
-    free: 'badge-ghost',
-    basic: 'badge-info',
-    pro: 'badge-warning',
-};
 
 export default function SchoolShow({ school, subscription }: Props) {
     const { flash } = usePage().props as {
         flash?: { credentials?: Credentials };
     };
+    const [resending, setResending] = useState(false);
     const [showCredentials, setShowCredentials] = useState(
         !!flash?.credentials,
     );
@@ -98,7 +97,10 @@ export default function SchoolShow({ school, subscription }: Props) {
     }
 
     function handleResendCredentials() {
-        router.post(`/super-admin/schools/${school.id}/resend-credentials`);
+        setResending(true);
+        router.post(`/super-admin/schools/${school.id}/resend-credentials`, {}, {
+            onFinish: () => setResending(false),
+        });
     }
 
     function handleSuspend() {
@@ -124,93 +126,88 @@ export default function SchoolShow({ school, subscription }: Props) {
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title={school.name} />
 
-            <div className="flex flex-col gap-6 p-6">
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Link href="/super-admin/schools">
-                            <Button variant="ghost" size="icon">
-                                <ArrowLeft className="size-4" />
+                <PageHeader
+                    backHref="/super-admin/schools"
+                    title={school.name}
+                    description={school.email}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <StatusBadge status={school.status} />
+                            <StatusBadge status={school.plan} />
+                            <Link href={`/super-admin/schools/${school.id}/edit`}>
+                                <Button variant="outline" size="sm">
+                                    <Pencil className="mr-2 size-3.5" />
+                                    Edit
+                                </Button>
+                            </Link>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleResendCredentials}
+                                disabled={resending}
+                            >
+                                {resending ? (
+                                    <Loader2 className="mr-2 size-3.5 animate-spin" />
+                                ) : (
+                                    <RefreshCw className="mr-2 size-3.5" />
+                                )}
+                                Resend Credentials
                             </Button>
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl font-bold">
-                                {school.name}
-                            </h1>
-                            <p className="text-sm text-muted-foreground">
-                                {school.email}
-                            </p>
+                            {school.status === 'suspended' ? (
+                                <Button
+                                    size="sm"
+                                    onClick={handleReactivate}
+                                >
+                                    <ShieldCheck className="mr-2 size-3.5" />
+                                    Reactivate
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => setShowSuspend(true)}
+                                >
+                                    <ShieldAlert className="mr-2 size-3.5" />
+                                    Suspend
+                                </Button>
+                            )}
                         </div>
-                        <span
-                            className={`badge capitalize ${statusBadge[school.status]}`}
-                        >
-                            {school.status}
-                        </span>
-                        <span
-                            className={`badge capitalize ${planBadge[school.plan]}`}
-                        >
-                            {school.plan}
-                        </span>
-                    </div>
-                    <div className="flex gap-2">
-                        <Link href={`/super-admin/schools/${school.id}/edit`}>
-                            <Button variant="outline">
-                                <Pencil className="mr-2 size-4" />
-                                Edit
-                            </Button>
-                        </Link>
-                        <Button
-                            variant="outline"
-                            onClick={handleResendCredentials}
-                        >
-                            <RefreshCw className="mr-2 size-4" />
-                            Resend Credentials
-                        </Button>
-                        {school.status === 'suspended' ? (
-                            <Button
-                                variant="default"
-                                onClick={handleReactivate}
-                            >
-                                <ShieldCheck className="mr-2 size-4" />
-                                Reactivate
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="destructive"
-                                onClick={() => setShowSuspend(true)}
-                            >
-                                <ShieldAlert className="mr-2 size-4" />
-                                Suspend
-                            </Button>
-                        )}
-                    </div>
-                </div>
+                    }
+                />
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                    {[
-                        { label: 'Users', value: school.users_count },
-                        { label: 'Equipment', value: school.equipment_count },
-                        {
-                            label: 'Requests',
-                            value: school.borrow_requests_count,
-                        },
-                        {
-                            label: 'Transactions',
-                            value: school.borrow_transactions_count,
-                        },
-                    ].map((s) => (
-                        <Card key={s.label}>
-                            <CardContent className="pt-4">
-                                <div className="text-2xl font-bold">
-                                    {s.value}
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                    {s.label}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <StatCard
+                        title="Users"
+                        value={school.users_count}
+                        delay={0}
+                        icon={<Users />}
+                    />
+                    <StatCard
+                        title="Equipment"
+                        value={school.equipment_count}
+                        delay={0.05}
+                        icon={<Wrench />}
+                    />
+                    <StatCard
+                        title="Requests"
+                        value={school.borrow_requests_count}
+                        delay={0.1}
+                        icon={<ArrowLeftRight />}
+                    />
+                    <StatCard
+                        title="Transactions"
+                        value={school.borrow_transactions_count}
+                        delay={0.15}
+                        icon={<ArrowLeftRight />}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -316,7 +313,7 @@ export default function SchoolShow({ school, subscription }: Props) {
                         </CardContent>
                     </Card>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Credentials Dialog */}
             <Dialog
@@ -329,10 +326,10 @@ export default function SchoolShow({ school, subscription }: Props) {
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>School Credentials</DialogTitle>
+                        <DialogDescription>
+                            Share these credentials with the school.
+                        </DialogDescription>
                     </DialogHeader>
-                    <p className="text-sm text-muted-foreground">
-                        Share these credentials with the school.
-                    </p>
                     {credentials && (
                         <div className="space-y-3">
                             <CredentialField
@@ -392,12 +389,12 @@ export default function SchoolShow({ school, subscription }: Props) {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Suspend School</DialogTitle>
+                        <DialogDescription>
+                            This will immediately log out all users at{' '}
+                            <strong>{school.name}</strong> and block access to their
+                            portal.
+                        </DialogDescription>
                     </DialogHeader>
-                    <p className="text-sm text-muted-foreground">
-                        This will immediately log out all users at{' '}
-                        <strong>{school.name}</strong> and block access to their
-                        portal.
-                    </p>
                     <div className="space-y-1">
                         <Label>
                             Reason <span className="text-destructive">*</span>

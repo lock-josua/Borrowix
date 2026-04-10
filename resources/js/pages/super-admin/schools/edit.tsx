@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -47,29 +48,19 @@ export default function EditSchool({ school }: Props) {
             <Head title={`Edit ${school.name}`} />
 
             <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center gap-3">
-                    <Link href={`/super-admin/schools/${school.id}`}>
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="size-4" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold">Edit School</h1>
-                        <p className="text-sm text-muted-foreground">
-                            School ID: {school.id}
-                        </p>
-                    </div>
-                </div>
+                <PageHeader
+                    backHref={`/super-admin/schools/${school.id}`}
+                    title="Edit School"
+                    description={`School ID: ${school.id}`}
+                />
 
                 <Card className="max-w-lg">
                     <CardHeader>
-                        <CardTitle className="text-base">
-                            School Profile
-                        </CardTitle>
+                        <CardTitle className="text-base">School Profile</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>
                                     School Name{' '}
                                     <span className="text-destructive">*</span>
@@ -77,18 +68,14 @@ export default function EditSchool({ school }: Props) {
                                 <Input
                                     placeholder="Enter school name"
                                     value={data.name}
-                                    onChange={(e) =>
-                                        setData('name', e.target.value)
-                                    }
+                                    onChange={(e) => setData('name', e.target.value)}
                                 />
                                 {errors.name && (
-                                    <p className="text-xs text-destructive">
-                                        {errors.name}
-                                    </p>
+                                    <p className="text-xs text-destructive">{errors.name}</p>
                                 )}
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>
                                     Email{' '}
                                     <span className="text-destructive">*</span>
@@ -97,33 +84,22 @@ export default function EditSchool({ school }: Props) {
                                     type="email"
                                     placeholder="school@example.com"
                                     value={data.email}
-                                    onChange={(e) =>
-                                        setData('email', e.target.value)
-                                    }
+                                    onChange={(e) => setData('email', e.target.value)}
                                 />
                                 {errors.email && (
-                                    <p className="text-xs text-destructive">
-                                        {errors.email}
-                                    </p>
+                                    <p className="text-xs text-destructive">{errors.email}</p>
                                 )}
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>
                                     Contact Number{' '}
-                                    <span className="text-muted-foreground">
-                                        (optional)
-                                    </span>
+                                    <span className="text-muted-foreground">(optional)</span>
                                 </Label>
                                 <Input
                                     placeholder="+63 912 345 6789"
                                     value={data.contact_number}
-                                    onChange={(e) =>
-                                        setData(
-                                            'contact_number',
-                                            e.target.value,
-                                        )
-                                    }
+                                    onChange={(e) => setData('contact_number', e.target.value)}
                                 />
                                 {errors.contact_number && (
                                     <p className="text-xs text-destructive">
@@ -132,40 +108,31 @@ export default function EditSchool({ school }: Props) {
                                 )}
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>
                                     Address{' '}
-                                    <span className="text-muted-foreground">
-                                        (optional)
-                                    </span>
+                                    <span className="text-muted-foreground">(optional)</span>
                                 </Label>
                                 <Input
                                     placeholder="Enter address"
                                     value={data.address}
-                                    onChange={(e) =>
-                                        setData('address', e.target.value)
-                                    }
+                                    onChange={(e) => setData('address', e.target.value)}
                                 />
                                 {errors.address && (
-                                    <p className="text-xs text-destructive">
-                                        {errors.address}
-                                    </p>
+                                    <p className="text-xs text-destructive">{errors.address}</p>
                                 )}
                             </div>
 
-                            <div className="flex gap-2 pt-2">
+                            <div className="flex gap-3 pt-4">
                                 <Button type="submit" disabled={processing}>
-                                    {processing
-                                        ? 'Updating...'
-                                        : 'Update School'}
+                                    {processing && (
+                                        <Loader2 className="mr-2 size-4 animate-spin" />
+                                    )}
+                                    {processing ? 'Updating...' : 'Update School'}
                                 </Button>
-                                <Link
-                                    href={`/super-admin/schools/${school.id}`}
-                                >
-                                    <Button variant="outline" type="button">
-                                        Cancel
-                                    </Button>
-                                </Link>
+                                <Button variant="outline" type="button" asChild>
+                                    <Link href={`/super-admin/schools/${school.id}`}>Cancel</Link>
+                                </Button>
                             </div>
                         </form>
                     </CardContent>

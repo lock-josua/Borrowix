@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,36 +32,24 @@ export default function CreateSchool() {
             <Head title="Add School" />
 
             <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center gap-3">
-                    <Link href="/super-admin/schools">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="size-4" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold">Add School</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Create a new school tenant with an admin account.
-                        </p>
-                    </div>
-                </div>
+                <PageHeader
+                    backHref="/super-admin/schools"
+                    title="Add School"
+                    description="Create a new school tenant with an admin account."
+                />
 
                 <Card className="max-w-lg">
                     <CardHeader>
-                        <CardTitle className="text-base">
-                            School Details
-                        </CardTitle>
+                        <CardTitle className="text-base">School Details</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>School Name</Label>
                                 <Input
                                     placeholder="e.g. Demo School"
                                     value={data.school_name}
-                                    onChange={(e) =>
-                                        setData('school_name', e.target.value)
-                                    }
+                                    onChange={(e) => setData('school_name', e.target.value)}
                                     autoFocus
                                 />
                                 {errors.school_name && (
@@ -70,14 +59,12 @@ export default function CreateSchool() {
                                 )}
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>Admin Name</Label>
                                 <Input
                                     placeholder="Full name of the school admin"
                                     value={data.admin_name}
-                                    onChange={(e) =>
-                                        setData('admin_name', e.target.value)
-                                    }
+                                    onChange={(e) => setData('admin_name', e.target.value)}
                                 />
                                 {errors.admin_name && (
                                     <p className="text-xs text-destructive">
@@ -86,15 +73,13 @@ export default function CreateSchool() {
                                 )}
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>Admin Email</Label>
                                 <Input
                                     type="email"
                                     placeholder="admin@school.edu"
                                     value={data.admin_email}
-                                    onChange={(e) =>
-                                        setData('admin_email', e.target.value)
-                                    }
+                                    onChange={(e) => setData('admin_email', e.target.value)}
                                 />
                                 {errors.admin_email && (
                                     <p className="text-xs text-destructive">
@@ -103,36 +88,28 @@ export default function CreateSchool() {
                                 )}
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>
                                     Contact Number{' '}
-                                    <span className="text-muted-foreground">
-                                        (optional)
-                                    </span>
+                                    <span className="text-muted-foreground">(optional)</span>
                                 </Label>
                                 <Input
                                     placeholder="+63 912 345 6789"
                                     value={data.contact_number}
-                                    onChange={(e) =>
-                                        setData(
-                                            'contact_number',
-                                            e.target.value,
-                                        )
-                                    }
+                                    onChange={(e) => setData('contact_number', e.target.value)}
                                 />
                             </div>
 
-                            <div className="flex gap-2 pt-2">
+                            <div className="flex gap-3 pt-4">
                                 <Button type="submit" disabled={processing}>
-                                    {processing
-                                        ? 'Creating...'
-                                        : 'Create School'}
+                                    {processing && (
+                                        <Loader2 className="mr-2 size-4 animate-spin" />
+                                    )}
+                                    {processing ? 'Creating...' : 'Create School'}
                                 </Button>
-                                <Link href="/super-admin/schools">
-                                    <Button variant="outline" type="button">
-                                        Cancel
-                                    </Button>
-                                </Link>
+                                <Button variant="outline" type="button" asChild>
+                                    <Link href="/super-admin/schools">Cancel</Link>
+                                </Button>
                             </div>
                         </form>
                     </CardContent>
