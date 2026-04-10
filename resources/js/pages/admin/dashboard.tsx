@@ -3,9 +3,12 @@ import { motion } from 'framer-motion';
 import {
     AlertTriangle,
     ArrowLeftRight,
+    CheckCircle,
     ClipboardList,
     Package,
+    RotateCcw,
     Users,
+    XCircle,
 } from 'lucide-react';
 import {
     Bar,
@@ -21,8 +24,8 @@ import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { StatusBadge } from '@/components/status-badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 import AdminLayout from '@/layouts/AdminLayout';
+import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -44,6 +47,14 @@ interface OverdueTransaction {
     due_date: string;
 }
 
+interface ActivityLog {
+    id: number;
+    event_type: string;
+    description: string;
+    user_name: string;
+    time_ago: string;
+}
+
 interface Stats {
     total_equipment: number;
     available_equipment: number;
@@ -58,6 +69,7 @@ interface Props {
     stats: Stats;
     pendingRequests: PendingRequest[];
     overdueTransactions: OverdueTransaction[];
+    recentActivity: ActivityLog[];
     chartData: {
         dailyTransactions: { date: string; count: number }[];
         topEquipment: { name: string; count: number }[];
@@ -67,10 +79,27 @@ interface Props {
 
 const CHART_COLORS = ['#10b981', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+const eventIcons: Record<string, React.ReactNode> = {
+    borrow_request_created: <ClipboardList className="size-4 text-blue-500" />,
+    borrow_request_approved: <CheckCircle className="size-4 text-green-500" />,
+    borrow_request_rejected: <XCircle className="size-4 text-red-500" />,
+    transaction_issued: <Package className="size-4 text-purple-500" />,
+    transaction_returned: <RotateCcw className="size-4 text-orange-500" />,
+};
+
+const getEventIcon = (eventType: string) => {
+    return (
+        eventIcons[eventType] || (
+            <ClipboardList className="size-4 text-muted-foreground" />
+        )
+    );
+};
+
 export default function AdminDashboard({
     stats,
     pendingRequests,
     overdueTransactions,
+    recentActivity,
     chartData,
     school,
 }: Props) {
@@ -370,6 +399,50 @@ export default function AdminDashboard({
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Recent Activity */}
+                <Card className="overflow-hidden border-border/60">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
+                        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                            <ClipboardList className="size-4" /> Recent Activity
+                        </CardTitle>
+                    </CardHeader>
+                    <div className="divide-y divide-border">
+                        {recentActivity && recentActivity.length > 0 ? (
+                            recentActivity.slice(0, 8).map((log) => (
+                                <div
+                                    key={log.id}
+                                    className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+                                >
+                                    <div className="mt-0.5">
+                                        {getEventIcon(log.event_type)}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm text-foreground">
+                                            {log.description}
+                                        </p>
+                                        <div className="mt-1 flex items-center gap-2">
+                                            <span className="text-xs text-muted-foreground">
+                                                {log.user_name}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                •
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {log.time_ago}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                                <ClipboardList className="mb-2 size-8 opacity-20" />
+                                <p className="text-sm">No activity yet</p>
+                            </div>
+                        )}
+                    </div>
+                </Card>
             </motion.div>
         </AdminLayout>
     );
