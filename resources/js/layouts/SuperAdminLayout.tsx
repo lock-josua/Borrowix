@@ -80,7 +80,7 @@ export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) 
                     </SidebarGroup>
 
                     <SidebarGroup>
-                        <SidebarGroupLabel>Insights</SidebarGroupLabel>
+                        <SidebarGroupLabel>System</SidebarGroupLabel>
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton
