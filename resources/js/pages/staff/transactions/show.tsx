@@ -1,15 +1,20 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Loader2, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { DetailCard } from '@/components/detail-card';
+import { DetailRow } from '@/components/detail-row';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,12 +42,6 @@ interface Transaction {
 interface Props {
     transaction: Transaction;
 }
-
-const statusBadge: Record<string, string> = {
-    active: 'badge-info',
-    returned: 'badge-success',
-    overdue: 'badge-error',
-};
 
 export default function TransactionShow({ transaction: t }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -82,167 +81,127 @@ export default function TransactionShow({ transaction: t }: Props) {
         );
     }
 
+    const actionButtons = (
+        <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+                <Link href="/staff/transactions" className="gap-1.5">
+                    <ArrowLeft className="size-3.5" /> Back
+                </Link>
+            </Button>
+            {t.status !== 'returned' && (
+                <Button size="sm" className="gap-1.5" onClick={() => setReturnOpen(true)}>
+                    <RotateCcw className="size-3.5" /> Mark Returned
+                </Button>
+            )}
+        </div>
+    );
+
     return (
         <StaffLayout breadcrumbs={breadcrumbs}>
             <Head title={`Transaction #${t.id}`} />
 
-            <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Link href="/staff/transactions">
-                            <Button variant="ghost" size="icon">
-                                <ArrowLeft className="size-4" />
-                            </Button>
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl font-bold">
-                                Transaction #{t.id}
-                            </h1>
-                            <span
-                                className={`badge capitalize ${statusBadge[t.status]}`}
-                            >
-                                {t.status}
-                            </span>
-                        </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <div>
+                    <PageHeader
+                        title={`Transaction #${t.id}`}
+                        description={`Issued to ${t.borrower.name}`}
+                        actions={actionButtons}
+                    />
+                    <div className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
+                         <StatusBadge status={t.status} />
                     </div>
-                    {t.status !== 'returned' && (
-                        <Button onClick={() => setReturnOpen(true)}>
-                            <RotateCcw className="mr-2 size-4" />
-                            Mark Returned
-                        </Button>
-                    )}
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Borrower
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={t.borrower.name} />
-                            <InfoRow label="Email" value={t.borrower.email} />
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <DetailCard title="Borrower">
+                        <DetailRow label="Name" value={t.borrower.name} />
+                        <DetailRow label="Email" value={t.borrower.email} />
+                    </DetailCard>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Equipment
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={t.equipment.name} />
-                            {t.equipment.brand && (
-                                <InfoRow
-                                    label="Brand"
-                                    value={t.equipment.brand}
-                                />
-                            )}
-                            {t.equipment.model && (
-                                <InfoRow
-                                    label="Model"
-                                    value={t.equipment.model}
-                                />
-                            )}
-                        </CardContent>
-                    </Card>
+                    <DetailCard title="Equipment">
+                        <DetailRow label="Name" value={t.equipment.name} />
+                        {t.equipment.brand && (
+                            <DetailRow label="Brand" value={t.equipment.brand} />
+                        )}
+                        {t.equipment.model && (
+                            <DetailRow label="Model" value={t.equipment.model} />
+                        )}
+                    </DetailCard>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Timeline
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow
-                                label="Issued At"
-                                value={new Date(t.issued_at).toLocaleString()}
+                    <DetailCard title="Timeline">
+                        <DetailRow
+                            label="Issued At"
+                            value={new Date(t.issued_at).toLocaleString()}
+                        />
+                        <DetailRow
+                            label="Due Date"
+                            value={new Date(t.due_date).toLocaleString()}
+                        />
+                        {t.returned_at && (
+                            <DetailRow
+                                label="Returned At"
+                                value={new Date(t.returned_at).toLocaleString()}
                             />
-                            <InfoRow
-                                label="Due Date"
-                                value={new Date(t.due_date).toLocaleString()}
-                            />
-                            {t.returned_at && (
-                                <InfoRow
-                                    label="Returned At"
-                                    value={new Date(
-                                        t.returned_at,
-                                    ).toLocaleString()}
-                                />
-                            )}
-                            {t.issuedBy && (
-                                <InfoRow
-                                    label="Issued By"
-                                    value={t.issuedBy.name}
-                                />
-                            )}
-                        </CardContent>
-                    </Card>
+                        )}
+                        {t.issuedBy && (
+                            <DetailRow label="Issued By" value={t.issuedBy.name} />
+                        )}
+                    </DetailCard>
 
                     {t.borrowRequest && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Request Details
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2 text-sm">
-                                <InfoRow
-                                    label="Purpose"
-                                    value={t.borrowRequest.purpose}
-                                />
-                                <InfoRow
-                                    label="Borrow Date"
-                                    value={new Date(
-                                        t.borrowRequest.borrow_date,
-                                    ).toLocaleString()}
-                                />
-                                <InfoRow
-                                    label="Expected Return"
-                                    value={new Date(
-                                        t.borrowRequest.expected_return_date,
-                                    ).toLocaleString()}
-                                />
-                            </CardContent>
-                        </Card>
+                        <DetailCard title="Request Details">
+                            <DetailRow
+                                label="Purpose"
+                                value={t.borrowRequest.purpose}
+                            />
+                            <DetailRow
+                                label="Borrow Date"
+                                value={new Date(t.borrowRequest.borrow_date).toLocaleString()}
+                            />
+                            <DetailRow
+                                label="Expected Return"
+                                value={new Date(
+                                    t.borrowRequest.expected_return_date
+                                ).toLocaleString()}
+                            />
+                        </DetailCard>
                     )}
 
                     {t.return_condition_notes && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Return Condition
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2 text-sm">
-                                <InfoRow
-                                    label="Notes"
-                                    value={t.return_condition_notes}
-                                />
-                            </CardContent>
-                        </Card>
+                        <DetailCard title="Return Condition">
+                            <DetailRow
+                                label="Notes"
+                                value={t.return_condition_notes}
+                            />
+                        </DetailCard>
                     )}
                 </div>
-            </div>
+            </motion.div>
 
             <Dialog open={returnOpen} onOpenChange={setReturnOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Mark as Returned</DialogTitle>
+                        <DialogDescription>
+                            Confirm the return of <strong>{t.equipment.name}</strong> from <strong>{t.borrower.name}</strong>.
+                        </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-3">
-                        <div className="space-y-1">
+                    <div className="space-y-4">
+                        <div className="space-y-1.5">
                             <Label>Condition Notes</Label>
                             <Textarea
-                                placeholder="Any damage or notes..."
+                                placeholder="Any damage or conditions..."
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
                                 <Label>Fine Amount (₱)</Label>
                                 <Input
                                     type="number"
@@ -252,14 +211,12 @@ export default function TransactionShow({ transaction: t }: Props) {
                                     onChange={(e) => setFine(e.target.value)}
                                 />
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <Label>Fine Reason</Label>
                                 <Input
                                     placeholder="Optional"
                                     value={fineReason}
-                                    onChange={(e) =>
-                                        setFineReason(e.target.value)
-                                    }
+                                    onChange={(e) => setFineReason(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -282,14 +239,5 @@ export default function TransactionShow({ transaction: t }: Props) {
                 </DialogContent>
             </Dialog>
         </StaffLayout>
-    );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex justify-between border-b pb-2 last:border-0">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="font-medium">{value}</span>
-        </div>
     );
 }

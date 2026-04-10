@@ -1,14 +1,19 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { DetailCard } from '@/components/detail-card';
+import { DetailRow } from '@/components/detail-row';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import StaffLayout from '@/layouts/StaffLayout';
@@ -36,15 +41,9 @@ interface Props {
     borrowRequest: BorrowRequest;
 }
 
-const statusBadge: Record<string, string> = {
-    pending: 'badge-warning',
-    approved: 'badge-success',
-    rejected: 'badge-error',
-    canceled: 'badge-neutral',
-};
-
 export default function RequestShow({ borrowRequest: r }: Props) {
     const { can } = usePage().props;
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/staff/dashboard' },
         { title: 'Requests', href: '/staff/requests' },
@@ -54,158 +53,145 @@ export default function RequestShow({ borrowRequest: r }: Props) {
     const [approveOpen, setApproveOpen] = useState(false);
     const [rejectOpen, setRejectOpen] = useState(false);
     const [remarks, setRemarks] = useState('');
+    const [processing, setProcessing] = useState(false);
 
     function handleApprove() {
+        setProcessing(true);
         router.post(
             `/staff/requests/${r.id}/approve`,
             { remarks },
-            { onSuccess: () => setApproveOpen(false) },
+            {
+                onSuccess: () => {
+                    setApproveOpen(false);
+                    setProcessing(false);
+                },
+                onError: () => setProcessing(false),
+            },
         );
     }
 
     function handleReject() {
+        setProcessing(true);
         router.post(
             `/staff/requests/${r.id}/reject`,
             { remarks },
-            { onSuccess: () => setRejectOpen(false) },
+            {
+                onSuccess: () => {
+                    setRejectOpen(false);
+                    setProcessing(false);
+                },
+                onError: () => setProcessing(false),
+            },
         );
     }
+
+    const actionButtons = (
+        <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+                <Link href="/staff/requests" className="gap-1.5">
+                    <ArrowLeft className="size-3.5" /> Back
+                </Link>
+            </Button>
+            {can.approve_requests && r.status === 'pending' && (
+                <>
+                    <Button
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => setApproveOpen(true)}
+                    >
+                        <CheckCircle className="size-3.5" /> Approve
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => setRejectOpen(true)}
+                    >
+                        <XCircle className="size-3.5" /> Reject
+                    </Button>
+                </>
+            )}
+        </div>
+    );
 
     return (
         <StaffLayout breadcrumbs={breadcrumbs}>
             <Head title={`Request #${r.id}`} />
 
-            <div className="flex flex-col gap-6 p-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Link href="/staff/requests">
-                            <Button variant="ghost" size="icon">
-                                <ArrowLeft className="size-4" />
-                            </Button>
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl font-bold">
-                                Request #{r.id}
-                            </h1>
-                            <span
-                                className={`badge capitalize ${statusBadge[r.status]}`}
-                            >
-                                {r.status}
-                            </span>
-                        </div>
-                    </div>
-                    {can.approve_requests && r.status === 'pending' && (
-                        <div className="flex gap-2">
-                            <Button onClick={() => setApproveOpen(true)}>
-                                <CheckCircle className="mr-2 size-4" />
-                                Approve
-                            </Button>
-                            <Button
-                                variant="destructive"
-                                onClick={() => setRejectOpen(true)}
-                            >
-                                <XCircle className="mr-2 size-4" />
-                                Reject
-                            </Button>
-                        </div>
-                    )}
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    title={`Request #${r.id}`}
+                    description={`Submitted by ${r.requester.name}`}
+                    actions={actionButtons}
+                />
+
+                <div className="flex items-center gap-2">
+                    <StatusBadge status={r.status} />
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Requester
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={r.requester.name} />
-                            <InfoRow label="Email" value={r.requester.email} />
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <DetailCard title="Requester">
+                        <DetailRow label="Name" value={r.requester.name} />
+                        <DetailRow label="Email" value={r.requester.email} />
+                    </DetailCard>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Equipment
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow label="Name" value={r.equipment.name} />
-                            <InfoRow
-                                label="Category"
-                                value={r.equipment.category?.name ?? '—'}
-                            />
-                            {r.equipment.brand && (
-                                <InfoRow
-                                    label="Brand"
-                                    value={r.equipment.brand}
-                                />
-                            )}
-                            {r.equipment.model && (
-                                <InfoRow
-                                    label="Model"
-                                    value={r.equipment.model}
-                                />
-                            )}
-                        </CardContent>
-                    </Card>
+                    <DetailCard title="Equipment">
+                        <DetailRow label="Name" value={r.equipment.name} />
+                        <DetailRow
+                            label="Category"
+                            value={r.equipment.category?.name ?? '—'}
+                        />
+                        {r.equipment.brand && (
+                            <DetailRow label="Brand" value={r.equipment.brand} />
+                        )}
+                        {r.equipment.model && (
+                            <DetailRow label="Model" value={r.equipment.model} />
+                        )}
+                    </DetailCard>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Schedule
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            <InfoRow
-                                label="Borrow Date"
-                                value={new Date(r.borrow_date).toLocaleString()}
-                            />
-                            <InfoRow
-                                label="Return Date"
-                                value={new Date(
-                                    r.expected_return_date,
-                                ).toLocaleString()}
-                            />
-                            <InfoRow label="Purpose" value={r.purpose} />
-                        </CardContent>
-                    </Card>
+                    <DetailCard title="Schedule">
+                        <DetailRow
+                            label="Borrow Date"
+                            value={new Date(r.borrow_date).toLocaleString()}
+                        />
+                        <DetailRow
+                            label="Return Date"
+                            value={new Date(r.expected_return_date).toLocaleString()}
+                        />
+                        <DetailRow label="Purpose" value={r.purpose} />
+                    </DetailCard>
 
                     {r.processedBy && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Processing Details
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2 text-sm">
-                                <InfoRow
-                                    label="Processed By"
-                                    value={r.processedBy.name}
-                                />
-                                <InfoRow
-                                    label="Processed At"
-                                    value={new Date(
-                                        r.processed_at!,
-                                    ).toLocaleString()}
-                                />
-                                {r.remarks && (
-                                    <InfoRow
-                                        label="Remarks"
-                                        value={r.remarks}
-                                    />
-                                )}
-                            </CardContent>
-                        </Card>
+                        <DetailCard title="Processing Details">
+                            <DetailRow
+                                label="Processed By"
+                                value={r.processedBy.name}
+                            />
+                            <DetailRow
+                                label="Processed At"
+                                value={new Date(r.processed_at!).toLocaleString()}
+                            />
+                            {r.remarks && (
+                                <DetailRow label="Remarks" value={r.remarks} />
+                            )}
+                        </DetailCard>
                     )}
                 </div>
-            </div>
+            </motion.div>
 
             <Dialog open={approveOpen} onOpenChange={setApproveOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Approve Request</DialogTitle>
+                        <DialogDescription>
+                            Approving the borrow request for{' '}
+                            <strong>{r.equipment.name}</strong>. You may add an optional remark.
+                        </DialogDescription>
                     </DialogHeader>
                     <Input
                         placeholder="Remarks (optional)"
@@ -216,10 +202,16 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                         <Button
                             variant="outline"
                             onClick={() => setApproveOpen(false)}
+                            disabled={processing}
                         >
                             Cancel
                         </Button>
-                        <Button onClick={handleApprove}>Approve</Button>
+                        <Button onClick={handleApprove} disabled={processing}>
+                            {processing && (
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                            )}
+                            Approve
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -228,6 +220,9 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Reject Request</DialogTitle>
+                        <DialogDescription>
+                            Please provide a reason for rejecting this request.
+                        </DialogDescription>
                     </DialogHeader>
                     <Input
                         placeholder="Reason (required)"
@@ -238,28 +233,23 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                         <Button
                             variant="outline"
                             onClick={() => setRejectOpen(false)}
+                            disabled={processing}
                         >
                             Cancel
                         </Button>
                         <Button
                             variant="destructive"
                             onClick={handleReject}
-                            disabled={!remarks}
+                            disabled={!remarks || processing}
                         >
+                            {processing && (
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                            )}
                             Reject
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
         </StaffLayout>
-    );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex justify-between border-b pb-2 last:border-0">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="font-medium">{value}</span>
-        </div>
     );
 }

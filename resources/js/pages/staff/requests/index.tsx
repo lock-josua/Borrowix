@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StaffLayout from '@/layouts/StaffLayout';
@@ -81,9 +81,9 @@ export default function RequestsIndex({ requests, filters }: Props) {
             >
                 <PageHeader title="Borrow Requests" description="Process student requests." />
 
-                <div className="flex flex-wrap items-center gap-2">
+                <Card className="flex flex-row flex-wrap items-center gap-2 p-3">
                     <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
-                        <SelectTrigger className="h-9 w-[150px] text-sm">
+                        <SelectTrigger className="h-9 w-[150px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -93,7 +93,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                             <SelectItem value="rejected">Rejected</SelectItem>
                         </SelectContent>
                     </Select>
-                </div>
+                </Card>
 
                 <Card className="overflow-hidden p-0">
                     <DataTable
@@ -162,8 +162,12 @@ export default function RequestsIndex({ requests, filters }: Props) {
 
                 <Dialog open={!!approveTarget} onOpenChange={() => setApproveTarget(null)}>
                     <DialogContent>
-                        <DialogHeader><DialogTitle>Approve Request</DialogTitle></DialogHeader>
-                        <p className="text-sm text-muted-foreground">Approving request for <strong>{approveTarget?.equipment.name}</strong>.</p>
+                        <DialogHeader>
+                            <DialogTitle>Approve Request</DialogTitle>
+                            <DialogDescription>
+                                Approving request for <strong>{approveTarget?.equipment.name}</strong>. You may add an optional remark.
+                            </DialogDescription>
+                        </DialogHeader>
                         <Input placeholder="Remarks (optional)" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setApproveTarget(null)}>Cancel</Button>
@@ -174,8 +178,12 @@ export default function RequestsIndex({ requests, filters }: Props) {
 
                 <Dialog open={!!rejectTarget} onOpenChange={() => setRejectTarget(null)}>
                     <DialogContent>
-                        <DialogHeader><DialogTitle>Reject Request</DialogTitle></DialogHeader>
-                        <p className="text-sm text-muted-foreground">Please provide a reason for rejection.</p>
+                        <DialogHeader>
+                            <DialogTitle>Reject Request</DialogTitle>
+                            <DialogDescription>
+                                Please provide a reason for rejecting this request.
+                            </DialogDescription>
+                        </DialogHeader>
                         <Input placeholder="Reason (required)" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancel</Button>

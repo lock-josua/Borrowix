@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -69,9 +69,9 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
             >
                 <PageHeader title="Transactions" description="Track loans and process returns." />
 
-                <div className="flex flex-wrap items-center gap-2">
+                <Card className="flex flex-row flex-wrap items-center gap-2 p-3">
                     <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
-                        <SelectTrigger className="h-9 w-[150px] text-sm">
+                        <SelectTrigger className="h-9 w-[150px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -81,7 +81,7 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
                             <SelectItem value="returned">Returned</SelectItem>
                         </SelectContent>
                     </Select>
-                </div>
+                </Card>
 
                 <Card className="overflow-hidden p-0">
                     <DataTable
@@ -141,7 +141,12 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
 
                 <Dialog open={!!returnTarget} onOpenChange={() => setReturnTarget(null)}>
                     <DialogContent>
-                        <DialogHeader><DialogTitle>Mark as Returned</DialogTitle></DialogHeader>
+                        <DialogHeader>
+                            <DialogTitle>Mark as Returned</DialogTitle>
+                            <DialogDescription>
+                                Record the return condition for this loan.
+                            </DialogDescription>
+                        </DialogHeader>
                         <div className="space-y-4 py-2">
                             <p className="text-sm text-muted-foreground"><strong>{returnTarget?.borrower.name}</strong> returning <strong>{returnTarget?.equipment.name}</strong>.</p>
                             <div className="space-y-1.5">
