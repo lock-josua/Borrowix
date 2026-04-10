@@ -45,6 +45,20 @@ class HandleInertiaRequests extends Middleware
             'unread_count' => tenant() && $request->user()
                 ? $request->user()->unreadNotifications->count()
                 : 0,
+            'notifications' => tenant() && $request->user()
+                ? $request->user()->notifications()
+                    ->latest()
+                    ->limit(8)
+                    ->get()
+                    ->map(fn ($n) => [
+                        'id' => $n->id,
+                        'title' => $n->data['title'] ?? 'Notification',
+                        'message' => $n->data['message'] ?? '',
+                        'action_url' => $n->data['action_url'] ?? '/dashboard',
+                        'read_at' => $n->read_at?->toIso8601String(),
+                        'created_at' => $n->created_at->toIso8601String(),
+                    ])
+                : [],
             'can' => tenant() && $request->user() ? [
                 'manage_equipment' => $request->user()->can(Permission::EquipmentCreate->value),
                 'delete_equipment' => $request->user()->can(Permission::EquipmentDelete->value),

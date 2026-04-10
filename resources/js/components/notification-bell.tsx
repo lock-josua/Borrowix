@@ -21,23 +21,18 @@ interface Notification {
 }
 
 export function NotificationBell() {
-    const { unread_count: initialUnreadCount } = usePage().props as {
+    const {
+        notifications: propNotifications,
+        unread_count: initialUnreadCount,
+    } = usePage().props as {
+        notifications?: Notification[];
         unread_count?: number;
     };
     const [unreadCount, setUnreadCount] = useState(initialUnreadCount ?? 0);
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>(
+        propNotifications ?? [],
+    );
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            fetch('/api/notifications/unread-count')
-                .then((res) => res.json())
-                .then((data) => setUnreadCount(data.unread_count ?? 0))
-                .catch(() => {});
-        }, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     function fetchNotifications() {
         setLoading(true);
@@ -51,15 +46,15 @@ export function NotificationBell() {
     }
 
     function handleOpen(isOpen: boolean) {
-        if (isOpen) {
-            fetchNotifications();
-        }
+        // Notifications are loaded via Inertia props - no need to fetch again
+        // API is still used for markAsRead and markAllAsRead actions
     }
 
     function handleNotificationClick(notification: Notification) {
         if (!notification.read_at) {
             fetch(`/api/notifications/${notification.id}/read`, {
                 method: 'POST',
+                credentials: 'include',
             }).then(() => {
                 setUnreadCount((prev) => Math.max(0, prev - 1));
                 setNotifications((prev) =>
@@ -75,7 +70,10 @@ export function NotificationBell() {
     }
 
     function handleMarkAllRead() {
-        fetch('/api/notifications/read-all', { method: 'POST' }).then(() => {
+        fetch('/api/notifications/read-all', {
+            method: 'POST',
+            credentials: 'include',
+        }).then(() => {
             setUnreadCount(0);
             setNotifications((prev) =>
                 prev.map((n) => ({ ...n, read_at: new Date().toISOString() })),
