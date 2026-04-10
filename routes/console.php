@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('transactions:mark-overdue')->twiceDaily(8, 20);
 
 Schedule::command('transactions:send-reminders')->hourly();
+
+Schedule::command('activity-logs:cleanup')->dailyAt('2:00');

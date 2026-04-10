@@ -11,6 +11,7 @@ use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use App\Notifications\BorrowRequestApproved;
 use App\Notifications\BorrowRequestRejected;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -99,6 +100,18 @@ class BorrowRequestController extends Controller
             // Send notification to the student
             $borrowRequest->requester->notify(new BorrowRequestApproved($borrowRequest, Auth::user()->name));
 
+            // Activity log
+            ActivityLogService::log(
+                'borrow_request_approved',
+                "Approved borrow request #{$borrowRequest->id} for {$borrowRequest->equipment->name}",
+                Auth::id(),
+                [
+                    'request_id' => $borrowRequest->id,
+                    'equipment_id' => $borrowRequest->equipment_id,
+                    'borrower_id' => $borrowRequest->user_id,
+                ]
+            );
+
             return redirect()
                 ->route($this->getRedirectRoute())
                 ->with('success', 'Request approved and transaction created.');
@@ -124,6 +137,19 @@ class BorrowRequestController extends Controller
 
         // Send notification to the student
         $borrowRequest->requester->notify(new BorrowRequestRejected($borrowRequest, Auth::user()->name));
+
+        // Activity log
+        ActivityLogService::log(
+            'borrow_request_rejected',
+            "Rejected borrow request #{$borrowRequest->id} for {$borrowRequest->equipment->name}",
+            Auth::id(),
+            [
+                'request_id' => $borrowRequest->id,
+                'equipment_id' => $borrowRequest->equipment_id,
+                'borrower_id' => $borrowRequest->user_id,
+                'reason' => $request->remarks,
+            ]
+        );
 
         return redirect()
             ->route($this->getRedirectRoute())

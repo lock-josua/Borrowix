@@ -6,6 +6,7 @@ use App\Enums\BorrowRequestStatus;
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
 use App\Models\Equipment;
@@ -70,10 +71,24 @@ class DashboardController extends Controller
 
         $tenant = tenant();
 
+        $recentActivity = ActivityLog::with('user')
+            ->latest()
+            ->take(10)
+            ->get()
+            ->map(fn ($log) => [
+                'id' => $log->id,
+                'event_type' => $log->event_type,
+                'description' => $log->description,
+                'user_name' => $log->user?->name ?? 'System',
+                'created_at' => $log->created_at->toIsoString(),
+                'time_ago' => $log->created_at->diffForHumans(),
+            ]);
+
         return Inertia::render('admin/dashboard', [
             'stats' => $stats,
             'pendingRequests' => $pendingRequests,
             'overdueTransactions' => $overdueTransactions,
+            'recentActivity' => $recentActivity,
             'chartData' => [
                 'dailyTransactions' => $dailyTransactions,
                 'topEquipment' => $topEquipment,
