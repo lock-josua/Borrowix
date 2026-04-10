@@ -1,5 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, CreditCard, HelpCircle, Loader2, Receipt } from 'lucide-react';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -62,19 +65,6 @@ interface Props {
     paymentHistory: PaymentRecord[];
 }
 
-const planBadge: Record<string, string> = {
-    free: 'badge-ghost',
-    basic: 'badge-info',
-    pro: 'badge-warning',
-};
-
-const statusBadge: Record<string, string> = {
-    active: 'badge-success',
-    canceled: 'badge-neutral',
-    past_due: 'badge-error',
-    trialing: 'badge-accent',
-};
-
 export default function SubscriptionShow({
     school,
     subscription,
@@ -88,7 +78,7 @@ export default function SubscriptionShow({
 
     const sub = school.subscription;
 
-    const { data, setData, patch, processing, errors } = useForm({
+    const { data, setData, patch, processing } = useForm({
         plan: subscription?.plan ?? 'free',
         status: subscription?.status ?? 'active',
         billing_cycle: subscription?.billing_cycle ?? 'monthly',
@@ -103,354 +93,256 @@ export default function SubscriptionShow({
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title={`${school.name} — Subscription`} />
 
-            <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex items-center gap-3">
-                    <Link href="/super-admin/subscriptions">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="size-4" />
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold">{school.name}</h1>
-                        <p className="text-sm text-muted-foreground">
-                            {school.email}
-                        </p>
-                    </div>
-                    <span
-                        className={`badge capitalize ${planBadge[school.plan] ?? 'badge-ghost'}`}
-                    >
-                        {school.plan}
-                    </span>
-                    <span
-                        className={`badge capitalize ${school.status === 'active' ? 'badge-success' : 'badge-error'}`}
-                    >
-                        {school.status}
-                    </span>
-                </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    backHref="/super-admin/subscriptions"
+                    title={school.name}
+                    description={school.email}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <StatusBadge status={school.plan} />
+                            <StatusBadge status={school.status} />
+                        </div>
+                    }
+                />
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    {/* Active Subscription Details */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Current Subscription
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 text-sm">
-                            {sub ? (
-                                <>
-                                    <Row label="Plan">
-                                        <span
-                                            className={`badge badge-sm capitalize ${planBadge[sub.plan] ?? 'badge-ghost'}`}
-                                        >
-                                            {sub.plan}
-                                        </span>
-                                    </Row>
-                                    <Row label="Status">
-                                        <span
-                                            className={`badge badge-sm capitalize ${statusBadge[sub.status] ?? 'badge-ghost'}`}
-                                        >
-                                            {sub.status.replace('_', ' ')}
-                                        </span>
-                                    </Row>
-                                    <Row label="Billing Cycle">
-                                        <span className="capitalize">
-                                            {sub.billing_cycle ?? '—'}
-                                        </span>
-                                    </Row>
-                                    <Row label="Period Start">
-                                        {sub.current_period_start
-                                            ? new Date(
-                                                  sub.current_period_start,
-                                              ).toLocaleDateString()
-                                            : '—'}
-                                    </Row>
-                                    <Row label="Period End">
-                                        {sub.current_period_end
-                                            ? new Date(
-                                                  sub.current_period_end,
-                                              ).toLocaleDateString()
-                                            : '—'}
-                                    </Row>
-                                    {sub.trial_ends_at && (
-                                        <Row label="Trial Ends">
-                                            {new Date(
-                                                sub.trial_ends_at,
-                                            ).toLocaleDateString()}
+                <div className="flex flex-col gap-6 lg:flex-row">
+                    <div className="flex flex-1 flex-col gap-6">
+                        {/* Current Subscription */}
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                                <CardTitle className="text-base">Current Subscription</CardTitle>
+                                {!sub && (
+                                    <span className="text-xs text-muted-foreground">
+                                        No subscription
+                                    </span>
+                                )}
+                            </CardHeader>
+                            <CardContent>
+                                {sub ? (
+                                    <div className="space-y-3 text-sm">
+                                        <Row label="Plan">
+                                            <StatusBadge status={sub.plan} />
                                         </Row>
-                                    )}
-                                    {sub.grace_period_ends_at && (
-                                        <Row label="Grace Period Ends">
-                                            {new Date(
-                                                sub.grace_period_ends_at,
-                                            ).toLocaleDateString()}
+                                        <Row label="Status">
+                                            <StatusBadge status={sub.status} />
                                         </Row>
-                                    )}
-                                    {sub.canceled_at && (
-                                        <Row label="Canceled At">
-                                            <span className="text-destructive">
-                                                {new Date(
-                                                    sub.canceled_at,
-                                                ).toLocaleDateString()}
+                                        <Row label="Billing">
+                                            <span className="capitalize">
+                                                {sub.billing_cycle ?? '—'}
                                             </span>
                                         </Row>
-                                    )}
-                                    {parseFloat(sub.discount_amount) > 0 && (
-                                        <Row label="Discount Applied">
-                                            ₱
-                                            {parseFloat(
-                                                sub.discount_amount,
-                                            ).toFixed(2)}
-                                        </Row>
-                                    )}
-                                    {sub.promo_code && (
-                                        <Row label="Promo Code">
-                                            <span className="font-mono">
-                                                {sub.promo_code.code}
-                                            </span>{' '}
-                                            <span className="text-xs text-muted-foreground">
-                                                (
-                                                {sub.promo_code
-                                                    .discount_type ===
-                                                'percentage'
-                                                    ? `${sub.promo_code.discount_value}% off`
-                                                    : `₱${sub.promo_code.discount_value} off`}
-                                                )
+                                        <Row label="Period">
+                                            <span className="text-muted-foreground">
+                                                {sub.current_period_start
+                                                    ? `${new Date(sub.current_period_start).toLocaleDateString()} → ${sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : '—'}`
+                                                    : '—'}
                                             </span>
                                         </Row>
-                                    )}
-                                </>
-                            ) : (
-                                <p className="text-muted-foreground">
-                                    No active subscription on record.
-                                </p>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Payment Method */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Payment Method
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {sub?.card_last_four ? (
-                                <div className="flex items-center gap-4 rounded-lg border p-4">
-                                    <div className="flex h-10 w-16 items-center justify-center rounded bg-muted text-xs font-bold uppercase">
-                                        {sub.card_brand ?? 'CARD'}
+                                        {sub.promo_code && (
+                                            <Row label="Promo">
+                                                <span className="font-mono text-xs">
+                                                    {sub.promo_code.code}
+                                                </span>
+                                            </Row>
+                                        )}
                                     </div>
-                                    <div>
-                                        <p className="font-mono font-medium">
-                                            •••• •••• •••• {sub.card_last_four}
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                                        <div className="mb-3 rounded-full bg-muted p-3">
+                                            <HelpCircle className="size-6 text-muted-foreground" />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">
+                                            No active subscription on record.
                                         </p>
-                                        <p className="text-xs text-muted-foreground capitalize">
-                                            {sub.card_brand}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Subscription History */}
+                        <Card className="overflow-hidden border-border/60 p-0">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
+                                <CardTitle className="text-sm font-semibold">
+                                    Subscription History
+                                </CardTitle>
+                                <span className="text-xs text-muted-foreground">
+                                    {paymentHistory.length} record
+                                    {paymentHistory.length !== 1 ? 's' : ''}
+                                </span>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                {paymentHistory.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                                        <div className="mb-3 rounded-full bg-muted p-3">
+                                            <Receipt className="size-6 text-muted-foreground" />
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">
+                                            No history available.
                                         </p>
+                                    </div>
+                                ) : (
+                                    <div className="w-full overflow-x-auto">
+                                        <table className="w-full text-sm">
+                                            <thead>
+                                                <tr className="border-b bg-muted/30 hover:bg-muted/30">
+                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                        Plan
+                                                    </th>
+                                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                        Status
+                                                    </th>
+                                                    <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                        Cycle
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                                        Period
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-border">
+                                                {paymentHistory.map((h, i) => (
+                                                    <tr
+                                                        key={i}
+                                                        className="border-b border-border transition-colors last:border-0 hover:bg-muted/40"
+                                                    >
+                                                        <td className="px-4 py-3">
+                                                            <StatusBadge status={h.plan} />
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
+                                                            <StatusBadge status={h.status} />
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center capitalize text-muted-foreground">
+                                                            {h.billing_cycle ?? '—'}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-xs text-muted-foreground">
+                                                            {h.current_period_start
+                                                                ? `${new Date(h.current_period_start).toLocaleDateString()} → ${h.current_period_end ? new Date(h.current_period_end).toLocaleDateString() : '—'}`
+                                                                : '—'}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="flex flex-col gap-6 lg:w-[380px]">
+                        {/* Update Subscription */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base">Update Subscription</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs">Plan</Label>
+                                        <Select
+                                            value={data.plan}
+                                            onValueChange={(v) => setData('plan', v)}
+                                        >
+                                            <SelectTrigger className="h-10">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="free">Free</SelectItem>
+                                                <SelectItem value="basic">Basic</SelectItem>
+                                                <SelectItem value="pro">Pro</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs">Status</Label>
+                                        <Select
+                                            value={data.status}
+                                            onValueChange={(v) => setData('status', v)}
+                                        >
+                                            <SelectTrigger className="h-10">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="active">Active</SelectItem>
+                                                <SelectItem value="trialing">Trialing</SelectItem>
+                                                <SelectItem value="past_due">Past Due</SelectItem>
+                                                <SelectItem value="canceled">Canceled</SelectItem>
+                                                <SelectItem value="paused">Paused</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
-                            ) : (
-                                <p className="text-sm text-muted-foreground">
-                                    No payment method on file.
-                                </p>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Update Subscription Form */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            Update Subscription
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Plan */}
-                            <div className="space-y-1">
-                                <Label>Plan</Label>
-                                <Select
-                                    value={data.plan}
-                                    onValueChange={(v) => setData('plan', v)}
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs">Billing cycle</Label>
+                                    <Select
+                                        value={data.billing_cycle}
+                                        onValueChange={(v) => setData('billing_cycle', v)}
+                                    >
+                                        <SelectTrigger className="h-10">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="monthly">Monthly</SelectItem>
+                                            <SelectItem value="annual">Annual</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <Button
+                                    type="submit"
+                                    onClick={handleSubmit}
+                                    disabled={processing}
+                                    className="w-full"
                                 >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="free">
-                                            Free
-                                        </SelectItem>
-                                        <SelectItem value="basic">
-                                            Basic
-                                        </SelectItem>
-                                        <SelectItem value="pro">Pro</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {errors.plan && (
-                                    <p className="text-xs text-destructive">
-                                        {errors.plan}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Status */}
-                            <div className="space-y-1">
-                                <Label>Status</Label>
-                                <Select
-                                    value={data.status}
-                                    onValueChange={(v) => setData('status', v)}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="active">
-                                            Active
-                                        </SelectItem>
-                                        <SelectItem value="trialing">
-                                            Trialing
-                                        </SelectItem>
-                                        <SelectItem value="past_due">
-                                            Past Due
-                                        </SelectItem>
-                                        <SelectItem value="canceled">
-                                            Canceled
-                                        </SelectItem>
-                                        <SelectItem value="paused">
-                                            Paused
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {errors.status && (
-                                    <p className="text-xs text-destructive">
-                                        {errors.status}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Billing Cycle */}
-                            <div className="space-y-1">
-                                <Label>Billing Cycle</Label>
-                                <Select
-                                    value={data.billing_cycle}
-                                    onValueChange={(v) =>
-                                        setData('billing_cycle', v)
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="monthly">
-                                            Monthly
-                                        </SelectItem>
-                                        <SelectItem value="annual">
-                                            Annual
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {errors.billing_cycle && (
-                                    <p className="text-xs text-destructive">
-                                        {errors.billing_cycle}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="flex gap-2 pt-2">
-                                <Button type="submit" disabled={processing}>
-                                    {processing
-                                        ? 'Updating...'
-                                        : 'Update Subscription'}
-                                </Button>
-                            </div>
-                        </form>
-                    </CardContent>
-                </Card>
-
-                {/* Subscription History */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            Subscription History
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="overflow-x-auto">
-                            <table className="table-sm table w-full">
-                                <thead>
-                                    <tr className="text-muted-foreground">
-                                        <th>Plan</th>
-                                        <th>Status</th>
-                                        <th>Billing</th>
-                                        <th>Period Start</th>
-                                        <th>Period End</th>
-                                        <th>Created</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {paymentHistory.length === 0 ? (
-                                        <tr>
-                                            <td
-                                                colSpan={6}
-                                                className="py-6 text-center text-muted-foreground"
-                                            >
-                                                No history available.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        paymentHistory.map((h, i) => (
-                                            <tr key={i} className="hover">
-                                                <td>
-                                                    <span
-                                                        className={`badge badge-sm capitalize ${planBadge[h.plan] ?? 'badge-ghost'}`}
-                                                    >
-                                                        {h.plan}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        className={`badge badge-sm capitalize ${statusBadge[h.status] ?? 'badge-ghost'}`}
-                                                    >
-                                                        {h.status.replace(
-                                                            '_',
-                                                            ' ',
-                                                        )}
-                                                    </span>
-                                                </td>
-                                                <td className="text-sm capitalize">
-                                                    {h.billing_cycle ?? '—'}
-                                                </td>
-                                                <td className="text-xs text-muted-foreground">
-                                                    {h.current_period_start
-                                                        ? new Date(
-                                                              h.current_period_start,
-                                                          ).toLocaleDateString()
-                                                        : '—'}
-                                                </td>
-                                                <td className="text-xs text-muted-foreground">
-                                                    {h.current_period_end
-                                                        ? new Date(
-                                                              h.current_period_end,
-                                                          ).toLocaleDateString()
-                                                        : '—'}
-                                                </td>
-                                                <td className="text-xs text-muted-foreground">
-                                                    {new Date(
-                                                        h.created_at,
-                                                    ).toLocaleDateString()}
-                                                </td>
-                                            </tr>
-                                        ))
+                                    {processing && (
+                                        <Loader2 className="mr-2 size-4 animate-spin" />
                                     )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                                    {processing ? 'Updating...' : 'Update subscription'}
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        {/* Payment Method */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base">Payment Method</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {sub?.card_last_four ? (
+                                    <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                                        <div className="flex h-10 w-14 items-center justify-center rounded bg-muted text-xs font-bold uppercase">
+                                            {sub.card_brand ?? 'CARD'}
+                                        </div>
+                                        <div>
+                                            <p className="font-mono text-sm font-medium">
+                                                •••• {sub.card_last_four}
+                                            </p>
+                                            <p className="text-xs capitalize text-muted-foreground">
+                                                {sub.card_brand}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-8 text-center">
+                                        <CreditCard className="mb-2 size-6 text-muted-foreground" />
+                                        <p className="mb-3 text-sm text-muted-foreground">
+                                            No payment method on file.
+                                        </p>
+                                        <Button variant="outline" size="sm">
+                                            + Add payment method
+                                        </Button>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            </motion.div>
         </SuperAdminLayout>
     );
 }
@@ -463,7 +355,7 @@ function Row({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex items-center justify-between border-b pb-2 last:border-0">
+        <div className="flex items-center justify-between border-b border-border pb-2 last:border-0">
             <span className="text-muted-foreground">{label}</span>
             <span className="font-medium">{children}</span>
         </div>
