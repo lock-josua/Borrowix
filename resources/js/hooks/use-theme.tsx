@@ -2,6 +2,20 @@ import { useCallback, useSyncExternalStore } from 'react';
 
 export type ColorTheme = 'navy' | 'emerald' | 'rose' | 'violet';
 
+export const THEME_LABELS: Record<ColorTheme, string> = {
+    navy: 'Navy',
+    emerald: 'Emerald',
+    rose: 'Rose',
+    violet: 'Violet',
+};
+
+export const THEME_COLORS: Record<ColorTheme, string> = {
+    navy: '#1E3A5F',
+    emerald: '#065F46',
+    rose: '#9F1239',
+    violet: '#5B21B6',
+};
+
 export type UseThemeReturn = {
     readonly theme: ColorTheme;
     readonly setTheme: (theme: ColorTheme) => void;

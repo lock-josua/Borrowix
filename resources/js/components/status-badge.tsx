@@ -20,6 +20,12 @@ const statusMap: Record<string, { variant: 'default' | 'secondary' | 'destructiv
     past_due: { variant: 'destructive', label: 'Past Due' },
     trialing: { variant: 'outline', label: 'Trialing' },
     paused: { variant: 'secondary', label: 'Paused' },
+    // User roles
+    admin: { variant: 'default', label: 'Admin' },
+    staff: { variant: 'secondary', label: 'Staff' },
+    student: { variant: 'outline', label: 'Student' },
+    // Verification
+    verified: { variant: 'default', label: 'Verified' },
 };
 
 export function StatusBadge({ status }: { status: string }) {
