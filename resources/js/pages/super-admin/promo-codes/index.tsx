@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Pencil, Plus, Tag, Trash2, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { PageHeader } from '@/components/page-header';
-import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -74,7 +73,8 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                 <Card className="overflow-hidden border-border/60 p-0">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
                         <CardTitle className="text-sm font-semibold">
-                            {promoCodes.data.length} code{promoCodes.data.length !== 1 ? 's' : ''}
+                            {promoCodes.data.length} code
+                            {promoCodes.data.length !== 1 ? 's' : ''}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -101,25 +101,25 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b bg-muted/30 hover:bg-muted/30">
-                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Code
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Discount
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Plan
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Usage
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Expires
                                             </th>
-                                            <th className="px-4 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                            <th className="px-4 py-3 text-center text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Active
                                             </th>
-                                            <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                                            <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Actions
                                             </th>
                                         </tr>
@@ -141,19 +141,24 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3 text-sm font-medium text-foreground">
-                                                    {code.discount_type === 'percentage'
+                                                    {code.discount_type ===
+                                                    'percentage'
                                                         ? `${code.discount_value}%`
                                                         : `₱${code.discount_value}`}
                                                 </td>
-                                                <td className="px-4 py-3 text-sm capitalize text-muted-foreground">
-                                                    {code.applicable_plan ?? 'All'}
+                                                <td className="px-4 py-3 text-sm text-muted-foreground capitalize">
+                                                    {code.applicable_plan ??
+                                                        'All'}
                                                 </td>
                                                 <td className="px-4 py-3 text-sm text-muted-foreground">
-                                                    {code.times_used} / {code.max_uses ?? '∞'}
+                                                    {code.times_used} /{' '}
+                                                    {code.max_uses ?? '∞'}
                                                 </td>
                                                 <td className="px-4 py-3 text-xs text-muted-foreground">
                                                     {code.expires_at
-                                                        ? new Date(code.expires_at).toLocaleDateString()
+                                                        ? new Date(
+                                                              code.expires_at,
+                                                          ).toLocaleDateString()
                                                         : 'Never'}
                                                 </td>
                                                 <td className="px-4 py-3 text-center">
@@ -178,7 +183,9 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                                                             aria-label="Edit promo code"
                                                             asChild
                                                         >
-                                                            <Link href={`/super-admin/promo-codes/${code.id}/edit`}>
+                                                            <Link
+                                                                href={`/super-admin/promo-codes/${code.id}/edit`}
+                                                            >
                                                                 <Pencil className="size-3.5" />
                                                             </Link>
                                                         </Button>
@@ -187,7 +194,11 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
                                                             size="icon"
                                                             className="size-7 hover:text-destructive"
                                                             aria-label="Delete promo code"
-                                                            onClick={() => setDeleteTarget(code)}
+                                                            onClick={() =>
+                                                                setDeleteTarget(
+                                                                    code,
+                                                                )
+                                                            }
                                                         >
                                                             <Trash2 className="size-3.5" />
                                                         </Button>
@@ -209,9 +220,12 @@ export default function PromoCodesIndex({ promoCodes }: Props) {
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Delete "{deleteTarget?.code}"?</DialogTitle>
+                        <DialogTitle>
+                            Delete "{deleteTarget?.code}"?
+                        </DialogTitle>
                         <DialogDescription>
-                            This promo code will be permanently deleted. This cannot be undone.
+                            This promo code will be permanently deleted. This
+                            cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
