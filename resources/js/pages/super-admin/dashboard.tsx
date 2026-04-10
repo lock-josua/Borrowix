@@ -1,7 +1,18 @@
 import { Head, Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { BarChart3, CheckCircle, CreditCard, ExternalLink, School, ShieldAlert } from 'lucide-react';
+import {
+    Activity,
+    BarChart3,
+    CheckCircle,
+    CreditCard,
+    ExternalLink,
+    School,
+    ShieldAlert,
+    ShieldCheck,
+    UserPlus,
+    XCircle,
+} from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
@@ -11,7 +22,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/super-admin/dashboard' }];
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/super-admin/dashboard' },
+];
 
 interface Stats {
     total_schools: number;
@@ -33,12 +46,46 @@ interface RecentSchool {
     created_at: string;
 }
 
+interface ActivityLog {
+    id: number;
+    event_type: string;
+    description: string;
+    tenant_id: string;
+    tenant_name: string;
+    actor: string;
+    created_at: string;
+    time_ago: string;
+}
+
 interface Props {
     stats: Stats;
     recentSchools: RecentSchool[];
+    activityLog: ActivityLog[];
 }
 
-export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
+const eventIcons: Record<string, React.ReactNode> = {
+    school_registered: <UserPlus className="size-4 text-green-500" />,
+    school_created: <UserPlus className="size-4 text-green-500" />,
+    school_updated: <Activity className="size-4 text-blue-500" />,
+    school_suspended: <XCircle className="size-4 text-red-500" />,
+    school_reactivated: <ShieldCheck className="size-4 text-green-500" />,
+    credentials_resent: <ExternalLink className="size-4 text-orange-500" />,
+    subscription_updated: <CreditCard className="size-4 text-purple-500" />,
+};
+
+const getEventIcon = (eventType: string) => {
+    return (
+        eventIcons[eventType] || (
+            <Activity className="size-4 text-muted-foreground" />
+        )
+    );
+};
+
+export default function SuperAdminDashboard({
+    stats,
+    recentSchools,
+    activityLog,
+}: Props) {
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -49,10 +96,18 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="flex flex-col gap-6 p-6"
             >
-                <PageHeader title="Platform Overview" description="Manage all schools and platform activity." />
+                <PageHeader
+                    title="Platform Overview"
+                    description="Manage all schools and platform activity."
+                />
 
                 <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    <StatCard title="Total Schools" value={stats.total_schools} delay={0} icon={<School />} />
+                    <StatCard
+                        title="Total Schools"
+                        value={stats.total_schools}
+                        delay={0}
+                        icon={<School />}
+                    />
                     <StatCard
                         title="Active"
                         value={stats.active_schools}
@@ -78,26 +133,40 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
 
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                             <BarChart3 className="size-4" /> Plan Breakdown
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex gap-3 flex-wrap">
-                            {Object.entries(stats.plan_breakdown).map(([plan, count]) => (
-                                <div key={plan} className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
-                                    <span className="text-xs text-muted-foreground capitalize font-medium">{plan}</span>
-                                    <span className="text-sm font-semibold">{count}</span>
-                                </div>
-                            ))}
+                        <div className="flex flex-wrap gap-3">
+                            {Object.entries(stats.plan_breakdown).map(
+                                ([plan, count]) => (
+                                    <div
+                                        key={plan}
+                                        className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2"
+                                    >
+                                        <span className="text-xs font-medium text-muted-foreground capitalize">
+                                            {plan}
+                                        </span>
+                                        <span className="text-sm font-semibold">
+                                            {count}
+                                        </span>
+                                    </div>
+                                ),
+                            )}
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="p-0 overflow-hidden border-border/60">
-                    <CardHeader className="px-4 py-3 border-b border-border flex flex-row items-center justify-between space-y-0">
-                        <CardTitle className="text-sm">Recent Schools</CardTitle>
-                        <Link href="/super-admin/schools" className="text-xs text-primary hover:underline">
+                <Card className="overflow-hidden border-border/60 p-0">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
+                        <CardTitle className="text-sm">
+                            Recent Schools
+                        </CardTitle>
+                        <Link
+                            href="/super-admin/schools"
+                            className="text-xs text-primary hover:underline"
+                        >
                             View all
                         </Link>
                     </CardHeader>
@@ -117,7 +186,11 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
                                 key: 'email',
                                 label: 'Email',
                                 width: '30%',
-                                render: (s) => <span className="block truncate text-xs text-muted-foreground">{s.school_email}</span>,
+                                render: (s) => (
+                                    <span className="block truncate text-xs text-muted-foreground">
+                                        {s.school_email}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'plan',
@@ -131,7 +204,9 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
                                 label: 'Status',
                                 width: '10%',
                                 align: 'center',
-                                render: (s) => <StatusBadge status={s.status} />,
+                                render: (s) => (
+                                    <StatusBadge status={s.status} />
+                                ),
                             },
                             {
                                 key: 'created',
@@ -139,7 +214,10 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
                                 width: '20%',
                                 render: (s) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {format(new Date(s.created_at), 'MMM d, yyyy')}
+                                        {format(
+                                            new Date(s.created_at),
+                                            'MMM d, yyyy',
+                                        )}
                                     </span>
                                 ),
                             },
@@ -149,8 +227,15 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
                                 width: '5%',
                                 align: 'right',
                                 render: (s) => (
-                                    <Button variant="ghost" size="icon" className="size-7" asChild>
-                                        <Link href={`/super-admin/schools/${s.id}`}>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-7"
+                                        asChild
+                                    >
+                                        <Link
+                                            href={`/super-admin/schools/${s.id}`}
+                                        >
                                             <ExternalLink className="size-3.5" />
                                         </Link>
                                     </Button>
@@ -161,6 +246,55 @@ export default function SuperAdminDashboard({ stats, recentSchools }: Props) {
                         keyExtractor={(s) => s.id}
                         emptyMessage="No recent schools found"
                     />
+                </Card>
+
+                <Card className="overflow-hidden border-border/60 p-0">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
+                        <CardTitle className="flex items-center gap-2 text-sm">
+                            <Activity className="size-4" /> Recent Activity
+                        </CardTitle>
+                        <Link
+                            href="/super-admin/activity-logs"
+                            className="text-xs text-primary hover:underline"
+                        >
+                            View all
+                        </Link>
+                    </CardHeader>
+                    <div className="divide-y divide-border">
+                        {activityLog && activityLog.length > 0 ? (
+                            activityLog.slice(0, 8).map((log) => (
+                                <div
+                                    key={log.id}
+                                    className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+                                >
+                                    <div className="mt-0.5">
+                                        {getEventIcon(log.event_type)}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm text-foreground">
+                                            {log.description}
+                                        </p>
+                                        <div className="mt-1 flex items-center gap-2">
+                                            <span className="text-xs text-muted-foreground">
+                                                {log.tenant_name}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                •
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {log.time_ago}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                                <Activity className="mb-2 size-8 opacity-20" />
+                                <p className="text-sm">No activity yet</p>
+                            </div>
+                        )}
+                    </div>
                 </Card>
             </motion.div>
         </SuperAdminLayout>
