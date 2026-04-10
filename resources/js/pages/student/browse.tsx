@@ -1,7 +1,8 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Package, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import BorrowRequestModal from '@/components/BorrowRequestModal';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,9 @@ import { Input } from '@/components/ui/input';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Browse Equipment', href: '/student/browse' }];
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Browse Equipment', href: '/student/browse' },
+];
 
 interface Category {
     id: number;
@@ -42,8 +45,15 @@ interface Props {
     filters: { search?: string; category?: string };
 }
 
-export default function BrowseEquipment({ equipment, categories, filters }: Props) {
+export default function BrowseEquipment({
+    equipment,
+    categories,
+    filters,
+}: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedEquipment, setSelectedEquipment] =
+        useState<Equipment | null>(null);
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -56,7 +66,7 @@ export default function BrowseEquipment({ equipment, categories, filters }: Prop
             }
         }, 400);
         return () => clearTimeout(timeout);
-    }, [search]);
+    }, [search, filters.category, filters.search]);
 
     function setCategory(categoryId: string) {
         router.get(
@@ -76,7 +86,10 @@ export default function BrowseEquipment({ equipment, categories, filters }: Prop
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="flex flex-col gap-6 p-6"
             >
-                <PageHeader title="Browse Equipment" description="Find and borrow ICT equipment for your school needs." />
+                <PageHeader
+                    title="Browse Equipment"
+                    description="Find and borrow ICT equipment for your school needs."
+                />
 
                 <div className="flex flex-col gap-4">
                     <div className="relative max-w-sm">
@@ -85,7 +98,7 @@ export default function BrowseEquipment({ equipment, categories, filters }: Prop
                             placeholder="Search equipment..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-9 h-10"
+                            className="h-10 pl-9"
                         />
                     </div>
 
@@ -101,7 +114,11 @@ export default function BrowseEquipment({ equipment, categories, filters }: Prop
                         {categories.map((cat) => (
                             <Button
                                 key={cat.id}
-                                variant={filters.category === String(cat.id) ? 'default' : 'outline'}
+                                variant={
+                                    filters.category === String(cat.id)
+                                        ? 'default'
+                                        : 'outline'
+                                }
                                 size="sm"
                                 className="h-8 rounded-full px-4 text-xs"
                                 onClick={() => setCategory(String(cat.id))}
@@ -118,35 +135,58 @@ export default function BrowseEquipment({ equipment, categories, filters }: Prop
                             key={item.id}
                             initial={{ opacity: 0, scale: 0.96 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.04, duration: 0.2, ease: 'easeOut' }}
+                            transition={{
+                                delay: i * 0.04,
+                                duration: 0.2,
+                                ease: 'easeOut',
+                            }}
                         >
-                            <Card className="flex flex-col overflow-hidden hover:border-primary/40 transition-colors duration-150 h-full">
-                                <div className="h-36 bg-muted flex items-center justify-center border-b border-border">
+                            <Card className="flex h-full flex-col overflow-hidden transition-colors duration-150 hover:border-primary/40">
+                                <div className="flex h-36 items-center justify-center border-b border-border bg-muted">
                                     {item.image_url ? (
-                                        <img src={item.image_url} className="h-full w-full object-cover" alt={item.name} />
+                                        <img
+                                            src={item.image_url}
+                                            className="h-full w-full object-cover"
+                                            alt={item.name}
+                                        />
                                     ) : (
                                         <Package className="size-10 text-muted-foreground/30" />
                                     )}
                                 </div>
-                                <CardContent className="p-3 flex flex-col gap-2 flex-1">
+                                <CardContent className="flex flex-1 flex-col gap-2 p-3">
                                     <div>
-                                        <p className="font-medium text-sm text-foreground leading-tight line-clamp-2">{item.name}</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">{item.category?.name}</p>
+                                        <p className="line-clamp-2 text-sm leading-tight font-medium text-foreground">
+                                            {item.name}
+                                        </p>
+                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                            {item.category?.name}
+                                        </p>
                                     </div>
-                                    <div className="flex items-center justify-between mt-auto pt-1">
+                                    <div className="mt-auto flex items-center justify-between pt-1">
                                         <StatusBadge status={item.status} />
                                         <Button
                                             size="sm"
-                                            variant={item.status === 'available' ? 'default' : 'outline'}
-                                            disabled={item.status !== 'available'}
-                                            asChild={item.status === 'available'}
+                                            variant={
+                                                item.status === 'available'
+                                                    ? 'default'
+                                                    : 'outline'
+                                            }
+                                            disabled={
+                                                item.status !== 'available'
+                                            }
                                             className="h-7 text-xs"
+                                            onClick={() => {
+                                                if (
+                                                    item.status === 'available'
+                                                ) {
+                                                    setSelectedEquipment(item);
+                                                    setIsOpen(true);
+                                                }
+                                            }}
                                         >
-                                            {item.status === 'available' ? (
-                                                <Link href={`/student/borrow-requests/create?equipment=${item.id}`}>Borrow</Link>
-                                            ) : (
-                                                <span>Unavailable</span>
-                                            )}
+                                            {item.status === 'available'
+                                                ? 'Borrow'
+                                                : 'Unavailable'}
                                         </Button>
                                     </div>
                                 </CardContent>
@@ -157,9 +197,17 @@ export default function BrowseEquipment({ equipment, categories, filters }: Prop
 
                 {equipment.data.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
-                        <Package className="size-12 mb-4 opacity-20" />
+                        <Package className="mb-4 size-12 opacity-20" />
                         <p>No equipment found matching your criteria.</p>
                     </div>
+                )}
+
+                {selectedEquipment && (
+                    <BorrowRequestModal
+                        equipment={selectedEquipment!}
+                        isOpen={isOpen}
+                        onClose={() => setIsOpen(false)}
+                    />
                 )}
             </motion.div>
         </StudentLayout>
