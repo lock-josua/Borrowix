@@ -19,7 +19,8 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/dashboard');
+    // UserFactory creates users with 'super_admin' role by default in central DB
+    $response->assertRedirect('/super-admin/dashboard');
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Fortify\AuthenticatedLoginResponse;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -21,6 +23,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // CUSTOM LOGIN RESPONSE: Fix first-login 403 issue in multi-tenant setup
+        // This ensures session is saved before redirect and tenant context is properly initialized
+        $this->app->singleton(LoginResponse::class, AuthenticatedLoginResponse::class);
+
         // SECURITY: Override Fortify's default RegisterResponse to prevent
         // Auth::login() from authenticating a tenant user on the central domain.
         // This intercepts the response before any session is written and redirects

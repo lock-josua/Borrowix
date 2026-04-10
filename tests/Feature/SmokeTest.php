@@ -33,7 +33,7 @@ describe('Smoke Test: Login and Authentication', function () {
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/admin/dashboard');
         $this->assertAuthenticated();
     });
 
@@ -43,7 +43,7 @@ describe('Smoke Test: Login and Authentication', function () {
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/staff/dashboard');
         $this->assertAuthenticated();
     });
 
@@ -53,7 +53,7 @@ describe('Smoke Test: Login and Authentication', function () {
             'password' => 'password',
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/student/dashboard');
         $this->assertAuthenticated();
     });
 
