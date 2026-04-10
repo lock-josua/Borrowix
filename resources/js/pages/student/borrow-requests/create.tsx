@@ -1,8 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2, Package } from 'lucide-react';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -199,14 +199,14 @@ export default function CreateRequest({
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="borrow_date">
-                                            Borrow Date
+                                            Borrow Date & Time
                                         </Label>
                                         <Input
                                             id="borrow_date"
-                                            type="date"
+                                            type="datetime-local"
                                             value={data.borrow_date}
                                             onChange={(e) =>
                                                 setData(
@@ -223,11 +223,11 @@ export default function CreateRequest({
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label htmlFor="return_date">
-                                            Return Date
+                                            Expected Return Date & Time
                                         </Label>
                                         <Input
                                             id="return_date"
-                                            type="date"
+                                            type="datetime-local"
                                             value={data.expected_return_date}
                                             onChange={(e) =>
                                                 setData(

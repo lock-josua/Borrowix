@@ -11,6 +11,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import StaffLayout from '@/layouts/StaffLayout';
@@ -52,6 +53,8 @@ export default function TransactionShow({ transaction: t }: Props) {
 
     const [returnOpen, setReturnOpen] = useState(false);
     const [notes, setNotes] = useState('');
+    const [fine, setFine] = useState('');
+    const [fineReason, setFineReason] = useState('');
     const [processing, setProcessing] = useState(false);
 
     function handleReturn() {
@@ -60,11 +63,16 @@ export default function TransactionShow({ transaction: t }: Props) {
             `/staff/transactions/${t.id}/return`,
             {
                 return_condition_notes: notes,
+                fine_amount: fine || null,
+                fine_reason: fineReason || null,
             },
             {
                 onSuccess: () => {
                     setReturnOpen(false);
                     setProcessing(false);
+                    setNotes('');
+                    setFine('');
+                    setFineReason('');
                 },
                 onError: (errors) => {
                     setProcessing(false);
@@ -233,15 +241,43 @@ export default function TransactionShow({ transaction: t }: Props) {
                                 onChange={(e) => setNotes(e.target.value)}
                             />
                         </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                                <Label>Fine Amount (₱)</Label>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    placeholder="0"
+                                    value={fine}
+                                    onChange={(e) => setFine(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <Label>Fine Reason</Label>
+                                <Input
+                                    placeholder="Optional"
+                                    value={fineReason}
+                                    onChange={(e) =>
+                                        setFineReason(e.target.value)
+                                    }
+                                />
+                            </div>
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button
                             variant="outline"
                             onClick={() => setReturnOpen(false)}
+                            disabled={processing}
                         >
                             Cancel
                         </Button>
-                        <Button onClick={handleReturn}>Confirm Return</Button>
+                        <Button onClick={handleReturn} disabled={processing}>
+                            {processing && (
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                            )}
+                            Confirm Return
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

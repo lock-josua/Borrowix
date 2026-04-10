@@ -29,7 +29,7 @@ class NotificationController extends Controller
 
     public function unreadCount(Request $request): JsonResponse
     {
-        $count = $request->user()->unreadNotifications->count();
+        $count = $request->user()->notifications()->whereNull('read_at')->count();
 
         return response()->json(['unread_count' => $count]);
     }
