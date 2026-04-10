@@ -19,7 +19,7 @@ export function StatCard({ title, value, sub, trend, valueColor, icon, delay = 0
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28, ease: 'easeOut', delay }}
         >
-            <Card className="transition-shadow duration-150 hover:shadow-sm">
+            <Card className="transition-all duration-150 hover:shadow-sm">
                 <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</p>

@@ -17,6 +17,9 @@ const statusMap: Record<string, { variant: 'default' | 'secondary' | 'destructiv
     free: { variant: 'secondary', label: 'Free' },
     basic: { variant: 'outline', label: 'Basic' },
     pro: { variant: 'default', label: 'Pro' },
+    past_due: { variant: 'destructive', label: 'Past Due' },
+    trialing: { variant: 'outline', label: 'Trialing' },
+    paused: { variant: 'secondary', label: 'Paused' },
 };
 
 export function StatusBadge({ status }: { status: string }) {
