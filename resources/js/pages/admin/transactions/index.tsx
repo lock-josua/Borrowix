@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -244,6 +245,9 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Mark as Returned</DialogTitle>
+                            <DialogDescription>
+                                Record the return condition and any applicable fine.
+                            </DialogDescription>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">
                             <strong>{returnTarget?.borrower.name}</strong>{' '}

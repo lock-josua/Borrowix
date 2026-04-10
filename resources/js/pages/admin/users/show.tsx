@@ -119,7 +119,7 @@ export default function UserShow({ user }: Props) {
                         title="Email Verified"
                         value={user.email_verified_at ? 'Verified' : 'Pending'}
                         valueColor={
-                            user.email_verified_at ? '#38A169' : '#D69E2E'
+                            user.email_verified_at ? 'hsl(var(--primary))' : 'hsl(var(--chart-4))'
                         }
                         delay={0.15}
                     />
@@ -223,9 +223,7 @@ export default function UserShow({ user }: Props) {
                             <div className="flex gap-2">
                                 <StatusBadge status={user.role} />
                                 {user.email_verified_at && (
-                                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                        Verified
-                                    </span>
+                                    <StatusBadge status="verified" />
                                 )}
                             </div>
                         </div>

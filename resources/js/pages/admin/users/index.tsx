@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -184,6 +184,9 @@ export default function UsersIndex({ users, filters }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Remove {deleteTarget?.name}?</DialogTitle>
+                            <DialogDescription>
+                                This user will be permanently removed from your school.
+                            </DialogDescription>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">This user will be permanently removed from your school.</p>
                         <DialogFooter>

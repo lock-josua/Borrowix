@@ -6,7 +6,7 @@ import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -139,6 +139,9 @@ export default function CategoriesIndex({ categories }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>New Category</DialogTitle>
+                            <DialogDescription>
+                                Add a new category to organise your equipment.
+                            </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreate} className="space-y-4 py-2">
                             <div className="space-y-1.5">
@@ -175,6 +178,9 @@ export default function CategoriesIndex({ categories }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Edit Category</DialogTitle>
+                            <DialogDescription>
+                                Update the name or description for this category.
+                            </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleEdit} className="space-y-4 py-2">
                             <div className="space-y-1.5">
@@ -206,6 +212,9 @@ export default function CategoriesIndex({ categories }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Delete "{deleteTarget?.name}"?</DialogTitle>
+                            <DialogDescription>
+                                Equipment in this category will be uncategorized. This action cannot be undone.
+                            </DialogDescription>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">Equipment in this category will be uncategorized.</p>
                         <DialogFooter>

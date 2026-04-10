@@ -1,9 +1,19 @@
 import { Head, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import { useState } from 'react';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -37,7 +47,14 @@ const plans = [
         id: 'pro',
         name: 'Pro',
         price: '₱999/mo',
-        features: ['Unlimited equipment', 'Unlimited users', 'SMS + Email notifications', 'Advanced reports', 'QR code scanning', 'Priority support'],
+        features: [
+            'Unlimited equipment',
+            'Unlimited users',
+            'SMS + Email notifications',
+            'Advanced reports',
+            'QR code scanning',
+            'Priority support',
+        ],
     },
 ];
 
@@ -56,28 +73,58 @@ export default function SubscriptionIndex({ school, subscription }: Props) {
         <AdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Subscription" />
 
-            <div className="flex flex-col gap-6 p-6">
-                <h1 className="text-2xl font-bold">Subscription</h1>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
+                <PageHeader
+                    title="Subscription"
+                    description="Manage your school's plan and billing."
+                />
 
                 {/* Current Plan */}
                 <Card>
-                    <CardHeader><CardTitle className="text-base">Current Plan</CardTitle></CardHeader>
-                    <CardContent className="space-y-2 text-sm">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-semibold">Current Plan</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm">
                         <div className="flex items-center gap-3">
-                            <span className="text-2xl font-bold capitalize">{school.plan}</span>
-                            <span className={`badge capitalize ${school.plan === 'pro' ? 'badge-warning' : school.plan === 'basic' ? 'badge-info' : 'badge-ghost'}`}>{school.plan}</span>
+                            <span className="text-2xl font-bold capitalize">
+                                {school.plan}
+                            </span>
+                            <StatusBadge status={school.plan} />
                         </div>
                         {subscription && (
                             <>
-                                <p className="text-muted-foreground">Status: <span className="capitalize font-medium">{subscription.status}</span></p>
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <span>Status:</span>
+                                    <StatusBadge status={subscription.status} />
+                                </div>
                                 {subscription.current_period_end && (
-                                    <p className="text-muted-foreground">Renews: <span className="font-medium">{new Date(subscription.current_period_end).toLocaleDateString()}</span></p>
+                                    <p className="text-muted-foreground">
+                                        Renews:{' '}
+                                        <span className="font-medium text-foreground">
+                                            {new Date(subscription.current_period_end).toLocaleDateString()}
+                                        </span>
+                                    </p>
                                 )}
                                 {subscription.card_last_four && (
-                                    <p className="text-muted-foreground">Payment: <span className="font-medium capitalize">{subscription.card_brand} •••• {subscription.card_last_four}</span></p>
+                                    <p className="text-muted-foreground">
+                                        Payment:{' '}
+                                        <span className="font-medium capitalize text-foreground">
+                                            {subscription.card_brand} •••• {subscription.card_last_four}
+                                        </span>
+                                    </p>
                                 )}
                                 {school.plan !== 'free' && (
-                                    <Button variant="destructive" size="sm" className="mt-2" onClick={() => setCancelOpen(true)}>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        className="mt-2"
+                                        onClick={() => setCancelOpen(true)}
+                                    >
                                         Cancel Subscription
                                     </Button>
                                 )}
@@ -89,26 +136,36 @@ export default function SubscriptionIndex({ school, subscription }: Props) {
                 {/* Plan Cards */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {plans.map((plan) => (
-                        <Card key={plan.id} className={school.plan === plan.id ? 'border-primary' : ''}>
+                        <Card
+                            key={plan.id}
+                            className={`transition-colors duration-150 ${school.plan === plan.id ? 'border-primary/70 shadow-sm' : 'border-border/60'}`}
+                        >
                             <CardHeader>
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg">{plan.name}</CardTitle>
-                                    <span className="text-xl font-bold">{plan.price}</span>
+                                    <span className="text-xl font-bold text-foreground">
+                                        {plan.price}
+                                    </span>
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <ul className="space-y-2">
                                     {plan.features.map((f) => (
                                         <li key={f} className="flex items-center gap-2 text-sm">
-                                            <CheckCircle className="size-4 text-green-500" />
+                                            <CheckCircle className="size-4 shrink-0 text-primary" />
                                             {f}
                                         </li>
                                     ))}
                                 </ul>
                                 {school.plan === plan.id ? (
-                                    <Button className="w-full" disabled>Current Plan</Button>
+                                    <Button className="w-full" disabled>
+                                        Current Plan
+                                    </Button>
                                 ) : (
-                                    <Button className="w-full" onClick={() => handleUpgrade(plan.id)}>
+                                    <Button
+                                        className="w-full"
+                                        onClick={() => handleUpgrade(plan.id)}
+                                    >
                                         Upgrade to {plan.name}
                                     </Button>
                                 )}
@@ -116,15 +173,24 @@ export default function SubscriptionIndex({ school, subscription }: Props) {
                         </Card>
                     ))}
                 </div>
-            </div>
+            </motion.div>
 
             <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Cancel Subscription?</DialogTitle></DialogHeader>
-                    <p className="text-sm text-muted-foreground">Your school will be downgraded to the Free plan. Some features will be unavailable.</p>
+                    <DialogHeader>
+                        <DialogTitle>Cancel Subscription?</DialogTitle>
+                        <DialogDescription>
+                            Your school will be downgraded to the Free plan. Some features will
+                            be unavailable immediately after cancellation.
+                        </DialogDescription>
+                    </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setCancelOpen(false)}>Keep Subscription</Button>
-                        <Button variant="destructive" onClick={handleCancel}>Cancel Subscription</Button>
+                        <Button variant="outline" onClick={() => setCancelOpen(false)}>
+                            Keep Subscription
+                        </Button>
+                        <Button variant="destructive" onClick={handleCancel}>
+                            Cancel Subscription
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
