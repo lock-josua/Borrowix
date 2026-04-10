@@ -17,7 +17,21 @@ class SubscriptionController extends Controller
 {
     public function index(): Response
     {
-        $subscriptions = Subscription::with('tenant')->latest()->paginate(15)
+        $filters = [
+            'search' => request('search', ''),
+            'plan' => request('plan', ''),
+            'status' => request('status', ''),
+        ];
+
+        $subscriptions = Subscription::with('tenant')
+            ->when($filters['search'], fn ($q) => $q->whereHas('tenant', fn ($t) => $t
+                ->where('school_name', 'like', "%{$filters['search']}%")
+                ->orWhere('school_email', 'like', "%{$filters['search']}%")
+            ))
+            ->when($filters['plan'], fn ($q) => $q->where('plan', $filters['plan']))
+            ->when($filters['status'], fn ($q) => $q->where('status', $filters['status']))
+            ->latest()
+            ->paginate(15)
             ->through(fn ($subscription) => [
                 'id' => $subscription->id,
                 'plan' => $subscription->plan,
@@ -44,6 +58,7 @@ class SubscriptionController extends Controller
         return Inertia::render('super-admin/subscriptions/index', [
             'subscriptions' => $subscriptions,
             'breakdown' => $breakdown,
+            'filters' => $filters,
         ]);
     }
 
