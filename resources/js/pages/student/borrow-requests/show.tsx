@@ -1,13 +1,19 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, XCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Loader2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { DetailCard } from '@/components/detail-card';
+import { DetailRow } from '@/components/detail-row';
+import { PageHeader } from '@/components/page-header';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from '@/components/ui/dialog';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -40,184 +46,145 @@ interface Props {
     borrowRequest: BorrowRequest;
 }
 
-const statusBadge: Record<string, string> = {
-    pending: 'badge-warning',
-    approved: 'badge-success',
-    rejected: 'badge-error',
-    canceled: 'badge-neutral',
-};
-
-const statusLabel: Record<string, string> = {
-    pending: 'Pending',
-    approved: 'Approved',
-    rejected: 'Rejected',
-    canceled: 'Canceled',
-};
-
-export default function Show({ borrowRequest }: Props) {
+export default function Show({ borrowRequest: r }: Props) {
     const [cancelOpen, setCancelOpen] = useState(false);
+    const [processing, setProcessing] = useState(false);
 
     function handleCancel() {
+        setProcessing(true);
         router.post(
-            `/student/borrow-requests/${borrowRequest.id}/cancel`,
+            `/student/borrow-requests/${r.id}/cancel`,
             {},
             {
-                onSuccess: () => setCancelOpen(false),
+                onSuccess: () => {
+                    setCancelOpen(false);
+                    setProcessing(false);
+                },
+                onError: () => setProcessing(false),
             },
         );
     }
+
+    const actionButtons = (
+        <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+                <Link href="/student/borrow-requests" className="gap-1.5">
+                    <ArrowLeft className="size-3.5" /> Back
+                </Link>
+            </Button>
+            {r.status === 'pending' && (
+                <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setCancelOpen(true)}
+                >
+                    <XCircle className="size-3.5" /> Cancel Request
+                </Button>
+            )}
+        </div>
+    );
 
     return (
         <StudentLayout breadcrumbs={breadcrumbs}>
             <Head title="Request Details" />
 
-            <div className="flex flex-col gap-4 p-4 lg:p-6">
-                {/* Back link */}
-                <Link
-                    href="/student/borrow-requests"
-                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-                >
-                    <ArrowLeft className="size-3.5" />
-                    Back to My Requests
-                </Link>
-
-                {/* Status badge */}
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="flex flex-col gap-6 p-6"
+            >
                 <div>
-                    <span
-                        className={`badge badge-sm capitalize ${statusBadge[borrowRequest.status] ?? 'badge-ghost'}`}
-                    >
-                        {statusLabel[borrowRequest.status] ??
-                            borrowRequest.status}
-                    </span>
-                </div>
-
-                {/* Detail card */}
-                <div className="rounded-xl border bg-card p-4">
-                    <div className="space-y-4 text-sm">
-                        {/* Equipment */}
-                        <div>
-                            <p className="text-xs text-muted-foreground">
-                                Equipment
-                            </p>
-                            <p className="font-medium">
-                                {borrowRequest.equipment.name}
-                            </p>
-                            {borrowRequest.equipment.category && (
-                                <p className="mt-0.5 text-xs text-muted-foreground">
-                                    {borrowRequest.equipment.category.name}
-                                </p>
-                            )}
-                            {(borrowRequest.equipment.brand ||
-                                borrowRequest.equipment.model) && (
-                                <p className="mt-0.5 text-xs text-muted-foreground">
-                                    {[
-                                        borrowRequest.equipment.brand,
-                                        borrowRequest.equipment.model,
-                                    ]
-                                        .filter(Boolean)
-                                        .join(' - ')}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Purpose */}
-                        <div>
-                            <p className="text-xs text-muted-foreground">
-                                Purpose
-                            </p>
-                            <p>{borrowRequest.purpose}</p>
-                        </div>
-
-                        {/* Dates */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-xs text-muted-foreground">
-                                    Borrow Date
-                                </p>
-                                <p>
-                                    {new Date(
-                                        borrowRequest.borrow_date,
-                                    ).toLocaleDateString()}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground">
-                                    Expected Return
-                                </p>
-                                <p>
-                                    {new Date(
-                                        borrowRequest.expected_return_date,
-                                    ).toLocaleDateString()}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Processed by */}
-                        {borrowRequest.processedBy && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">
-                                    Processed By
-                                </p>
-                                <p>{borrowRequest.processedBy.name}</p>
-                            </div>
-                        )}
-
-                        {/* Remarks */}
-                        {borrowRequest.remarks && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">
-                                    Remarks
-                                </p>
-                                <p>{borrowRequest.remarks}</p>
-                            </div>
-                        )}
+                   <PageHeader
+                        title="Request Details"
+                        description={`Request #${r.id}`}
+                        actions={actionButtons}
+                    />
+                    <div className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
+                         <StatusBadge status={r.status} />
                     </div>
                 </div>
 
-                {/* Transaction link */}
-                {borrowRequest.transaction && (
-                    <Link
-                        href={`/student/history/${borrowRequest.transaction.id}`}
-                        className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-                    >
-                        View active loan →
-                    </Link>
-                )}
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    <DetailCard title="Equipment">
+                        <DetailRow label="Name" value={r.equipment.name} />
+                        <DetailRow
+                            label="Category"
+                            value={r.equipment.category?.name ?? '—'}
+                        />
+                        {r.equipment.brand && (
+                            <DetailRow label="Brand" value={r.equipment.brand} />
+                        )}
+                        {r.equipment.model && (
+                            <DetailRow label="Model" value={r.equipment.model} />
+                        )}
+                    </DetailCard>
 
-                {/* Cancel button */}
-                {borrowRequest.status === 'pending' && (
-                    <div className="pt-2">
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => setCancelOpen(true)}
-                        >
-                            <XCircle className="mr-1.5 size-3.5" />
-                            Cancel Request
+                    <DetailCard title="Schedule & Purpose">
+                        <DetailRow
+                            label="Borrow Date"
+                            value={new Date(r.borrow_date).toLocaleString()}
+                        />
+                        <DetailRow
+                            label="Expected Return"
+                            value={new Date(r.expected_return_date).toLocaleString()}
+                        />
+                        <DetailRow label="Purpose" value={r.purpose} />
+                    </DetailCard>
+
+                    {r.processedBy && (
+                        <DetailCard title="Processing Details">
+                            <DetailRow
+                                label="Processed By"
+                                value={r.processedBy.name}
+                            />
+                            {r.processed_at && (
+                                <DetailRow
+                                    label="Processed At"
+                                    value={new Date(r.processed_at).toLocaleString()}
+                                />
+                            )}
+                            {r.remarks && (
+                                <DetailRow label="Remarks" value={r.remarks} />
+                            )}
+                        </DetailCard>
+                    )}
+                </div>
+                
+                {r.transaction && (
+                    <div className="flex justify-start">
+                        <Button variant="link" asChild className="px-0">
+                            <Link
+                                href={`/student/history/${r.transaction.id}`}
+                                className="text-primary hover:underline"
+                            >
+                                View active loan →
+                            </Link>
                         </Button>
                     </div>
                 )}
-            </div>
+            </motion.div>
 
-            {/* Cancel dialog */}
             <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Cancel Request?</DialogTitle>
+                        <DialogDescription>
+                            Cancel your request for{' '}
+                            <strong>{r.equipment.name}</strong>? This cannot be undone.
+                        </DialogDescription>
                     </DialogHeader>
-                    <p className="text-sm text-muted-foreground">
-                        Cancel your request for{' '}
-                        <strong>{borrowRequest.equipment.name}</strong>? This
-                        cannot be undone.
-                    </p>
                     <DialogFooter>
                         <Button
                             variant="outline"
                             onClick={() => setCancelOpen(false)}
+                            disabled={processing}
                         >
                             Keep
                         </Button>
-                        <Button variant="destructive" onClick={handleCancel}>
+                        <Button variant="destructive" onClick={handleCancel} disabled={processing}>
+                            {processing && <Loader2 className="mr-2 size-4 animate-spin" />}
                             Cancel Request
                         </Button>
                     </DialogFooter>

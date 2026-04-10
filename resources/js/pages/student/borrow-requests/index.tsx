@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -142,8 +142,10 @@ export default function StudentRequestsIndex({ requests }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Cancel Request?</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to cancel this request?
+                            </DialogDescription>
                         </DialogHeader>
-                        <p className="text-sm text-muted-foreground">Are you sure you want to cancel this request?</p>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setCancelTarget(null)}>
                                 No

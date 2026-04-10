@@ -91,14 +91,14 @@ export default function BrowseEquipment({
                     description="Find and borrow ICT equipment for your school needs."
                 />
 
-                <div className="flex flex-col gap-4">
+                <Card className="flex flex-col gap-4 p-4 mb-2">
                     <div className="relative max-w-sm">
                         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search equipment..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="h-10 pl-9"
+                            className="h-10 pl-9 bg-muted/20"
                         />
                     </div>
 
@@ -127,7 +127,7 @@ export default function BrowseEquipment({
                             </Button>
                         ))}
                     </div>
-                </div>
+                </Card>
 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {equipment.data.map((item, i) => (
