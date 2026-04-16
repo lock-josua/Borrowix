@@ -8,6 +8,8 @@ enum Permission: string
     case EquipmentCreate = 'equipment.create';
     case EquipmentUpdate = 'equipment.update';
     case EquipmentDelete = 'equipment.delete';
+    case EquipmentQrGenerate = 'equipment.qr.generate';
+    case EquipmentScan = 'equipment.scan';
 
     case RequestViewAny = 'request.viewAny';
     case RequestCreate = 'request.create';
