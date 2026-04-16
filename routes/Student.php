@@ -3,6 +3,7 @@
 use App\Http\Controllers\Student\BorrowHistoryController;
 use App\Http\Controllers\Student\BorrowRequestController;
 use App\Http\Controllers\Student\DashboardController;
+use App\Http\Controllers\Student\ScanController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('student')
@@ -35,4 +36,10 @@ Route::prefix('student')
         // Equipment Browse — discover available equipment
         Route::get('/browse', [\App\Http\Controllers\Student\BrowseController::class, 'index'])
             ->name('browse');
+
+        // QR Scan
+        Route::get('/scan', [ScanController::class, 'index'])->name('scan');
+        Route::post('/scan/resolve', [ScanController::class, 'resolve'])
+            ->middleware('throttle:10,1')
+            ->name('scan.resolve');
     });

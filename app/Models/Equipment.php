@@ -30,6 +30,7 @@ class Equipment extends Model
         'condition_notes',
         'damage_photo',
         'image',
+        'qr_code',
     ];
 
     protected function casts(): array

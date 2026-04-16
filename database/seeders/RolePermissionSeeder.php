@@ -41,6 +41,7 @@ class RolePermissionSeeder extends Seeder
             Permission::HistoryViewAny->value,
             Permission::RequestViewAny->value,
             Permission::RequestCreate->value,
+            Permission::EquipmentScan->value,
         ]);
 
         $this->command->info('Roles and permissions seeded successfully.');
