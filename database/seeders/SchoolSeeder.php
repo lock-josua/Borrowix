@@ -64,6 +64,9 @@ class SchoolSeeder extends Seeder
             '--class' => 'Database\Seeders\TenantDatabaseSeeder',
         ]);
 
+        // Note: Demo data (categories, equipment, staff, students) is seeded by
+        // SubscriptionSeeder which runs TenantDataSeeder for all tenants.
+
         // Seed admin user inside the tenant's database using $tenant->run()
         $tenant->run(function () {
             $user = User::updateOrCreate(
