@@ -1,4 +1,4 @@
-import { Check, Moon, Sun, Palette } from 'lucide-react';
+import { Moon, Palette, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -8,69 +8,86 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAppearance, type Appearance } from '@/hooks/use-appearance';
-import { useTheme, type ColorTheme } from '@/hooks/use-theme';
-
-// Removed 'system' mode, only light and dark remain
-const appearanceOptions: { value: Appearance; label: string; icon: typeof Sun }[] = [
-    { value: 'light', label: 'Light', icon: Sun },
-    { value: 'dark', label: 'Dark', icon: Moon },
-];
-
-const themeOptions: { value: ColorTheme; label: string; color: string }[] = [
-    { value: 'navy', label: 'Navy', color: '#1E3A5F' },
-    { value: 'emerald', label: 'Emerald', color: '#065F46' },
-    { value: 'rose', label: 'Rose', color: '#9F1239' },
-    { value: 'violet', label: 'Violet', color: '#5B21B6' },
-];
+import { useAppearance } from '@/hooks/use-appearance';
+import { cn } from '@/lib/utils';
 
 export function ThemeToggle() {
-    const { appearance, updateAppearance } = useAppearance();
-    const { theme, setTheme } = useTheme();
-
-    // Simple toggle between light and dark
-    const isDark = appearance === 'dark';
+    const { appearance, updateAppearance, theme, updateTheme } =
+        useAppearance();
 
     return (
-        <div className="flex items-center gap-2">
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full border border-border"
-                aria-label="Toggle theme"
-                onClick={() => updateAppearance(isDark ? 'light' : 'dark')}
-            >
-                {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
-            </Button>
-            {/* Color theme dropdown remains if needed */}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Palette className="size-4" />
-                        <span className="sr-only">Toggle color theme</span>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side="bottom">
-                    {themeOptions.map((option) => (
-                        <DropdownMenuItem
-                            key={option.value}
-                            onSelect={() => setTheme(option.value)}
-                            className="flex items-center justify-between"
-                        >
-                            <div className="flex items-center gap-2">
-                                <span
-                                    className="size-3 shrink-0 rounded-full border border-border"
-                                    style={{ backgroundColor: option.color }}
-                                />
-                                {option.label}
-                            </div>
-                            {theme === option.value && (
-                                <Check className="size-3.5 text-primary" />
-                            )}
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full border border-border"
+                    aria-label="Change theme"
+                >
+                    <Palette className="size-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={8}>
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                    Theme
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                    onClick={() => updateTheme('default')}
+                    className={cn(
+                        'cursor-pointer',
+                        theme === 'default' && 'bg-accent/50',
+                    )}
+                >
+                    <span
+                        className="mr-2 size-2 rounded-full bg-primary"
+                        style={{
+                            backgroundColor: 'hsl(82.5414 88.2927% 59.8039%)',
+                        }}
+                    />
+                    Default
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => updateTheme('sandstone')}
+                    className={cn(
+                        'cursor-pointer',
+                        theme === 'sandstone' && 'bg-accent/50',
+                    )}
+                >
+                    <span
+                        className="mr-2 size-2 rounded-full"
+                        style={{
+                            backgroundColor: 'hsl(42.1519 100% 69.0196%)',
+                        }}
+                    />
+                    Sandstone
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                    Appearance
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                    onClick={() => updateAppearance('light')}
+                    className={cn(
+                        'cursor-pointer',
+                        appearance === 'light' && 'bg-accent/50',
+                    )}
+                >
+                    <Sun className="mr-2 size-4" />
+                    Light
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => updateAppearance('dark')}
+                    className={cn(
+                        'cursor-pointer',
+                        appearance === 'dark' && 'bg-accent/50',
+                    )}
+                >
+                    <Moon className="mr-2 size-4" />
+                    Dark
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

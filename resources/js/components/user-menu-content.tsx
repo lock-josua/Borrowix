@@ -9,13 +9,6 @@ import {
 import { UserInfo } from '@/components/user-info';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
-import type {
-    ColorTheme} from '@/hooks/use-theme';
-import {
-    THEME_COLORS,
-    THEME_LABELS,
-    useTheme,
-} from '@/hooks/use-theme';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
@@ -27,7 +20,7 @@ type Props = {
 export function UserMenuContent({ user }: Props) {
     const cleanup = useMobileNavigation();
     const { appearance, updateAppearance } = useAppearance();
-    const { theme, setTheme } = useTheme();
+    // Color theme logic removed
 
     const handleLogout = () => {
         cleanup();
@@ -74,51 +67,6 @@ export function UserMenuContent({ user }: Props) {
                             <Moon className="mr-1.5 size-3.5" />
                             Dark
                         </button>
-                    </div>
-                </div>
-            </DropdownMenuGroup>
-
-            <DropdownMenuSeparator />
-
-            {/* Color Theme Switcher */}
-            <DropdownMenuGroup>
-                <DropdownMenuLabel className="px-2 py-1.5 pt-2 text-xs font-semibold">
-                    Color Theme
-                </DropdownMenuLabel>
-                <div className="px-2 pb-2">
-                    <div className="grid grid-cols-2 gap-1.5">
-                        {(Object.keys(THEME_COLORS) as ColorTheme[]).map(
-                            (t) => (
-                                <button
-                                    key={t}
-                                    onClick={(e) => {
-                                        e.preventDefault(); // Prevent dropdown from closing
-                                        setTheme(t);
-                                    }}
-                                    className={`flex items-center gap-2 rounded-md border px-2 py-1.5 text-left text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                                        theme === t
-                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                            : 'border-border/60 hover:bg-muted'
-                                    }`}
-                                >
-                                    <span
-                                        className="size-3.5 shrink-0 rounded-full"
-                                        style={{
-                                            backgroundColor: THEME_COLORS[t],
-                                        }}
-                                    />
-                                    <span
-                                        className={
-                                            theme === t
-                                                ? 'font-medium text-foreground'
-                                                : 'text-muted-foreground'
-                                        }
-                                    >
-                                        {THEME_LABELS[t]}
-                                    </span>
-                                </button>
-                            ),
-                        )}
                     </div>
                 </div>
             </DropdownMenuGroup>
