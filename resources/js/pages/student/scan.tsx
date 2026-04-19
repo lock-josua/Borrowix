@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import { AlertCircle, Camera, QrCode } from 'lucide-react';
@@ -171,20 +171,21 @@ export default function ScanPage() {
                             </motion.div>
                         )}
 
-
-                        {(scanState === 'scanning' || scanState === 'resolving' || scanState === 'error') && (
+                        {(scanState === 'scanning' ||
+                            scanState === 'resolving' ||
+                            scanState === 'error') && (
                             <div className="relative flex flex-col items-center justify-center">
-                                <div className="relative w-full max-w-xs aspect-square mx-auto">
+                                <div className="relative mx-auto aspect-square w-full max-w-xs">
                                     <div
                                         id="qr-reader"
-                                        className="w-full h-full overflow-hidden rounded-2xl border-4 border-primary/60 shadow-lg bg-black/80"
+                                        className="h-full w-full overflow-hidden rounded-2xl border-4 border-primary/60 bg-black/80 shadow-lg"
                                     />
                                     {/* Overlay for scan area corners */}
                                     <div className="pointer-events-none absolute inset-0 z-10">
-                                        <div className="absolute left-0 top-0 h-8 w-8 border-t-4 border-l-4 border-primary rounded-tl-2xl" />
-                                        <div className="absolute right-0 top-0 h-8 w-8 border-t-4 border-r-4 border-primary rounded-tr-2xl" />
-                                        <div className="absolute left-0 bottom-0 h-8 w-8 border-b-4 border-l-4 border-primary rounded-bl-2xl" />
-                                        <div className="absolute right-0 bottom-0 h-8 w-8 border-b-4 border-r-4 border-primary rounded-br-2xl" />
+                                        <div className="absolute top-0 left-0 h-8 w-8 rounded-tl-2xl border-t-4 border-l-4 border-primary" />
+                                        <div className="absolute top-0 right-0 h-8 w-8 rounded-tr-2xl border-t-4 border-r-4 border-primary" />
+                                        <div className="absolute bottom-0 left-0 h-8 w-8 rounded-bl-2xl border-b-4 border-l-4 border-primary" />
+                                        <div className="absolute right-0 bottom-0 h-8 w-8 rounded-br-2xl border-r-4 border-b-4 border-primary" />
                                     </div>
                                 </div>
 
