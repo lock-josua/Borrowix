@@ -1,5 +1,12 @@
-import { Link } from '@inertiajs/react';
-import { LayoutDashboard, School, Tag, BarChart3, CreditCard, Settings } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    LayoutDashboard,
+    School,
+    Tag,
+    BarChart3,
+    CreditCard,
+    Settings,
+} from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
@@ -20,9 +27,17 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { BreadcrumbItem } from '@/types';
 
 const platformNav = [
-    { title: 'Dashboard', href: '/super-admin/dashboard', icon: LayoutDashboard },
+    {
+        title: 'Dashboard',
+        href: '/super-admin/dashboard',
+        icon: LayoutDashboard,
+    },
     { title: 'Schools', href: '/super-admin/schools', icon: School },
-    { title: 'Subscriptions', href: '/super-admin/subscriptions', icon: CreditCard },
+    {
+        title: 'Subscriptions',
+        href: '/super-admin/subscriptions',
+        icon: CreditCard,
+    },
     { title: 'Promo Codes', href: '/super-admin/promo-codes', icon: Tag },
     { title: 'Analytics', href: '/super-admin/analytics', icon: BarChart3 },
 ];
@@ -31,8 +46,12 @@ interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) {
+export default function SuperAdminLayout({
+    children,
+    breadcrumbs = [],
+}: Props) {
     const { isCurrentUrl } = useCurrentUrl();
+    const { version } = usePage().props;
 
     return (
         <AppShell variant="sidebar">
@@ -46,8 +65,10 @@ export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) 
                                         <LayoutDashboard className="size-4" />
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
-                                        <span className="truncate font-semibold text-foreground">Borrowix</span>
-                                        <span className="truncate text-xs text-muted-foreground uppercase tracking-wide font-medium">
+                                        <span className="truncate font-semibold text-foreground">
+                                            Borrowix
+                                        </span>
+                                        <span className="truncate text-xs font-medium tracking-wide text-muted-foreground uppercase">
                                             Super Admin
                                         </span>
                                     </div>
@@ -100,6 +121,9 @@ export default function SuperAdminLayout({ children, breadcrumbs = [] }: Props) 
                 </SidebarContent>
 
                 <SidebarFooter>
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                        v{version}
+                    </div>
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>

@@ -46,6 +46,7 @@ interface Props extends PropsWithChildren {
 export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
     const isMobileOrTablet = useIsTabletOrBelow();
+    const { version } = usePage().props;
 
     if (isMobileOrTablet) {
         return (
@@ -154,6 +155,9 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                 </SidebarContent>
 
                 <SidebarFooter>
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                        v{version}
+                    </div>
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>
