@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Download, QrCode, RefreshCw } from 'lucide-react';
 import QRCode from 'qrcode';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -17,20 +17,20 @@ export default function EquipmentQrCard({
     qrToken,
 }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [rendered, setRendered] = useState(false);
 
     const { post, processing } = useForm({});
 
+    const canDownload = qrToken !== null;
+
     useEffect(() => {
         if (!qrToken || !canvasRef.current) {
-            setRendered(false);
             return;
         }
         QRCode.toCanvas(canvasRef.current, qrToken, {
             width: 200,
             margin: 2,
             color: { dark: '#000000', light: '#ffffff' },
-        }).then(() => setRendered(true));
+        });
     }, [qrToken]);
 
     function handleGenerate() {
@@ -38,7 +38,7 @@ export default function EquipmentQrCard({
     }
 
     function handleDownload() {
-        if (!canvasRef.current || !rendered) return;
+        if (!canvasRef.current || !canDownload) return;
         const link = document.createElement('a');
         link.download = `qr-${equipmentName.toLowerCase().replace(/\s+/g, '-')}.png`;
         link.href = canvasRef.current.toDataURL('image/png');
@@ -75,7 +75,7 @@ export default function EquipmentQrCard({
                                 size="sm"
                                 className="flex-1 text-xs"
                                 onClick={handleDownload}
-                                disabled={!rendered}
+                                disabled={!canDownload}
                             >
                                 <Download className="mr-1.5 size-3.5" />
                                 Download PNG
