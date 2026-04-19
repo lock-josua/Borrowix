@@ -1,19 +1,13 @@
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, ArrowLeftRight, Package } from 'lucide-react';
-import {
-    Bar,
-    BarChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-    Cell,
-} from 'recharts';
+import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import type { ChartConfig } from '@/components/ui/chart';
 import StaffLayout from '@/layouts/StaffLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -42,7 +36,19 @@ interface Props {
     };
 }
 
-const CHART_COLORS = ['#10b981', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6'];
+const transactionChartConfig = {
+    count: {
+        label: 'Transactions',
+        color: 'hsl(var(--chart-1))',
+    },
+} satisfies ChartConfig;
+
+const equipmentChartConfig = {
+    count: {
+        label: 'Count',
+        color: 'hsl(var(--chart-1))',
+    },
+} satisfies ChartConfig;
 
 export default function StaffDashboard({
     stats,
@@ -99,43 +105,34 @@ export default function StaffDashboard({
                         </CardHeader>
                         <CardContent>
                             {chartData.dailyTransactions.length > 0 ? (
-                                <div className="h-[200px]">
-                                    <ResponsiveContainer
-                                        width="100%"
-                                        height="100%"
+                                <ChartContainer
+                                    config={transactionChartConfig}
+                                    className="h-[200px] w-full"
+                                >
+                                    <BarChart
+                                        data={chartData.dailyTransactions}
                                     >
-                                        <BarChart
-                                            data={chartData.dailyTransactions}
-                                        >
-                                            <XAxis
-                                                dataKey="date"
-                                                tick={{ fontSize: 10 }}
-                                                tickLine={false}
-                                                axisLine={false}
-                                                interval="preserveStartEnd"
-                                            />
-                                            <YAxis
-                                                tick={{ fontSize: 10 }}
-                                                tickLine={false}
-                                                axisLine={false}
-                                                allowDecimals={false}
-                                            />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    fontSize: '12px',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid #e2e8f0',
-                                                }}
-                                            />
-                                            <Bar
-                                                dataKey="count"
-                                                fill="#10b981"
-                                                radius={[4, 4, 0, 0]}
-                                                name="Transactions"
-                                            />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
+                                        <XAxis
+                                            dataKey="date"
+                                            tick={{ fontSize: 10 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            interval="preserveStartEnd"
+                                        />
+                                        <YAxis
+                                            tick={{ fontSize: 10 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            allowDecimals={false}
+                                        />
+                                        <ChartTooltipContent />
+                                        <Bar
+                                            dataKey="count"
+                                            fill="var(--color-count)"
+                                            radius={[4, 4, 0, 0]}
+                                        />
+                                    </BarChart>
+                                </ChartContainer>
                             ) : (
                                 <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
                                     No transaction data available
@@ -153,60 +150,38 @@ export default function StaffDashboard({
                         </CardHeader>
                         <CardContent>
                             {chartData.topEquipment.length > 0 ? (
-                                <div className="h-[200px]">
-                                    <ResponsiveContainer
-                                        width="100%"
-                                        height="100%"
+                                <ChartContainer
+                                    config={equipmentChartConfig}
+                                    className="h-[200px] w-full"
+                                >
+                                    <BarChart
+                                        data={chartData.topEquipment}
+                                        layout="vertical"
+                                        margin={{ left: 0, right: 20 }}
                                     >
-                                        <BarChart
-                                            data={chartData.topEquipment}
-                                            layout="vertical"
-                                            margin={{ left: 0, right: 20 }}
-                                        >
-                                            <XAxis
-                                                type="number"
-                                                tick={{ fontSize: 10 }}
-                                                tickLine={false}
-                                                axisLine={false}
-                                                allowDecimals={false}
-                                            />
-                                            <YAxis
-                                                type="category"
-                                                dataKey="name"
-                                                tick={{ fontSize: 10 }}
-                                                tickLine={false}
-                                                axisLine={false}
-                                                width={80}
-                                            />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    fontSize: '12px',
-                                                    borderRadius: '6px',
-                                                    border: '1px solid #e2e8f0',
-                                                }}
-                                            />
-                                            <Bar
-                                                dataKey="count"
-                                                radius={[0, 4, 4, 0]}
-                                                name="Count"
-                                            >
-                                                {chartData.topEquipment.map(
-                                                    (entry, index) => (
-                                                        <Cell
-                                                            key={`cell-${index}`}
-                                                            fill={
-                                                                CHART_COLORS[
-                                                                    index %
-                                                                        CHART_COLORS.length
-                                                                ]
-                                                            }
-                                                        />
-                                                    ),
-                                                )}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
+                                        <XAxis
+                                            type="number"
+                                            tick={{ fontSize: 10 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            allowDecimals={false}
+                                        />
+                                        <YAxis
+                                            type="category"
+                                            dataKey="name"
+                                            tick={{ fontSize: 10 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            width={80}
+                                        />
+                                        <ChartTooltipContent />
+                                        <Bar
+                                            dataKey="count"
+                                            fill="var(--color-count)"
+                                            radius={[0, 4, 4, 0]}
+                                        />
+                                    </BarChart>
+                                </ChartContainer>
                             ) : (
                                 <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
                                     No equipment data available

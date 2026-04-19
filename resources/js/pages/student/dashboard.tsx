@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { ScanLine, Search } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
@@ -10,7 +10,9 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Home', href: '/student/dashboard' }];
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Home', href: '/student/dashboard' },
+];
 
 interface ActiveLoan {
     id: number;
@@ -35,12 +37,21 @@ interface Props {
     pendingRequests: PendingRequest[];
 }
 
-export default function StudentDashboard({ stats, activeLoans, pendingRequests }: Props) {
+export default function StudentDashboard({
+    stats,
+    activeLoans,
+    pendingRequests,
+}: Props) {
     const { auth } = usePage().props;
     const user = auth.user as { name: string };
 
     const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const greeting =
+        hour < 12
+            ? 'Good morning'
+            : hour < 18
+              ? 'Good afternoon'
+              : 'Good evening';
     const firstName = user.name.split(' ')[0];
 
     return (
@@ -57,18 +68,35 @@ export default function StudentDashboard({ stats, activeLoans, pendingRequests }
                     title={`${greeting}, ${firstName}`}
                     description="Your borrowing activity at a glance."
                     actions={
-                        <Button size="sm" asChild>
-                            <Link href="/student/browse">
-                                <Search className="size-3.5 mr-1.5" />
-                                Browse Equipment
-                            </Link>
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button size="sm" variant="outline" asChild>
+                                <Link href="/student/scan">
+                                    <ScanLine className="mr-1.5 size-3.5" />
+                                    Scan QR
+                                </Link>
+                            </Button>
+                            <Button size="sm" asChild>
+                                <Link href="/student/browse">
+                                    <Search className="mr-1.5 size-3.5" />
+                                    Browse Equipment
+                                </Link>
+                            </Button>
+                        </div>
                     }
                 />
 
                 <div className="grid grid-cols-3 gap-3">
-                    <StatCard title="Active Loans" value={stats.active_loans} delay={0} />
-                    <StatCard title="Pending" value={stats.pending_requests} valueColor="hsl(var(--chart-4))" delay={0.05} />
+                    <StatCard
+                        title="Active Loans"
+                        value={stats.active_loans}
+                        delay={0}
+                    />
+                    <StatCard
+                        title="Pending"
+                        value={stats.pending_requests}
+                        valueColor="hsl(var(--chart-4))"
+                        delay={0.05}
+                    />
                     <StatCard
                         title="Overdue"
                         value={stats.overdue_loans}
@@ -79,9 +107,11 @@ export default function StudentDashboard({ stats, activeLoans, pendingRequests }
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Card className="p-0 overflow-hidden">
-                        <CardHeader className="px-4 py-3 border-b border-border">
-                            <CardTitle className="text-sm">Active Loans</CardTitle>
+                    <Card className="overflow-hidden p-0">
+                        <CardHeader className="border-b border-border px-4 py-3">
+                            <CardTitle className="text-sm">
+                                Active Loans
+                            </CardTitle>
                         </CardHeader>
                         <DataTable
                             columns={[
@@ -89,20 +119,30 @@ export default function StudentDashboard({ stats, activeLoans, pendingRequests }
                                     key: 'equipment',
                                     label: 'Equipment',
                                     width: '50%',
-                                    render: (l) => <span className="font-medium truncate block">{l.equipment.name}</span>,
+                                    render: (l) => (
+                                        <span className="block truncate font-medium">
+                                            {l.equipment.name}
+                                        </span>
+                                    ),
                                 },
                                 {
                                     key: 'due',
                                     label: 'Due Date',
                                     width: '30%',
-                                    render: (l) => <span className="text-xs text-muted-foreground">{l.due_date}</span>,
+                                    render: (l) => (
+                                        <span className="text-xs text-muted-foreground">
+                                            {l.due_date}
+                                        </span>
+                                    ),
                                 },
                                 {
                                     key: 'status',
                                     label: 'Status',
                                     width: '20%',
                                     align: 'center',
-                                    render: (l) => <StatusBadge status={l.status} />,
+                                    render: (l) => (
+                                        <StatusBadge status={l.status} />
+                                    ),
                                 },
                             ]}
                             data={activeLoans}
@@ -111,9 +151,11 @@ export default function StudentDashboard({ stats, activeLoans, pendingRequests }
                         />
                     </Card>
 
-                    <Card className="p-0 overflow-hidden">
-                        <CardHeader className="px-4 py-3 border-b border-border">
-                            <CardTitle className="text-sm">Pending Requests</CardTitle>
+                    <Card className="overflow-hidden p-0">
+                        <CardHeader className="border-b border-border px-4 py-3">
+                            <CardTitle className="text-sm">
+                                Pending Requests
+                            </CardTitle>
                         </CardHeader>
                         <DataTable
                             columns={[
@@ -121,13 +163,21 @@ export default function StudentDashboard({ stats, activeLoans, pendingRequests }
                                     key: 'equipment',
                                     label: 'Equipment',
                                     width: '55%',
-                                    render: (r) => <span className="font-medium truncate block">{r.equipment.name}</span>,
+                                    render: (r) => (
+                                        <span className="block truncate font-medium">
+                                            {r.equipment.name}
+                                        </span>
+                                    ),
                                 },
                                 {
                                     key: 'date',
                                     label: 'Borrow Date',
                                     width: '45%',
-                                    render: (r) => <span className="text-xs text-muted-foreground">{r.borrow_date}</span>,
+                                    render: (r) => (
+                                        <span className="text-xs text-muted-foreground">
+                                            {r.borrow_date}
+                                        </span>
+                                    ),
                                 },
                             ]}
                             data={pendingRequests}

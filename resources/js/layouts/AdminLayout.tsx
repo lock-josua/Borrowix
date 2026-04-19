@@ -41,7 +41,11 @@ const operationsNav: NavItem[] = [
     { title: 'Equipment', href: '/admin/equipment', icon: Package },
     { title: 'Categories', href: '/admin/categories', icon: Tag },
     { title: 'Requests', href: '/admin/requests', icon: ClipboardList },
-    { title: 'Transactions', href: '/admin/transactions', icon: ArrowLeftRight },
+    {
+        title: 'Transactions',
+        href: '/admin/transactions',
+        icon: ArrowLeftRight,
+    },
     { title: 'Users', href: '/admin/users', icon: Users },
 ];
 
@@ -51,11 +55,15 @@ interface Props extends PropsWithChildren {
 
 export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
-    const { can } = usePage().props;
+    const { can, version } = usePage().props;
 
     const insightsNav: NavItem[] = [
         { title: 'Reports', href: '/admin/reports', icon: BarChart3 },
-        { title: 'Subscription', href: '/admin/subscription', icon: CreditCard },
+        {
+            title: 'Subscription',
+            href: '/admin/subscription',
+            icon: CreditCard,
+        },
         { title: 'Settings', href: '/admin/settings', icon: Settings },
     ];
 
@@ -89,8 +97,12 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
                                         <LayoutDashboard className="size-4" />
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
-                                        <span className="truncate font-semibold text-foreground">Borrowix</span>
-                                        <span className="truncate text-xs text-muted-foreground uppercase tracking-wide font-medium">Admin</span>
+                                        <span className="truncate font-semibold text-foreground">
+                                            Borrowix
+                                        </span>
+                                        <span className="truncate text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                            Admin
+                                        </span>
                                     </div>
                                 </Link>
                             </SidebarMenuButton>
@@ -145,7 +157,9 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
 
                     {filteredAdministrationNav.length > 0 && (
                         <SidebarGroup>
-                            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+                            <SidebarGroupLabel>
+                                Administration
+                            </SidebarGroupLabel>
                             <SidebarMenu>
                                 {filteredAdministrationNav.map((item) => (
                                     <SidebarMenuItem key={item.title}>
@@ -168,6 +182,9 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
                 </SidebarContent>
 
                 <SidebarFooter>
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                        v{version}
+                    </div>
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>

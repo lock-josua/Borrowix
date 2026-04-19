@@ -1,5 +1,12 @@
 import { Link, usePage, router } from '@inertiajs/react';
-import { LayoutDashboard, Search, ClipboardList, History, Zap } from 'lucide-react';
+import {
+    LayoutDashboard,
+    Search,
+    ClipboardList,
+    History,
+    Zap,
+    ScanLine,
+} from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
@@ -23,7 +30,12 @@ import type { BreadcrumbItem } from '@/types';
 const navItems = [
     { title: 'Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
     { title: 'Browse Equipment', href: '/student/browse', icon: Search },
-    { title: 'My Requests', href: '/student/borrow-requests', icon: ClipboardList },
+    { title: 'Scan Equipment', href: '/student/scan', icon: ScanLine },
+    {
+        title: 'My Requests',
+        href: '/student/borrow-requests',
+        icon: ClipboardList,
+    },
     { title: 'My History', href: '/student/history', icon: History },
 ];
 
@@ -34,6 +46,7 @@ interface Props extends PropsWithChildren {
 export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
     const isMobileOrTablet = useIsTabletOrBelow();
+    const { version } = usePage().props;
 
     if (isMobileOrTablet) {
         return (
@@ -43,7 +56,9 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                         <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                             <Zap className="size-3.5" />
                         </div>
-                        <span className="text-[13px] font-semibold text-foreground">Borrowix</span>
+                        <span className="text-[13px] font-semibold text-foreground">
+                            Borrowix
+                        </span>
                     </div>
                     <MobileUserButton />
                 </header>
@@ -55,7 +70,8 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                 <nav
                     className="fixed right-0 bottom-0 left-0 z-50 border-t bg-background/95 backdrop-blur"
                     style={{
-                        paddingBottom: 'max(8px, env(safe-area-inset-bottom, 8px))',
+                        paddingBottom:
+                            'max(8px, env(safe-area-inset-bottom, 8px))',
                     }}
                 >
                     <div className="flex items-stretch">
@@ -66,7 +82,9 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                                     key={item.href}
                                     href={item.href}
                                     className={`flex flex-1 flex-col items-center justify-center gap-1 pt-2 transition-colors ${
-                                        active ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                                        active
+                                            ? 'text-primary'
+                                            : 'text-muted-foreground hover:text-foreground'
                                     }`}
                                 >
                                     <div
@@ -76,7 +94,9 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                                     >
                                         <item.icon className="size-[18px]" />
                                     </div>
-                                    <span className="text-[10px] leading-none font-medium">{item.title}</span>
+                                    <span className="text-[10px] leading-none font-medium">
+                                        {item.title}
+                                    </span>
                                 </Link>
                             );
                         })}
@@ -98,8 +118,12 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                                         <Zap className="size-4" />
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
-                                        <span className="truncate font-semibold text-foreground">Borrowix</span>
-                                        <span className="truncate text-xs text-muted-foreground uppercase tracking-wide font-medium">Student</span>
+                                        <span className="truncate font-semibold text-foreground">
+                                            Borrowix
+                                        </span>
+                                        <span className="truncate text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                            Student
+                                        </span>
                                     </div>
                                 </Link>
                             </SidebarMenuButton>
@@ -131,6 +155,9 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                 </SidebarContent>
 
                 <SidebarFooter>
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                        v{version}
+                    </div>
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>

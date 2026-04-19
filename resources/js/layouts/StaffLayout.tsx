@@ -1,5 +1,10 @@
-import { Link } from '@inertiajs/react';
-import { LayoutDashboard, Package, ArrowLeftRight, ClipboardList } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    LayoutDashboard,
+    Package,
+    ArrowLeftRight,
+    ClipboardList,
+} from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
@@ -23,7 +28,11 @@ const navItems = [
     { title: 'Dashboard', href: '/staff/dashboard', icon: LayoutDashboard },
     { title: 'Requests', href: '/staff/requests', icon: ClipboardList },
     { title: 'Equipment', href: '/staff/equipment', icon: Package },
-    { title: 'Transactions', href: '/staff/transactions', icon: ArrowLeftRight },
+    {
+        title: 'Transactions',
+        href: '/staff/transactions',
+        icon: ArrowLeftRight,
+    },
 ];
 
 interface Props extends PropsWithChildren {
@@ -32,6 +41,7 @@ interface Props extends PropsWithChildren {
 
 export default function StaffLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
+    const { version } = usePage().props;
     return (
         <AppShell variant="sidebar">
             <Sidebar collapsible="icon" variant="inset">
@@ -44,8 +54,12 @@ export default function StaffLayout({ children, breadcrumbs = [] }: Props) {
                                         <LayoutDashboard className="size-4" />
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
-                                        <span className="truncate font-semibold text-foreground">Borrowix</span>
-                                        <span className="truncate text-xs text-muted-foreground uppercase tracking-wide font-medium">Staff</span>
+                                        <span className="truncate font-semibold text-foreground">
+                                            Borrowix
+                                        </span>
+                                        <span className="truncate text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                                            Staff
+                                        </span>
                                     </div>
                                 </Link>
                             </SidebarMenuButton>
@@ -77,6 +91,9 @@ export default function StaffLayout({ children, breadcrumbs = [] }: Props) {
                 </SidebarContent>
 
                 <SidebarFooter>
+                    <div className="px-3 py-2 text-xs text-muted-foreground">
+                        v{version}
+                    </div>
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>

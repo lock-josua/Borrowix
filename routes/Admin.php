@@ -41,6 +41,12 @@ Route::prefix('admin')
         Route::resource('/equipment', EquipmentController::class)
             ->names('equipment');
 
+        // QR Code management
+        Route::post('/equipment/{equipment}/qr-code/generate', [EquipmentController::class, 'generateQrCode'])
+            ->name('equipment.qr-code.generate');
+        Route::get('/equipment/{equipment}/qr-code', [EquipmentController::class, 'showQrCode'])
+            ->name('equipment.qr-code.show');
+
         // Categories
         Route::resource('/categories', CategoryController::class)
             ->names('categories');

@@ -7,6 +7,8 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Equipment;
+use App\Services\QrCodeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -227,5 +229,23 @@ class EquipmentController extends Controller
         return redirect()
             ->route('admin.equipment.index')
             ->with('success', 'Equipment deleted.');
+    }
+
+    public function generateQrCode(Equipment $equipment): RedirectResponse
+    {
+        $this->authorize(Permission::EquipmentQrGenerate->value);
+
+        app(QrCodeService::class)->generateTokenForEquipment($equipment);
+
+        return back()->with('success', 'QR code generated successfully.');
+    }
+
+    public function showQrCode(Equipment $equipment): JsonResponse
+    {
+        $this->authorize(Permission::EquipmentQrGenerate->value);
+
+        return response()->json([
+            'qr_token' => $equipment->qr_code,
+        ]);
     }
 }
