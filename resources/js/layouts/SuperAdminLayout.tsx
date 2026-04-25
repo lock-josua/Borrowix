@@ -2,7 +2,6 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     LayoutDashboard,
     School,
-    Tag,
     BarChart3,
     CreditCard,
     Settings,
@@ -38,7 +37,7 @@ const platformNav = [
         href: '/super-admin/subscriptions',
         icon: CreditCard,
     },
-    { title: 'Promo Codes', href: '/super-admin/promo-codes', icon: Tag },
+    
     { title: 'Analytics', href: '/super-admin/analytics', icon: BarChart3 },
 ];
 
@@ -135,3 +134,4 @@ export default function SuperAdminLayout({
         </AppShell>
     );
 }
+

@@ -16,6 +16,7 @@ import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { NavUser } from '@/components/nav-user';
+import { TrialCountdown } from '@/components/trial-countdown';
 import {
     Sidebar,
     SidebarContent,
@@ -55,7 +56,16 @@ interface Props extends PropsWithChildren {
 
 export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
-    const { can, version } = usePage().props;
+    const { can, version, tenantSubscription } = usePage().props as {
+        can: Record<string, boolean>;
+        version: string;
+        tenantSubscription?: {
+            status: string;
+            plan: string | null;
+            trial_ends_at: string | null;
+            trial_days_remaining: number;
+        } | null;
+    };
 
     const insightsNav: NavItem[] = [
         { title: 'Reports', href: '/admin/reports', icon: BarChart3 },
@@ -191,6 +201,14 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
 
             <AppContent variant="sidebar" className="overflow-x-hidden">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
+                {tenantSubscription?.status === 'trialing' && tenantSubscription.trial_ends_at && (
+                    <div className="px-4 pt-3">
+                        <TrialCountdown
+                            trialEndsAt={tenantSubscription.trial_ends_at}
+                            daysRemaining={tenantSubscription.trial_days_remaining}
+                        />
+                    </div>
+                )}
                 {children}
             </AppContent>
         </AppShell>

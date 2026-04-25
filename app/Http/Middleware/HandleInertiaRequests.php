@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\Permission;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -72,6 +73,18 @@ class HandleInertiaRequests extends Middleware
                 'manage_rbac' => $request->user()->can(Permission::RbacManage->value),
             ] : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'tenantSubscription' => tenant() ? (function () {
+                $sub = Subscription::where('tenant_id', tenant()->id)
+                    ->latest()
+                    ->first(['status', 'plan', 'trial_ends_at', 'trial_warning_sent']);
+
+                return $sub ? [
+                    'status' => $sub->status,
+                    'plan' => $sub->plan,
+                    'trial_ends_at' => $sub->trial_ends_at?->toISOString(),
+                    'trial_days_remaining' => $sub->trialDaysRemaining(),
+                ] : null;
+            })() : null,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
