@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
-use App\Http\Controllers\SuperAdmin\PromoCodeController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -43,10 +42,6 @@ Route::prefix('super-admin')
             ->name('subscriptions.show');
         Route::patch('/subscriptions/{tenant}', [SubscriptionController::class, 'update'])
             ->name('subscriptions.update');
-
-        // Promo Codes — full CRUD
-        Route::resource('/promo-codes', PromoCodeController::class)
-            ->names('promo-codes');
 
         // Analytics
         Route::get('/analytics', [AnalyticsController::class, 'index'])
