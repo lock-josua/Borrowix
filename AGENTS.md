@@ -58,6 +58,13 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 - If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
 
+## Developer Commands
+
+- Prefer the documented scripts in [composer.json](composer.json) and [package.json](package.json) for local workflows.
+- Typical backend + Vite dev: `composer run dev`; SSR dev: `composer run dev:ssr`.
+- Lint/format: `composer run lint`, `npm run lint`, `npm run format`.
+- Tests: `composer run test` (CI runs Pest; see [.github/workflows/tests.yml](.github/workflows/tests.yml)).
+
 ## Documentation Files
 
 - You must only create documentation files if explicitly requested by the user.

@@ -28,3 +28,5 @@ yarn-error.log
 /.zed
 borrowix_db
 /database/tenant_test-*
+/.kilo
+/.kombai
