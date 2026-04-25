@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\EnforceSubscription;
 use App\Http\Middleware\EnsureSchoolIsActive;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -43,6 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.spatie' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'school.active' => EnsureSchoolIsActive::class,
+            'subscription.enforce' => EnforceSubscription::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
