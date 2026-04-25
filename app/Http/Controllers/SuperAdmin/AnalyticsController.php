@@ -4,8 +4,8 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
+use App\Models\SubscriptionPayment;
 use App\Models\Tenant;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,17 +13,15 @@ class AnalyticsController extends Controller
 {
     public function index(): Response
     {
-        [$schoolsGrowth, $planBreakdown, $statusBreakdown, $billingBreakdown, $discountStats, $revenue] = $this->gatherAnalytics();
+        [$schoolsGrowth, $subscriptionStats, $statusBreakdown, $revenue] = $this->gatherAnalytics();
 
         return Inertia::render('super-admin/analytics/index', [
             'schoolsGrowth' => $schoolsGrowth,
             'totals' => [
                 'schools' => Tenant::count(),
             ],
-            'planBreakdown' => $planBreakdown,
+            'subscriptionStats' => $subscriptionStats,
             'statusBreakdown' => $statusBreakdown,
-            'billingBreakdown' => $billingBreakdown,
-            'discountStats' => $discountStats,
             'revenue' => $revenue,
         ]);
     }
@@ -31,13 +29,11 @@ class AnalyticsController extends Controller
     private function gatherAnalytics(): array
     {
         $schoolsGrowth = $this->getSchoolsGrowth();
-        $planBreakdown = $this->getGroupedCounts('plan');
-        $statusBreakdown = $this->getGroupedCounts('status');
-        $billingBreakdown = $this->getGroupedCounts('billing_cycle');
-        $discountStats = $this->getDiscountStats();
-        $revenue = $this->getRevenueEstimate($planBreakdown);
+        $subscriptionStats = $this->getSubscriptionStats();
+        $statusBreakdown = $this->getStatusBreakdown();
+        $revenue = $this->getRevenue();
 
-        return [$schoolsGrowth, $planBreakdown, $statusBreakdown, $billingBreakdown, $discountStats, $revenue];
+        return [$schoolsGrowth, $subscriptionStats, $statusBreakdown, $revenue];
     }
 
     private function getSchoolsGrowth(): array
@@ -52,51 +48,47 @@ class AnalyticsController extends Controller
             ->toArray();
     }
 
-    private function getGroupedCounts(string $column): array
+    private function getSubscriptionStats(): array
     {
-        return Subscription::select($column, DB::raw('count(*) as total'))
-            ->whereNotNull($column)
-            ->groupBy($column)
-            ->pluck('total', $column)
-            ->toArray();
-    }
-
-    private function getDiscountStats(): array
-    {
-        $withDiscount = Subscription::where('discount_amount', '>', 0)->count();
-        $totalActive = Subscription::where('status', 'active')->count();
+        $totalSubscribed = Subscription::where('status', 'subscribed')->count();
+        $totalTrialing = Subscription::where('status', 'trialing')->count();
+        $totalTrialExpired = Subscription::where('status', 'trial_expired')->count();
+        $totalSuspended = Subscription::where('status', 'suspended')->count();
 
         return [
-            'with_discount' => $withDiscount,
-            'total_active' => $totalActive,
+            'subscribed' => $totalSubscribed,
+            'trialing' => $totalTrialing,
+            'trial_expired' => $totalTrialExpired,
+            'suspended' => $totalSuspended,
         ];
     }
 
-    private function getRevenueEstimate(array $planBreakdown): array
+    private function getStatusBreakdown(): array
     {
-        $monthly = 0;
-        $annual = 0;
+        return Subscription::selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+    }
 
-        $monthlySubscriptions = Subscription::where('status', 'active')
-            ->select('plan', 'billing_cycle', DB::raw('count(*) as total'))
-            ->groupBy('plan', 'billing_cycle')
-            ->get();
+    private function getRevenue(): array
+    {
+        $monthlyRevenue = SubscriptionPayment::where('status', 'completed')
+            ->whereMonth('paid_at', now()->month)
+            ->whereYear('paid_at', now()->year)
+            ->sum('amount');
 
-        foreach ($monthlySubscriptions as $row) {
-            $price = Subscription::PRICES[$row->plan][$row->billing_cycle] ?? 0;
-            $total = $price * $row->total;
+        $annualRevenue = SubscriptionPayment::where('status', 'completed')
+            ->whereYear('paid_at', now()->year)
+            ->sum('amount');
 
-            if ($row->billing_cycle === 'monthly') {
-                $monthly += $total;
-            } else {
-                $annual += $total;
-            }
-        }
+        $totalRevenue = SubscriptionPayment::where('status', 'completed')
+            ->sum('amount');
 
         return [
-            'monthly_recurring' => $monthly,
-            'annual_recurring' => $annual,
-            'projected_yearly' => $monthly * 12 + $annual,
+            'monthly_recurring' => (float) $monthlyRevenue,
+            'annual_recurring' => (float) $annualRevenue,
+            'total' => (float) $totalRevenue,
         ];
     }
 }

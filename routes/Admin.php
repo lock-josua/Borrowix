@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BorrowTransactionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\PayPalController;
 use App\Http\Controllers\Admin\RbacController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -78,10 +79,12 @@ Route::prefix('admin')
         // Subscription
         Route::get('/subscription', [SubscriptionController::class, 'index'])
             ->name('subscription.index');
-        Route::post('/subscription/upgrade', [SubscriptionController::class, 'upgrade'])
-            ->name('subscription.upgrade');
-        Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])
-            ->name('subscription.cancel');
+        Route::post('/subscription/checkout', [PayPalController::class, 'checkout'])
+            ->name('subscription.checkout');
+        Route::get('/subscription/success', [PayPalController::class, 'success'])
+            ->name('subscription.success');
+        Route::get('/subscription/cancel-return', [PayPalController::class, 'cancelReturn'])
+            ->name('subscription.cancel-return');
 
         // School Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');

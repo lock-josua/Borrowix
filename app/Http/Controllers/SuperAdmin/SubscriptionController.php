@@ -3,113 +3,150 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Mail\PlanChangedMail;
 use App\Models\Subscription;
+use App\Models\SubscriptionPayment;
 use App\Models\Tenant;
+use App\Services\SubscriptionService;
 use App\Services\SystemLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SubscriptionController extends Controller
 {
+    public function __construct(
+        private readonly SubscriptionService $subscriptionService
+    ) {}
+
     public function index(): Response
     {
         $filters = [
             'search' => request('search', ''),
-            'plan' => request('plan', ''),
             'status' => request('status', ''),
+            'plan' => request('plan', ''),
         ];
 
         $subscriptions = Subscription::with('tenant')
             ->when($filters['search'], fn ($q) => $q->whereHas('tenant', fn ($t) => $t
-                ->where('school_name', 'like', "%{$filters['search']}%")
+                ->where('data->school_name', 'like', "%{$filters['search']}%")
                 ->orWhere('school_email', 'like', "%{$filters['search']}%")
             ))
-            ->when($filters['plan'], fn ($q) => $q->where('plan', $filters['plan']))
             ->when($filters['status'], fn ($q) => $q->where('status', $filters['status']))
+            ->when($filters['plan'], fn ($q) => $q->where('plan', $filters['plan']))
             ->latest()
             ->paginate(15)
-            ->through(fn ($subscription) => [
-                'id' => $subscription->id,
-                'plan' => $subscription->plan,
-                'status' => $subscription->status,
-                'billing_cycle' => $subscription->billing_cycle,
-                'current_period_end' => $subscription->current_period_end,
-                'discount_amount' => $subscription->discount_amount,
-                'created_at' => $subscription->created_at,
+            ->through(fn ($s) => [
+                'id' => $s->id,
+                'plan' => $s->plan,
+                'status' => $s->status,
+                'trial_ends_at' => $s->trial_ends_at,
+                'trial_days_remaining' => $s->trialDaysRemaining(),
+                'current_period_end' => $s->current_period_end,
+                'created_at' => $s->created_at,
                 'school' => [
-                    'id' => $subscription->tenant->id,
-                    'name' => $subscription->tenant->school_name ?? $subscription->tenant->id,
-                    'email' => $subscription->tenant->school_email,
+                    'id' => $s->tenant->id,
+                    'name' => $s->tenant->school_name ?? $s->tenant->id,
+                    'email' => $s->tenant->school_email,
                 ],
-                'promo_code' => $subscription->promoCode
-                    ? ['code' => $subscription->promoCode->code]
-                    : null,
             ]);
 
-        $breakdown = Subscription::selectRaw('plan, count(*) as total')
+        $totalRevenue = SubscriptionPayment::where('status', 'completed')->sum('amount');
+        $monthlyRevenue = SubscriptionPayment::where('status', 'completed')
+            ->whereMonth('paid_at', now()->month)
+            ->whereYear('paid_at', now()->year)
+            ->sum('amount');
+        $annualRevenue = SubscriptionPayment::where('status', 'completed')
+            ->whereYear('paid_at', now()->year)
+            ->sum('amount');
+
+        $statusBreakdown = Subscription::selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        $planBreakdown = Subscription::whereNotNull('plan')
+            ->selectRaw('plan, count(*) as total')
             ->groupBy('plan')
             ->pluck('total', 'plan')
             ->toArray();
 
         return Inertia::render('super-admin/subscriptions/index', [
             'subscriptions' => $subscriptions,
-            'breakdown' => $breakdown,
             'filters' => $filters,
+            'statusBreakdown' => $statusBreakdown,
+            'planBreakdown' => $planBreakdown,
+            'revenue' => [
+                'total' => (float) $totalRevenue,
+                'monthly' => (float) $monthlyRevenue,
+                'annual' => (float) $annualRevenue,
+            ],
         ]);
     }
 
     public function show(Tenant $tenant): Response
     {
         $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->first();
-        $paymentHistory = Subscription::where('tenant_id', $tenant->id)
-            ->latest()
-            ->get(['plan', 'status', 'billing_cycle', 'current_period_start', 'current_period_end', 'created_at']);
+        $payments = $subscription
+            ? $subscription->payments()->latest('paid_at')->get()
+            : collect();
 
         return Inertia::render('super-admin/subscriptions/show', [
-            'school' => $tenant,
-            'subscription' => $subscription,
-            'paymentHistory' => $paymentHistory,
+            'school' => [
+                'id' => $tenant->id,
+                'name' => $tenant->school_name ?? $tenant->id,
+                'email' => $tenant->school_email,
+                'status' => $tenant->status,
+            ],
+            'subscription' => $subscription ? [
+                'id' => $subscription->id,
+                'status' => $subscription->status,
+                'plan' => $subscription->plan,
+                'paypal_subscription_id' => $subscription->paypal_subscription_id,
+                'trial_ends_at' => $subscription->trial_ends_at,
+                'trial_days_remaining' => $subscription->trialDaysRemaining(),
+                'current_period_start' => $subscription->current_period_start,
+                'current_period_end' => $subscription->current_period_end,
+                'canceled_at' => $subscription->canceled_at,
+                'suspension_reason' => $subscription->suspension_reason,
+                'trial_warning_sent' => $subscription->trial_warning_sent,
+            ] : null,
+            'payments' => $payments->map(fn ($p) => [
+                'id' => $p->id,
+                'plan' => $p->plan,
+                'amount' => $p->amount,
+                'currency' => $p->currency,
+                'status' => $p->status,
+                'paid_at' => $p->paid_at,
+            ]),
         ]);
     }
 
     public function update(Request $request, Tenant $tenant): RedirectResponse
     {
         $validated = $request->validate([
-            'plan' => ['required', 'in:'.implode(',', Subscription::PLANS)],
-            'status' => ['required', 'in:'.implode(',', Subscription::STATUSES)],
-            'billing_cycle' => ['required', 'in:'.implode(',', Subscription::BILLING_CYCLES)],
+            'status' => ['required', 'in:trialing,subscribed,trial_expired,suspended'],
+            'plan' => ['nullable', 'in:monthly,annually'],
         ]);
 
-        $currentPlan = $tenant->plan ?? 'free';
+        $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->firstOrFail();
 
-        Subscription::updateOrCreate(
-            ['tenant_id' => $tenant->id],
-            [
-                'plan' => $validated['plan'],
-                'status' => $validated['status'],
-                'billing_cycle' => $validated['billing_cycle'],
-            ]
-        );
+        $subscription->update([
+            'status' => $validated['status'],
+            'plan' => $validated['plan'] ?? $subscription->plan,
+        ]);
 
-        $tenant->update(['plan' => $validated['plan']]);
+        $tenant->update([
+            'status' => $validated['status'],
+            'plan' => $validated['plan'] ?? $tenant->plan,
+        ]);
 
         SystemLogService::log(
-            'subscription_updated',
-            "Subscription for {$tenant->school_name} set to ".ucfirst($validated['plan']).' ('.ucfirst($validated['status']).', '.ucfirst($validated['billing_cycle']).')',
+            'subscription_overridden',
+            "Subscription manually set to {$validated['status']} for {$tenant->school_name}",
             $tenant->id,
             'super_admin'
         );
-
-        Mail::to($tenant->school_email)->send(new PlanChangedMail(
-            schoolName: $tenant->school_name ?? $tenant->id,
-            oldPlan: $currentPlan,
-            newPlan: $validated['plan'],
-            adminEmail: $tenant->school_email,
-        ));
 
         return redirect()
             ->route('super-admin.subscriptions.show', $tenant)

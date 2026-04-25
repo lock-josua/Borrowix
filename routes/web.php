@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PayPalController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisterSuccessController;
 use App\Http\Controllers\RoleRedirectController;
@@ -43,3 +44,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         require __DIR__.'/settings.php';
     });
 }
+
+Route::post('/paypal/webhook', [PayPalController::class, 'webhook'])
+    ->middleware(['web'])
+    ->name('paypal.webhook');

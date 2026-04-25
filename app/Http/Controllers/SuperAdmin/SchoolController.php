@@ -10,6 +10,7 @@ use App\Mail\SchoolSuspendedMail;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\SubscriptionService;
 use App\Services\SystemLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,14 +23,20 @@ use Inertia\Response;
 
 class SchoolController extends Controller
 {
+    public function __construct(
+        private readonly SubscriptionService $subscriptionService
+    ) {}
+
     public function index(Request $request): Response
     {
         $schools = Tenant::with('domains')
             ->when($request->search, fn ($q) => $q->where('school_email', 'like', "%{$request->search}%")
                 ->orWhere('data->school_name', 'like', "%{$request->search}%")
             )
-            ->when($request->plan, fn ($q) => $q->where('data->plan', $request->plan))
-            ->when($request->status, fn ($q) => $q->where('data->status', $request->status))
+            ->when($request->plan, fn ($q) => $q->where(fn ($sq) => $sq
+                ->whereHas('subscription', fn ($ss) => $ss->where('status', $request->plan))
+                ->orWhere(fn ($tsq) => $tsq->whereRelation('subscription', null)->where('data->status', $request->plan === 'trialing' ? 'trialing' : null))
+            ))
             ->latest()
             ->paginate(15)
             ->through(fn ($t) => [
@@ -37,8 +44,9 @@ class SchoolController extends Controller
                 'name' => $t->school_name ?? $t->id,
                 'email' => $t->school_email,
                 'contact_number' => $t->contact_number ?? '',
-                'plan' => $t->plan ?? 'free',
-                'status' => $t->status ?? 'active',
+                'plan' => $t->plan ?? null,
+                'status' => $t->status ?? 'trialing',
+                'subscription_status' => Subscription::where('tenant_id', $t->id)->latest()->value('status') ?? $t->status ?? 'trialing',
                 'subdomain' => $t->domains->first()?->domain,
                 'school_url' => $t->domains->first()?->domain
                     ? 'http://'.$t->domains->first()?->domain.'.'.config('tenancy.central_domains')[0].':8000'
@@ -80,20 +88,12 @@ class SchoolController extends Controller
             'admin_email' => $validated['admin_email'],
             'contact_number' => $validated['contact_number'] ?? null,
             'school_name' => $validated['school_name'],
-            'plan' => 'free',
-            'status' => 'active',
+            'status' => 'trialing',
         ]);
 
         $tenant->domains()->create(['domain' => $slug]);
 
-        Subscription::create([
-            'tenant_id' => $tenant->id,
-            'plan' => 'free',
-            'status' => 'active',
-            'billing_cycle' => 'monthly',
-            'current_period_start' => now(),
-            'current_period_end' => now()->addMonth(),
-        ]);
+        $this->subscriptionService->startTrial($tenant);
 
         $result = $tenant->run(function () use ($validated) {
             $user = User::create([
@@ -290,18 +290,19 @@ class SchoolController extends Controller
     {
         $request->validate(['reason' => ['required', 'string', 'max:255']]);
 
-        // Stored in the data JSON column automatically
         $tenant->update([
             'status' => 'suspended',
             'suspension_reason' => $request->reason,
         ]);
 
-        // Immediately invalidate all active sessions in the tenant's database.
-        // This kicks out currently logged-in users (admin, staff, students)
-        // instantly rather than waiting for their session to expire (120 min).
         $tenant->run(function () {
             DB::table('sessions')->truncate();
         });
+
+        $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->first();
+        if ($subscription) {
+            $this->subscriptionService->suspend($subscription, $request->reason);
+        }
 
         $schoolName = $tenant->school_name ?? $tenant->id;
         SystemLogService::log(
@@ -326,10 +327,19 @@ class SchoolController extends Controller
     {
         $tenant->load('domains');
 
+        $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->first();
+
+        $newStatus = $subscription?->paypal_subscription_id ? 'subscribed' : 'trial_expired';
+
         $tenant->update([
-            'status' => 'active',
+            'status' => $newStatus,
             'suspension_reason' => null,
         ]);
+
+        if ($subscription) {
+            $this->subscriptionService->reactivate($subscription);
+            $tenant->update(['status' => $subscription->fresh()->status]);
+        }
 
         $schoolName = $tenant->school_name ?? $tenant->id;
         SystemLogService::log(
