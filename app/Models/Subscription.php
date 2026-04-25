@@ -2,49 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subscription extends Model
 {
-    use HasFactory;
-
-    /**
-     * Always use the central database connection.
-     * The subscriptions table lives in the central DB,
-     * not in any tenant database.
-     */
     protected $connection = 'mysql';
 
-    public const PLANS = ['free', 'basic', 'pro'];
-
-    public const STATUSES = ['active', 'trialing', 'past_due', 'canceled', 'paused'];
-
-    public const BILLING_CYCLES = ['monthly', 'annual'];
-
-    public const PRICES = [
-        'free' => ['monthly' => 0, 'annual' => 0],
-        'basic' => ['monthly' => 499, 'annual' => 4_990],
-        'pro' => ['monthly' => 999, 'annual' => 9_990],
-    ];
-
     protected $fillable = [
-        'tenant_id',  // was school_id — now references tenants table
+        'tenant_id',
         'plan',
         'status',
-        'billing_cycle',
-        'stripe_subscription_id',
-        'paymongo_subscription_id',
-        'promo_code_id',
-        'discount_amount',
+        'paypal_subscription_id',
         'trial_ends_at',
         'current_period_start',
         'current_period_end',
+        'suspension_reason',
         'canceled_at',
-        'grace_period_ends_at',
-        'card_brand',
-        'card_last_four',
+        'trial_warning_sent',
     ];
 
     protected function casts(): array
@@ -54,8 +30,7 @@ class Subscription extends Model
             'current_period_start' => 'datetime',
             'current_period_end' => 'datetime',
             'canceled_at' => 'datetime',
-            'grace_period_ends_at' => 'datetime',
-            'discount_amount' => 'decimal:2',
+            'trial_warning_sent' => 'boolean',
         ];
     }
 
@@ -64,14 +39,9 @@ class Subscription extends Model
         return $this->belongsTo(Tenant::class);
     }
 
-    public function promoCode(): BelongsTo
+    public function payments(): HasMany
     {
-        return $this->belongsTo(PromoCode::class);
-    }
-
-    public function isActive(): bool
-    {
-        return $this->status === 'active';
+        return $this->hasMany(SubscriptionPayment::class);
     }
 
     public function isTrialing(): bool
@@ -79,19 +49,37 @@ class Subscription extends Model
         return $this->status === 'trialing';
     }
 
-    public function isPastDue(): bool
+    public function isSubscribed(): bool
     {
-        return $this->status === 'past_due';
+        return $this->status === 'subscribed';
     }
 
-    public function isCanceled(): bool
+    public function isTrialExpired(): bool
     {
-        return $this->status === 'canceled';
+        return $this->status === 'trial_expired';
     }
 
-    public function isWithinGracePeriod(): bool
+    public function isSuspended(): bool
     {
-        return $this->grace_period_ends_at !== null
-            && now()->isBefore($this->grace_period_ends_at);
+        return $this->status === 'suspended';
+    }
+
+    public function isActive(): bool
+    {
+        return in_array($this->status, ['trialing', 'subscribed']);
+    }
+
+    public function isAccessBlocked(): bool
+    {
+        return in_array($this->status, ['trial_expired', 'suspended']);
+    }
+
+    public function trialDaysRemaining(): int
+    {
+        if (! $this->trial_ends_at || ! $this->isTrialing()) {
+            return 0;
+        }
+
+        return (int) max(0, now()->diffInDays($this->trial_ends_at, false));
     }
 }

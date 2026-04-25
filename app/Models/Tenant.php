@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
@@ -10,6 +11,11 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase, HasDomains, \Stancl\Tenancy\Database\Concerns\TenantRun;
+
+    public function subscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class, 'tenant_id', 'id')->latestOfMany();
+    }
 
     /**
      * Columns that have dedicated DB columns in the central `tenants` table.
