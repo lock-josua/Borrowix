@@ -1,5 +1,4 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { motion } from 'framer-motion';
 import { Eye, Search } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
@@ -8,7 +7,7 @@ import { StatCard } from '@/components/stat-card';
 import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -27,11 +26,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 interface Subscription {
     id: number;
-    plan: string;
+    plan: string | null;
     status: string;
-    created_at: string;
+    trial_ends_at: string | null;
+    trial_days_remaining: number;
     current_period_end: string | null;
-    discount_amount: string;
+    created_at: string;
     school: { id: string; name: string; email: string };
 }
 
@@ -43,209 +43,159 @@ interface Props {
         next_page_url: string | null;
         prev_page_url: string | null;
     };
-    breakdown: Record<string, number>;
-    filters: { search?: string; plan?: string; status?: string };
+    filters: { search?: string; status?: string; plan?: string };
+    statusBreakdown: Record<string, number>;
+    planBreakdown: Record<string, number>;
 }
 
 export default function SubscriptionsIndex({
     subscriptions,
-    breakdown,
     filters,
+    statusBreakdown,
+    planBreakdown,
 }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
-        router.get(
-            '/super-admin/subscriptions',
-            { ...filters, search },
-            { preserveState: true },
-        );
+        router.get('/super-admin/subscriptions', { ...filters, search }, { preserveState: true });
     }
 
     function handleFilterChange(key: string, value: string) {
-        router.get(
-            '/super-admin/subscriptions',
-            { ...filters, [key]: value === 'all' ? '' : value },
-            { preserveState: true },
-        );
+        router.get('/super-admin/subscriptions', { ...filters, [key]: value === 'all' ? '' : value }, { preserveState: true });
     }
+
+    const columns = [
+        {
+            key: 'school',
+            label: 'School',
+            render: (row: Subscription) => (
+                <div>
+                    <p className="font-medium">{row.school.name}</p>
+                    <p className="text-xs text-muted-foreground">{row.school.email}</p>
+                </div>
+            ),
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            render: (row: Subscription) => <StatusBadge status={row.status} />,
+        },
+        {
+            key: 'plan',
+            label: 'Plan',
+            render: (row: Subscription) => (
+                <span className="capitalize">{row.plan ?? '—'}</span>
+            ),
+        },
+        {
+            key: 'trial_ends_at',
+            label: 'Trial / Period End',
+            render: (row: Subscription) => (
+                <span className="text-sm text-muted-foreground">
+                    {row.status === 'trialing' && row.trial_ends_at
+                        ? new Date(row.trial_ends_at).toLocaleDateString()
+                        : row.current_period_end
+                          ? new Date(row.current_period_end).toLocaleDateString()
+                          : '—'}
+                </span>
+            ),
+        },
+        {
+            key: 'created_at',
+            label: 'Created',
+            render: (row: Subscription) => (
+                <span className="text-sm text-muted-foreground">
+                    {new Date(row.created_at).toLocaleDateString()}
+                </span>
+            ),
+        },
+        {
+            key: 'actions',
+            label: '',
+            align: 'right' as const,
+            render: (row: Subscription) => (
+                <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/super-admin/subscriptions/${row.school.id}`}>
+                        <Eye className="size-4" />
+                    </Link>
+                </Button>
+            ),
+        },
+    ];
 
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
             <Head title="Subscriptions" />
 
-            <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
-                className="flex flex-col gap-6 p-6"
-            >
+            <div className="flex flex-col gap-6 p-6">
                 <PageHeader
                     title="Subscriptions"
-                    description="Monitor platform revenue and school plans."
+                    description="Monitor platform revenue and school subscriptions."
                 />
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <StatCard
-                        title="Free Plan"
-                        value={breakdown.free ?? 0}
-                        sub="schools"
-                        delay={0}
-                    />
-                    <StatCard
-                        title="Basic Plan"
-                        value={breakdown.basic ?? 0}
-                        sub="schools"
-                        valueColor="hsl(var(--chart-2))"
-                        delay={0.05}
-                    />
-                    <StatCard
-                        title="Pro Plan"
-                        value={breakdown.pro ?? 0}
-                        sub="schools"
-                        valueColor="hsl(var(--chart-1))"
-                        delay={0.1}
-                    />
+                {/* Status Breakdown */}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <StatCard title="Trialing" value={statusBreakdown.trialing ?? 0} delay={0} />
+                    <StatCard title="Subscribed" value={statusBreakdown.subscribed ?? 0} valueColor="hsl(var(--chart-2))" delay={0.05} />
+                    <StatCard title="Trial Expired" value={statusBreakdown.trial_expired ?? 0} valueColor="hsl(var(--destructive))" delay={0.1} />
+                    <StatCard title="Suspended" value={statusBreakdown.suspended ?? 0} valueColor="hsl(var(--destructive))" delay={0.15} />
                 </div>
 
-                <Card className="flex flex-row flex-wrap items-center gap-2 p-3 py-3">
-                    <form
-                        onSubmit={handleSearch}
-                        className="relative max-w-xs min-w-[220px] flex-1"
-                    >
-                        <Search className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            className="h-9 bg-muted/20 pl-8 text-sm"
-                            placeholder="Search school or email..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </form>
-                    <Select
-                        value={filters.plan ?? 'all'}
-                        onValueChange={(v) => handleFilterChange('plan', v)}
-                    >
-                        <SelectTrigger className="h-9 w-[130px] bg-muted/20 text-sm">
-                            <SelectValue placeholder="All Plans" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Plans</SelectItem>
-                            <SelectItem value="free">Free</SelectItem>
-                            <SelectItem value="basic">Basic</SelectItem>
-                            <SelectItem value="pro">Pro</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select
-                        value={filters.status ?? 'all'}
-                        onValueChange={(v) => handleFilterChange('status', v)}
-                    >
-                        <SelectTrigger className="h-9 w-[130px] bg-muted/20 text-sm">
-                            <SelectValue placeholder="All Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="canceled">Canceled</SelectItem>
-                            <SelectItem value="past_due">Past Due</SelectItem>
-                            <SelectItem value="trialing">Trialing</SelectItem>
-                        </SelectContent>
-                    </Select>
+                {/* Filters */}
+                <Card>
+                    <CardContent className="flex flex-col gap-4 p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                            <form onSubmit={handleSearch} className="flex flex-1 gap-2">
+                                <Input
+                                    placeholder="Search schools..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="flex-1"
+                                />
+                                <Button type="submit" variant="secondary">
+                                    <Search className="size-4" />
+                                </Button>
+                            </form>
+                            <Select
+                                value={filters.status ?? 'all'}
+                                onValueChange={(v) => handleFilterChange('status', v)}
+                            >
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="trialing">Trialing</SelectItem>
+                                    <SelectItem value="subscribed">Subscribed</SelectItem>
+                                    <SelectItem value="trial_expired">Trial Expired</SelectItem>
+                                    <SelectItem value="suspended">Suspended</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Select
+                                value={filters.plan ?? 'all'}
+                                onValueChange={(v) => handleFilterChange('plan', v)}
+                            >
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Plan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Plans</SelectItem>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="annually">Annually</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardContent>
                 </Card>
 
-                <Card className="overflow-hidden border-border/60 p-0">
+                {/* Data Table */}
+                <Card className="overflow-hidden">
                     <DataTable
-                        columns={[
-                            {
-                                key: 'school',
-                                label: 'School',
-                                width: '28%',
-                                render: (s) => (
-                                    <div>
-                                        <p className="truncate font-medium text-foreground">
-                                            {s.school.name}
-                                        </p>
-                                        <p className="truncate text-xs text-muted-foreground">
-                                            {s.school.email}
-                                        </p>
-                                    </div>
-                                ),
-                            },
-                            {
-                                key: 'plan',
-                                label: 'Plan',
-                                width: '12%',
-                                align: 'center',
-                                render: (s) => <StatusBadge status={s.plan} />,
-                            },
-                            {
-                                key: 'status',
-                                label: 'Status',
-                                width: '12%',
-                                align: 'center',
-                                render: (s) => (
-                                    <StatusBadge status={s.status} />
-                                ),
-                            },
-                            {
-                                key: 'started',
-                                label: 'Started',
-                                width: '13%',
-                                render: (s) => (
-                                    <span className="text-xs text-muted-foreground">
-                                        {s.created_at}
-                                    </span>
-                                ),
-                            },
-                            {
-                                key: 'expires',
-                                label: 'Expires',
-                                width: '13%',
-                                render: (s) => (
-                                    <span className="text-xs text-muted-foreground">
-                                        {s.current_period_end || '—'}
-                                    </span>
-                                ),
-                            },
-                            {
-                                key: 'amount',
-                                label: 'Amount',
-                                width: '12%',
-                                align: 'right',
-                                render: (s) => (
-                                    <span className="font-medium">
-                                        {parseFloat(s.discount_amount) > 0
-                                            ? `₱${parseFloat(s.discount_amount).toFixed(0)}`
-                                            : '—'}
-                                    </span>
-                                ),
-                            },
-                            {
-                                key: 'actions',
-                                label: '',
-                                width: '10%',
-                                align: 'right',
-                                render: (s) => (
-                                    <div className="flex items-center justify-end gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="size-7"
-                                            aria-label="View subscription"
-                                            asChild
-                                        >
-                                            <Link
-                                                href={`/super-admin/subscriptions/${s.school.id}`}
-                                            >
-                                                <Eye className="size-3.5" />
-                                            </Link>
-                                        </Button>
-                                    </div>
-                                ),
-                            },
-                        ]}
+                        columns={columns}
                         data={subscriptions.data}
-                        keyExtractor={(s) => s.id}
+                        emptyMessage="No subscriptions found."
+                        keyExtractor={(row) => row.id}
                     />
                     <TablePagination
                         currentPage={subscriptions.current_page}
@@ -254,7 +204,7 @@ export default function SubscriptionsIndex({
                         prevUrl={subscriptions.prev_page_url}
                     />
                 </Card>
-            </motion.div>
+            </div>
         </SuperAdminLayout>
     );
 }

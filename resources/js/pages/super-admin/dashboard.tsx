@@ -253,12 +253,12 @@ export default function SuperAdminDashboard({
                         <CardTitle className="flex items-center gap-2 text-sm">
                             <Activity className="size-4" /> Recent Activity
                         </CardTitle>
-                        <Link
+                        {/* <Link
                             href="/super-admin/activity-logs"
                             className="text-xs text-primary hover:underline"
                         >
                             View all
-                        </Link>
+                        </Link> */}
                     </CardHeader>
                     <div className="divide-y divide-border">
                         {activityLog && activityLog.length > 0 ? (

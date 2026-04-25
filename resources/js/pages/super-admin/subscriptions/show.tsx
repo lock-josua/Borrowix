@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { CreditCard, HelpCircle, Loader2, Receipt } from 'lucide-react';
+import { HelpCircle, Loader2 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
@@ -16,59 +16,46 @@ import {
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
-interface SchoolSubscription {
-    plan: string;
-    status: string;
-    billing_cycle: string;
-    current_period_start: string | null;
-    current_period_end: string | null;
-    trial_ends_at: string | null;
-    canceled_at: string | null;
-    grace_period_ends_at: string | null;
-    discount_amount: string;
-    card_brand: string | null;
-    card_last_four: string | null;
-    promo_code: {
-        code: string;
-        discount_type: string;
-        discount_value: number;
-    } | null;
-}
-
 interface School {
-    id: number;
+    id: string;
     name: string;
     email: string;
-    plan: string;
     status: string;
-    subscription: SchoolSubscription | null;
-}
-
-interface PaymentRecord {
-    plan: string;
-    status: string;
-    billing_cycle: string;
-    current_period_start: string | null;
-    current_period_end: string | null;
-    created_at: string;
 }
 
 interface SubscriptionData {
-    plan: string;
+    id: number;
     status: string;
-    billing_cycle: string;
+    plan: string | null;
+    paypal_subscription_id: string | null;
+    trial_ends_at: string | null;
+    trial_days_remaining: number;
+    current_period_start: string | null;
+    current_period_end: string | null;
+    canceled_at: string | null;
+    suspension_reason: string | null;
+    trial_warning_sent: boolean;
+}
+
+interface Payment {
+    id: number;
+    plan: string;
+    amount: number;
+    currency: string;
+    status: string;
+    paid_at: string;
 }
 
 interface Props {
     school: School;
     subscription: SubscriptionData | null;
-    paymentHistory: PaymentRecord[];
+    payments: Payment[];
 }
 
 export default function SubscriptionShow({
     school,
     subscription,
-    paymentHistory,
+    payments,
 }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/super-admin/dashboard' },
@@ -76,12 +63,9 @@ export default function SubscriptionShow({
         { title: school.name, href: `/super-admin/subscriptions/${school.id}` },
     ];
 
-    const sub = school.subscription;
-
     const { data, setData, patch, processing } = useForm({
-        plan: subscription?.plan ?? 'free',
-        status: subscription?.status ?? 'active',
-        billing_cycle: subscription?.billing_cycle ?? 'monthly',
+        status: subscription?.status ?? 'trialing',
+        plan: subscription?.plan ?? '',
     });
 
     function handleSubmit(e: React.FormEvent) {
@@ -105,8 +89,7 @@ export default function SubscriptionShow({
                     description={school.email}
                     actions={
                         <div className="flex items-center gap-2">
-                            <StatusBadge status={school.plan} />
-                            <StatusBadge status={school.status} />
+                            <StatusBadge status={subscription?.status ?? 'trialing'} />
                         </div>
                     }
                 />
@@ -119,37 +102,41 @@ export default function SubscriptionShow({
                                 <CardTitle className="text-base">
                                     Current Subscription
                                 </CardTitle>
-                                {!sub && (
+                                {!subscription && (
                                     <span className="text-xs text-muted-foreground">
                                         No subscription
                                     </span>
                                 )}
                             </CardHeader>
                             <CardContent>
-                                {sub ? (
+                                {subscription ? (
                                     <div className="space-y-3 text-sm">
                                         <Row label="Plan">
-                                            <StatusBadge status={sub.plan} />
+                                            <span className="capitalize">
+                                                {subscription.plan ?? 'Trial'}
+                                            </span>
                                         </Row>
                                         <Row label="Status">
-                                            <StatusBadge status={sub.status} />
+                                            <StatusBadge status={subscription.status} />
                                         </Row>
-                                        <Row label="Billing">
-                                            <span className="capitalize">
-                                                {sub.billing_cycle ?? '—'}
-                                            </span>
-                                        </Row>
-                                        <Row label="Period">
-                                            <span className="text-muted-foreground">
-                                                {sub.current_period_start
-                                                    ? `${new Date(sub.current_period_start).toLocaleDateString()} → ${sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : '—'}`
-                                                    : '—'}
-                                            </span>
-                                        </Row>
-                                        {sub.promo_code && (
-                                            <Row label="Promo">
-                                                <span className="font-mono text-xs">
-                                                    {sub.promo_code.code}
+                                        {subscription.trial_ends_at && (
+                                            <Row label="Trial Ends">
+                                                <span className="text-muted-foreground">
+                                                    {new Date(subscription.trial_ends_at).toLocaleDateString()}
+                                                </span>
+                                            </Row>
+                                        )}
+                                        {subscription.current_period_end && (
+                                            <Row label="Next Billing">
+                                                <span className="text-muted-foreground">
+                                                    {new Date(subscription.current_period_end).toLocaleDateString()}
+                                                </span>
+                                            </Row>
+                                        )}
+                                        {subscription.paypal_subscription_id && (
+                                            <Row label="PayPal ID">
+                                                <span className="font-mono text-xs text-muted-foreground">
+                                                    {subscription.paypal_subscription_id}
                                                 </span>
                                             </Row>
                                         )}
@@ -167,25 +154,21 @@ export default function SubscriptionShow({
                             </CardContent>
                         </Card>
 
-                        {/* Subscription History */}
+                        {/* Payment History */}
                         <Card className="overflow-hidden border-border/60 p-0">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
                                 <CardTitle className="text-sm font-semibold">
-                                    Subscription History
+                                    Payment History
                                 </CardTitle>
                                 <span className="text-xs text-muted-foreground">
-                                    {paymentHistory.length} record
-                                    {paymentHistory.length !== 1 ? 's' : ''}
+                                    {payments.length} record{payments.length !== 1 ? 's' : ''}
                                 </span>
                             </CardHeader>
                             <CardContent className="p-0">
-                                {paymentHistory.length === 0 ? (
+                                {payments.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-12 text-center">
-                                        <div className="mb-3 rounded-full bg-muted p-3">
-                                            <Receipt className="size-6 text-muted-foreground" />
-                                        </div>
                                         <p className="text-sm text-muted-foreground">
-                                            No history available.
+                                            No payment history available.
                                         </p>
                                     </div>
                                 ) : (
@@ -196,43 +179,34 @@ export default function SubscriptionShow({
                                                     <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                         Plan
                                                     </th>
+                                                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
+                                                        Amount
+                                                    </th>
                                                     <th className="px-4 py-3 text-center text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                         Status
                                                     </th>
-                                                    <th className="px-4 py-3 text-center text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                                        Cycle
-                                                    </th>
                                                     <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                                                        Period
+                                                        Date
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-border">
-                                                {paymentHistory.map((h, i) => (
+                                                {payments.map((p) => (
                                                     <tr
-                                                        key={i}
+                                                        key={p.id}
                                                         className="border-b border-border transition-colors last:border-0 hover:bg-muted/40"
                                                     >
                                                         <td className="px-4 py-3">
-                                                            <StatusBadge
-                                                                status={h.plan}
-                                                            />
+                                                            <span className="capitalize">{p.plan}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            ₱{Number(p.amount).toLocaleString()}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <StatusBadge
-                                                                status={
-                                                                    h.status
-                                                                }
-                                                            />
-                                                        </td>
-                                                        <td className="px-4 py-3 text-center text-muted-foreground capitalize">
-                                                            {h.billing_cycle ??
-                                                                '—'}
+                                                            <StatusBadge status={p.status} />
                                                         </td>
                                                         <td className="px-4 py-3 text-xs text-muted-foreground">
-                                                            {h.current_period_start
-                                                                ? `${new Date(h.current_period_start).toLocaleDateString()} → ${h.current_period_end ? new Date(h.current_period_end).toLocaleDateString() : '—'}`
-                                                                : '—'}
+                                                            {new Date(p.paid_at).toLocaleDateString()}
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -245,91 +219,54 @@ export default function SubscriptionShow({
                     </div>
 
                     <div className="flex flex-col gap-6 lg:w-[380px]">
-                        {/* Update Subscription */}
+                        {/* Override Subscription */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-base">
-                                    Update Subscription
+                                    Override Subscription
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs">Plan</Label>
-                                        <Select
-                                            value={data.plan}
-                                            onValueChange={(v) =>
-                                                setData('plan', v)
-                                            }
-                                        >
-                                            <SelectTrigger className="h-10">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="free">
-                                                    Free
-                                                </SelectItem>
-                                                <SelectItem value="basic">
-                                                    Basic
-                                                </SelectItem>
-                                                <SelectItem value="pro">
-                                                    Pro
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-xs">
-                                            Status
-                                        </Label>
-                                        <Select
-                                            value={data.status}
-                                            onValueChange={(v) =>
-                                                setData('status', v)
-                                            }
-                                        >
-                                            <SelectTrigger className="h-10">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="active">
-                                                    Active
-                                                </SelectItem>
-                                                <SelectItem value="trialing">
-                                                    Trialing
-                                                </SelectItem>
-                                                <SelectItem value="past_due">
-                                                    Past Due
-                                                </SelectItem>
-                                                <SelectItem value="canceled">
-                                                    Canceled
-                                                </SelectItem>
-                                                <SelectItem value="paused">
-                                                    Paused
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
                                 <div className="space-y-1.5">
-                                    <Label className="text-xs">
-                                        Billing cycle
-                                    </Label>
+                                    <Label className="text-xs">Status</Label>
                                     <Select
-                                        value={data.billing_cycle}
-                                        onValueChange={(v) =>
-                                            setData('billing_cycle', v)
-                                        }
+                                        value={data.status}
+                                        onValueChange={(v) => setData('status', v)}
                                     >
                                         <SelectTrigger className="h-10">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
+                                            <SelectItem value="trialing">
+                                                Trialing
+                                            </SelectItem>
+                                            <SelectItem value="subscribed">
+                                                Subscribed
+                                            </SelectItem>
+                                            <SelectItem value="trial_expired">
+                                                Trial Expired
+                                            </SelectItem>
+                                            <SelectItem value="suspended">
+                                                Suspended
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs">Plan</Label>
+                                    <Select
+                                        value={data.plan ?? ''}
+                                        onValueChange={(v) => setData('plan', v)}
+                                    >
+                                        <SelectTrigger className="h-10">
+                                            <SelectValue placeholder="Select plan" />
+                                        </SelectTrigger>
+                                        <SelectContent>
                                             <SelectItem value="monthly">
                                                 Monthly
                                             </SelectItem>
-                                            <SelectItem value="annual">
-                                                Annual
+                                            <SelectItem value="annually">
+                                                Annually
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -343,46 +280,8 @@ export default function SubscriptionShow({
                                     {processing && (
                                         <Loader2 className="mr-2 size-4 animate-spin" />
                                     )}
-                                    {processing
-                                        ? 'Updating...'
-                                        : 'Update subscription'}
+                                    {processing ? 'Updating...' : 'Update subscription'}
                                 </Button>
-                            </CardContent>
-                        </Card>
-
-                        {/* Payment Method */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Payment Method
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {sub?.card_last_four ? (
-                                    <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                                        <div className="flex h-10 w-14 items-center justify-center rounded bg-muted text-xs font-bold uppercase">
-                                            {sub.card_brand ?? 'CARD'}
-                                        </div>
-                                        <div>
-                                            <p className="font-mono text-sm font-medium">
-                                                •••• {sub.card_last_four}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground capitalize">
-                                                {sub.card_brand}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-8 text-center">
-                                        <CreditCard className="mb-2 size-6 text-muted-foreground" />
-                                        <p className="mb-3 text-sm text-muted-foreground">
-                                            No payment method on file.
-                                        </p>
-                                        <Button variant="outline" size="sm">
-                                            + Add payment method
-                                        </Button>
-                                    </div>
-                                )}
                             </CardContent>
                         </Card>
                     </div>

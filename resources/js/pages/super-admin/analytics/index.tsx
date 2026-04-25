@@ -1,9 +1,10 @@
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { CreditCard, Percent, School, TrendingUp } from 'lucide-react';
-import { Area, AreaChart, Bar, BarChart, Cell, Pie, PieChart, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { CreditCard, School, TrendingUp } from 'lucide-react';
+import { Area, AreaChart, Cell, Pie, PieChart, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
+import { StatusBadge } from '@/components/status-badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
@@ -19,22 +20,30 @@ interface MonthlyData {
     total: number;
 }
 
-interface RevenueData {
-    month: string;
-    revenue: number;
-}
-
 interface Props {
     schoolsGrowth: MonthlyData[];
-    revenueTrend?: RevenueData[]; // Injected for chart
     totals: { schools: number };
-    planBreakdown: Record<string, number>;
-    discountStats: { with_discount: number; total_active: number };
-    revenue: { monthly_recurring: number; projected_yearly: number };
+    subscriptionStats: Record<string, number>;
+    statusBreakdown: Record<string, number>;
+    revenue: { monthly_recurring: number; annual_recurring: number; total: number };
 }
 
-export default function Analytics({ schoolsGrowth, revenueTrend = [], totals, planBreakdown, discountStats, revenue }: Props) {
-    const pieData = Object.entries(planBreakdown).map(([name, value]) => ({ name, value }));
+export default function Analytics({
+    schoolsGrowth,
+    totals,
+    subscriptionStats,
+    statusBreakdown,
+    revenue,
+}: Props) {
+    const revenueData = [
+        { month: 'This Month', revenue: revenue.monthly_recurring },
+        { month: 'This Year', revenue: revenue.annual_recurring },
+    ];
+
+    const pieData = Object.entries(subscriptionStats).map(([name, value]) => ({
+        name,
+        value,
+    }));
 
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
@@ -58,96 +67,99 @@ export default function Analytics({ schoolsGrowth, revenueTrend = [], totals, pl
                         icon={<CreditCard />}
                     />
                     <StatCard
-                        title="Projected Yearly"
-                        value={`₱${revenue.projected_yearly.toLocaleString()}`}
+                        title="Annual Revenue"
+                        value={`₱${revenue.annual_recurring.toLocaleString()}`}
                         valueColor="hsl(var(--chart-2))"
                         delay={0.1}
                         icon={<TrendingUp />}
                     />
                     <StatCard
-                        title="Discounts Active"
-                        value={`${discountStats.with_discount} / ${discountStats.total_active}`}
-                        sub="active schools"
+                        title="Total Revenue"
+                        value={`₱${revenue.total.toLocaleString()}`}
+                        valueColor="hsl(var(--chart-3))"
                         delay={0.15}
-                        icon={<Percent />}
+                        icon={<CreditCard />}
                     />
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    {/* Revenue trend — Area Chart */}
-                    <Card className="lg:col-span-2">
+                {/* Subscription Status Distribution */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <Card>
                         <CardHeader>
-                            <CardTitle className="text-sm font-semibold">Revenue Over Time</CardTitle>
-                            <CardDescription className="text-xs">Monthly subscription revenue trend</CardDescription>
+                            <CardTitle className="text-base">Subscription Status</CardTitle>
+                            <CardDescription>Current subscription distribution</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ChartContainer config={{ revenue: { label: 'Revenue', color: 'hsl(var(--chart-1))' } }} className="h-[260px] w-full">
-                                <AreaChart data={revenueTrend}>
-                                    <defs>
-                                        <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.8} />
-                                            <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0.1} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.1} />
-                                    <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₱${v.toLocaleString()}`} />
+                            <div className="flex flex-wrap gap-4">
+                                <StatusBadge status="trialing" />
+                                <span className="text-xl font-bold">{subscriptionStats.trialing ?? 0}</span>
+                                <StatusBadge status="subscribed" />
+                                <span className="text-xl font-bold">{subscriptionStats.subscribed ?? 0}</span>
+                                <StatusBadge status="trial_expired" />
+                                <span className="text-xl font-bold">{subscriptionStats.trial_expired ?? 0}</span>
+                                <StatusBadge status="suspended" />
+                                <span className="text-xl font-bold">{subscriptionStats.suspended ?? 0}</span>
+                            </div>
+                            {pieData.length > 0 && (
+                                <ChartContainer config={{}} className="mt-4 h-[200px]">
+                                    <PieChart>
+                                        <Pie
+                                            data={pieData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={80}
+                                            label
+                                        >
+                                            {pieData.map((entry, index) => (
+                                                <Cell key={entry.name} fill={['#f59e0b', '#22c55e', '#ef4444', '#6b7280'][index % 4]} />
+                                            ))}
+                                        </Pie>
+                                        <ChartTooltip content={<ChartTooltipContent />} />
+                                    </PieChart>
+                                </ChartContainer>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Revenue Trend</CardTitle>
+                            <CardDescription>Revenue over time</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ChartContainer config={{}} className="h-[200px]">
+                                <AreaChart data={revenueData}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="month" />
+                                    <YAxis />
                                     <ChartTooltip content={<ChartTooltipContent />} />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="revenue"
-                                        stroke="var(--color-revenue)"
-                                        fill="url(#fillRevenue)"
-                                        strokeWidth={2}
-                                    />
+                                    <Area type="monotone" dataKey="revenue" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" />
                                 </AreaChart>
                             </ChartContainer>
                         </CardContent>
                     </Card>
-
-                    {/* Plan distribution */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm font-semibold">Plan Distribution</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ChartContainer
-                                config={{
-                                    free: { label: 'Free', color: 'hsl(var(--chart-3))' },
-                                    basic: { label: 'Basic', color: 'hsl(var(--chart-2))' },
-                                    pro: { label: 'Pro', color: 'hsl(var(--chart-1))' },
-                                }}
-                                className="h-[220px] w-full"
-                            >
-                                <PieChart>
-                                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                                    <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
-                                        {pieData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={`var(--color-${entry.name})`} />
-                                        ))}
-                                    </Pie>
-                                </PieChart>
-                            </ChartContainer>
-                        </CardContent>
-                    </Card>
-
-                    {/* School growth */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm font-semibold">School Growth</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <ChartContainer config={{ total: { label: 'New Schools', color: 'hsl(var(--chart-1))' } }} className="h-[220px] w-full">
-                                <BarChart data={schoolsGrowth}>
-                                    <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                                    <ChartTooltip content={<ChartTooltipContent />} />
-                                    <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ChartContainer>
-                        </CardContent>
-                    </Card>
                 </div>
+
+                {/* Schools Growth */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Schools Growth</CardTitle>
+                        <CardDescription>New schools over the last 6 months</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={{}} className="h-[200px]">
+                            <AreaChart data={schoolsGrowth}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="month" />
+                                <YAxis />
+                                <ChartTooltip content={<ChartTooltipContent />} />
+                                <Area type="monotone" dataKey="total" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" />
+                            </AreaChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
             </motion.div>
         </SuperAdminLayout>
     );

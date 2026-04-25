@@ -44,6 +44,7 @@ interface School {
     name: string;
     email: string;
     plan: string;
+    subscription_status?: string;
     status: string;
     school_url: string | null;
     created_at: string;
@@ -142,14 +143,15 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                             handleFilterChange('plan', v === 'all' ? '' : v)
                         }
                     >
-                        <SelectTrigger className="h-9 w-[130px] bg-muted/20 text-sm">
-                            <SelectValue placeholder="All Plans" />
+                        <SelectTrigger className="h-9 w-[160px] bg-muted/20 text-sm">
+                            <SelectValue placeholder="Subscription" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All Plans</SelectItem>
-                            <SelectItem value="free">Free</SelectItem>
-                            <SelectItem value="basic">Basic</SelectItem>
-                            <SelectItem value="pro">Pro</SelectItem>
+                            <SelectItem value="all">All Subscriptions</SelectItem>
+                            <SelectItem value="trialing">Trialing</SelectItem>
+                            <SelectItem value="subscribed">Subscribed</SelectItem>
+                            <SelectItem value="trial_expired">Trial Expired</SelectItem>
+                            <SelectItem value="suspended">Suspended</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select
@@ -206,14 +208,14 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                             },
                             {
                                 key: 'plan',
-                                label: 'Plan',
-                                width: '12%',
+                                label: 'Subscription',
+                                width: '15%',
                                 align: 'center',
-                                render: (s) => <StatusBadge status={s.plan} />,
+                                render: (s) => <StatusBadge status={s.subscription_status ?? 'trialing'} />,
                             },
                             {
                                 key: 'status',
-                                label: 'Status',
+                                label: 'Tenant',
                                 width: '12%',
                                 align: 'center',
                                 render: (s) => (

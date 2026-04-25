@@ -296,14 +296,7 @@ export default function SchoolShow({ school, subscription }: Props) {
                                                 : '—'
                                         }
                                     />
-                                    <InfoRow
-                                        label="Payment"
-                                        value={
-                                            subscription.card_last_four
-                                                ? `${subscription.card_brand} •••• ${subscription.card_last_four}`
-                                                : 'No payment method'
-                                        }
-                                    />
+                                   
                                 </>
                             ) : (
                                 <p className="text-muted-foreground">

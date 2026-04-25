@@ -72,6 +72,7 @@ export default function ScanPage() {
 
                         const response = await fetch('/student/scan/resolve', {
                             method: 'POST',
+                            credentials: 'include',
                             headers: {
                                 'Content-Type': 'application/json',
                                 Accept: 'application/json',
