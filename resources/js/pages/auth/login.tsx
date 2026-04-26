@@ -29,7 +29,11 @@ type Props = {
     canRegister: boolean;
 };
 
-export default function Login({ status, canResetPassword, canRegister }: Props) {
+export default function Login({
+    status,
+    canResetPassword,
+    canRegister,
+}: Props) {
     const { tenant } = usePage().props as { tenant: TenantBranding | null };
 
     const { data, setData, post, processing, errors } = useForm({
@@ -55,8 +59,10 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
         return { backgroundColor: tenant.login_bg_color ?? '#04305d' };
     })();
 
-    const schoolName    = tenant?.school_name    ?? 'Borrowix';
-    const schoolTagline = tenant?.school_tagline ?? 'Manage ICT equipment borrowing across your school.';
+    const schoolName = tenant?.school_name ?? 'Borrowix';
+    const schoolTagline =
+        tenant?.school_tagline ??
+        'Manage ICT equipment borrowing across your school.';
 
     return (
         <div className="flex min-h-screen flex-col bg-background lg:flex-row">
@@ -91,7 +97,7 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                             </p>
                         </CardHeader>
 
-                        <CardContent className="px-0 pt-4 sm:px-6 pb-6">
+                        <CardContent className="px-0 pt-4 pb-6 sm:px-6">
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="space-y-1">
                                     <Label htmlFor="email">Email address</Label>
@@ -100,7 +106,9 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                                         type="email"
                                         name="email"
                                         value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('email', e.target.value)
+                                        }
                                         required
                                         autoFocus
                                         autoComplete="email"
@@ -116,7 +124,9 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
 
                                 <div className="space-y-1">
                                     <div className="flex items-center justify-between">
-                                        <Label htmlFor="password">Password</Label>
+                                        <Label htmlFor="password">
+                                            Password
+                                        </Label>
                                         {canResetPassword && (
                                             <Link
                                                 href={request()}
@@ -131,7 +141,9 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                                         type="password"
                                         name="password"
                                         value={data.password}
-                                        onChange={(e) => setData('password', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('password', e.target.value)
+                                        }
                                         required
                                         autoComplete="current-password"
                                         placeholder="••••••••"
@@ -152,7 +164,10 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                                             setData('remember', checked)
                                         }
                                     />
-                                    <Label htmlFor="remember" className="cursor-pointer text-sm font-medium">
+                                    <Label
+                                        htmlFor="remember"
+                                        className="cursor-pointer text-sm font-medium"
+                                    >
                                         Remember me
                                     </Label>
                                 </div>
@@ -199,9 +214,10 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                 style={rightPanelStyle}
             >
                 {/* Dark overlay for image mode readability */}
-                {tenant?.login_bg_mode === 'image' && tenant.login_bg_image_url && (
-                    <div className="absolute inset-0 bg-black/40" />
-                )}
+                {tenant?.login_bg_mode === 'image' &&
+                    tenant.login_bg_image_url && (
+                        <div className="absolute inset-0 bg-black/40" />
+                    )}
 
                 <div className="relative z-10">
                     <div className="flex items-center gap-3">
@@ -216,7 +232,9 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                                 <LayoutDashboard className="size-5 text-white" />
                             )}
                         </div>
-                        <span className="text-2xl font-bold tracking-tight">{schoolName}</span>
+                        <span className="text-2xl font-bold tracking-tight">
+                            {schoolName}
+                        </span>
                     </div>
                 </div>
 
@@ -225,7 +243,8 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                         {schoolTagline}
                     </h2>
                     <p className="text-lg leading-relaxed text-white/70">
-                        Simple, trackable, and fair equipment management for students and staff.
+                        Simple, trackable, and fair equipment management for
+                        students and staff.
                     </p>
                 </div>
 

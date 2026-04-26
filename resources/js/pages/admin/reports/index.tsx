@@ -8,8 +8,18 @@ import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from '@/components/ui/card';
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from '@/components/ui/chart';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -49,7 +59,14 @@ interface Props {
     borrowData?: { month: string; borrowed: number; returned: number }[]; // Injected for chart
 }
 
-export default function ReportsIndex({ transactions, topEquipment, topBorrowers, summary, filters, borrowData = [] }: Props) {
+export default function ReportsIndex({
+    transactions,
+    topEquipment,
+    topBorrowers,
+    summary,
+    filters,
+    borrowData = [],
+}: Props) {
     const [from, setFrom] = useState(filters.from);
     const [to, setTo] = useState(filters.to);
 
@@ -73,7 +90,10 @@ export default function ReportsIndex({ transactions, topEquipment, topBorrowers,
                     description="Inventory and borrowing trends analysis."
                     actions={
                         <Button variant="outline" size="sm" asChild>
-                            <a href={`/admin/reports/export?from=${from}&to=${to}`} className="gap-1.5">
+                            <a
+                                href={`/admin/reports/export?from=${from}&to=${to}`}
+                                className="gap-1.5"
+                            >
                                 <Download className="size-3.5" /> Export Excel
                             </a>
                         </Button>
@@ -82,24 +102,45 @@ export default function ReportsIndex({ transactions, topEquipment, topBorrowers,
 
                 {/* Filter */}
                 <Card>
-                    <CardHeader className="pb-3 border-b">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <CardHeader className="border-b pb-3">
+                        <CardTitle className="flex items-center gap-2 text-sm font-medium">
                             <Filter className="size-4" /> Date Range Filter
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-4">
-                        <form onSubmit={handleFilter} className="flex flex-wrap items-end gap-4">
+                        <form
+                            onSubmit={handleFilter}
+                            className="flex flex-wrap items-end gap-4"
+                        >
                             <div className="space-y-1.5">
-                                <Label htmlFor="from" className="text-xs uppercase tracking-wider text-muted-foreground">
+                                <Label
+                                    htmlFor="from"
+                                    className="text-xs tracking-wider text-muted-foreground uppercase"
+                                >
                                     From
                                 </Label>
-                                <Input type="date" id="from" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9" />
+                                <Input
+                                    type="date"
+                                    id="from"
+                                    value={from}
+                                    onChange={(e) => setFrom(e.target.value)}
+                                    className="h-9"
+                                />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="to" className="text-xs uppercase tracking-wider text-muted-foreground">
+                                <Label
+                                    htmlFor="to"
+                                    className="text-xs tracking-wider text-muted-foreground uppercase"
+                                >
                                     To
                                 </Label>
-                                <Input type="date" id="to" value={to} onChange={(e) => setTo(e.target.value)} className="h-9" />
+                                <Input
+                                    type="date"
+                                    id="to"
+                                    value={to}
+                                    onChange={(e) => setTo(e.target.value)}
+                                    className="h-9"
+                                />
                             </div>
                             <Button type="submit" size="sm">
                                 Apply
@@ -110,33 +151,81 @@ export default function ReportsIndex({ transactions, topEquipment, topBorrowers,
 
                 {/* Summary Stats */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
-                    <StatCard title="Total Transactions" value={summary.total_transactions} delay={0} />
-                    <StatCard title="Active Loans" value={summary.active} valueColor="hsl(var(--chart-2))" delay={0.05} />
-                    <StatCard title="Returned" value={summary.returned} valueColor="hsl(var(--primary))" delay={0.1} />
-                    <StatCard title="Overdue" value={summary.overdue} valueColor="hsl(var(--destructive))" delay={0.15} />
+                    <StatCard
+                        title="Total Transactions"
+                        value={summary.total_transactions}
+                        delay={0}
+                    />
+                    <StatCard
+                        title="Active Loans"
+                        value={summary.active}
+                        valueColor="hsl(var(--chart-2))"
+                        delay={0.05}
+                    />
+                    <StatCard
+                        title="Returned"
+                        value={summary.returned}
+                        valueColor="hsl(var(--primary))"
+                        delay={0.1}
+                    />
+                    <StatCard
+                        title="Overdue"
+                        value={summary.overdue}
+                        valueColor="hsl(var(--destructive))"
+                        delay={0.15}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                     {/* Borrow Activity Chart */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-sm font-semibold">Borrow Activity</CardTitle>
-                            <CardDescription className="text-xs">Monthly borrow and return volume</CardDescription>
+                            <CardTitle className="text-sm font-semibold">
+                                Borrow Activity
+                            </CardTitle>
+                            <CardDescription className="text-xs">
+                                Monthly borrow and return volume
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ChartContainer
                                 config={{
-                                    borrowed: { label: 'Borrowed', color: 'hsl(var(--chart-1))' },
-                                    returned: { label: 'Returned', color: 'hsl(var(--chart-2))' },
+                                    borrowed: {
+                                        label: 'Borrowed',
+                                        color: 'hsl(var(--chart-1))',
+                                    },
+                                    returned: {
+                                        label: 'Returned',
+                                        color: 'hsl(var(--chart-2))',
+                                    },
                                 }}
                                 className="h-[280px] w-full"
                             >
                                 <BarChart data={borrowData}>
-                                    <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                                    <ChartTooltip content={<ChartTooltipContent />} />
-                                    <Bar dataKey="borrowed" fill="var(--color-borrowed)" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="returned" fill="var(--color-returned)" radius={[4, 4, 0, 0]} />
+                                    <XAxis
+                                        dataKey="month"
+                                        tick={{ fontSize: 11 }}
+                                        axisLine={false}
+                                        tickLine={false}
+                                    />
+                                    <YAxis
+                                        tick={{ fontSize: 11 }}
+                                        axisLine={false}
+                                        tickLine={false}
+                                    />
+                                    <ChartTooltip
+                                        content={<ChartTooltipContent />}
+                                    />
+                                    <Bar
+                                        dataKey="borrowed"
+                                        fill="var(--color-borrowed)"
+                                        radius={[4, 4, 0, 0]}
+                                    />
+                                    <Bar
+                                        dataKey="returned"
+                                        fill="var(--color-returned)"
+                                        radius={[4, 4, 0, 0]}
+                                    />
                                 </BarChart>
                             </ChartContainer>
                         </CardContent>
@@ -146,14 +235,32 @@ export default function ReportsIndex({ transactions, topEquipment, topBorrowers,
                     <div className="space-y-4">
                         <Card className="overflow-hidden border-border/60">
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Most Borrowed Equipment</CardTitle>
+                                <CardTitle className="text-sm">
+                                    Most Borrowed Equipment
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="p-0">
                                 <DataTable
                                     columns={[
-                                        { key: 'rank', label: '#', width: '15%', render: (_, i) => i + 1 },
-                                        { key: 'equipment', label: 'Equipment', width: '60%', render: (row) => row.equipment.name },
-                                        { key: 'total', label: 'Times', width: '25%', align: 'right', render: (row) => row.total },
+                                        {
+                                            key: 'rank',
+                                            label: '#',
+                                            width: '15%',
+                                            render: (_, i) => i + 1,
+                                        },
+                                        {
+                                            key: 'equipment',
+                                            label: 'Equipment',
+                                            width: '60%',
+                                            render: (row) => row.equipment.name,
+                                        },
+                                        {
+                                            key: 'total',
+                                            label: 'Times',
+                                            width: '25%',
+                                            align: 'right',
+                                            render: (row) => row.total,
+                                        },
                                     ]}
                                     data={topEquipment}
                                     keyExtractor={(_, i) => i}
@@ -164,14 +271,32 @@ export default function ReportsIndex({ transactions, topEquipment, topBorrowers,
 
                         <Card className="overflow-hidden border-border/60">
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Most Active Borrowers</CardTitle>
+                                <CardTitle className="text-sm">
+                                    Most Active Borrowers
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="p-0">
                                 <DataTable
                                     columns={[
-                                        { key: 'rank', label: '#', width: '15%', render: (_, i) => i + 1 },
-                                        { key: 'borrower', label: 'Student', width: '60%', render: (row) => row.borrower.name },
-                                        { key: 'total', label: 'Times', width: '25%', align: 'right', render: (row) => row.total },
+                                        {
+                                            key: 'rank',
+                                            label: '#',
+                                            width: '15%',
+                                            render: (_, i) => i + 1,
+                                        },
+                                        {
+                                            key: 'borrower',
+                                            label: 'Student',
+                                            width: '60%',
+                                            render: (row) => row.borrower.name,
+                                        },
+                                        {
+                                            key: 'total',
+                                            label: 'Times',
+                                            width: '25%',
+                                            align: 'right',
+                                            render: (row) => row.total,
+                                        },
                                     ]}
                                     data={topBorrowers}
                                     keyExtractor={(_, i) => i}
@@ -184,32 +309,59 @@ export default function ReportsIndex({ transactions, topEquipment, topBorrowers,
 
                 {/* Full Log */}
                 <Card className="overflow-hidden border-border/60">
-                    <CardHeader className="pb-3 border-b">
+                    <CardHeader className="border-b pb-3">
                         <div className="flex items-center gap-2">
                             <FileText className="size-4 text-muted-foreground" />
-                            <CardTitle className="text-sm font-semibold">Detailed Transaction Log</CardTitle>
+                            <CardTitle className="text-sm font-semibold">
+                                Detailed Transaction Log
+                            </CardTitle>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
                         <DataTable
                             columns={[
-                                { key: 'borrower', label: 'Borrower', width: '20%', render: (t) => t.borrower.name },
-                                { key: 'equipment', label: 'Equipment', width: '25%', render: (t) => t.equipment.name },
-                                { key: 'issued', label: 'Issued', width: '15%', render: (t) => t.issued_at },
-                                { key: 'returned', label: 'Returned', width: '15%', render: (t) => t.returned_at || '—' },
+                                {
+                                    key: 'borrower',
+                                    label: 'Borrower',
+                                    width: '20%',
+                                    render: (t) => t.borrower.name,
+                                },
+                                {
+                                    key: 'equipment',
+                                    label: 'Equipment',
+                                    width: '25%',
+                                    render: (t) => t.equipment.name,
+                                },
+                                {
+                                    key: 'issued',
+                                    label: 'Issued',
+                                    width: '15%',
+                                    render: (t) => t.issued_at,
+                                },
+                                {
+                                    key: 'returned',
+                                    label: 'Returned',
+                                    width: '15%',
+                                    render: (t) => t.returned_at || '—',
+                                },
                                 {
                                     key: 'status',
                                     label: 'Status',
                                     width: '15%',
                                     align: 'center',
-                                    render: (t) => <StatusBadge status={t.status} />,
+                                    render: (t) => (
+                                        <StatusBadge status={t.status} />
+                                    ),
                                 },
                                 {
                                     key: 'fine',
                                     label: 'Fine',
                                     width: '10%',
                                     align: 'right',
-                                    render: (t) => (t.fine_amount > 0 ? `₱${t.fine_amount}` : '—'),
+                                    render: (t) =>
+                                        t.fine_amount > 0
+                                            ? `₱${t.fine_amount}`
+                                            : '—',
                                 },
                             ]}
                             data={transactions}

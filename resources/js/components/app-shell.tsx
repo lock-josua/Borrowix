@@ -12,7 +12,14 @@ type Props = {
 
 export function AppShell({ children, variant = 'header' }: Props) {
     const isOpen = usePage().props.sidebarOpen;
-    const { flash } = usePage().props as { flash?: { success?: string; error?: string; warning?: string; info?: string } };
+    const { flash } = usePage().props as {
+        flash?: {
+            success?: string;
+            error?: string;
+            warning?: string;
+            info?: string;
+        };
+    };
 
     useEffect(() => {
         if (flash?.success) {

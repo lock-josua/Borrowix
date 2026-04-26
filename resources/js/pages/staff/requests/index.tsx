@@ -8,9 +8,22 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import StaffLayout from '@/layouts/StaffLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -41,32 +54,48 @@ interface Props {
 }
 
 export default function RequestsIndex({ requests, filters }: Props) {
-    const [approveTarget, setApproveTarget] = useState<BorrowRequest | null>(null);
-    const [rejectTarget, setRejectTarget] = useState<BorrowRequest | null>(null);
+    const [approveTarget, setApproveTarget] = useState<BorrowRequest | null>(
+        null,
+    );
+    const [rejectTarget, setRejectTarget] = useState<BorrowRequest | null>(
+        null,
+    );
     const [remarks, setRemarks] = useState('');
 
     function handleFilterChange(key: string, value: string) {
-        router.get('/staff/requests', { ...filters, [key]: value || undefined }, { preserveState: true });
+        router.get(
+            '/staff/requests',
+            { ...filters, [key]: value || undefined },
+            { preserveState: true },
+        );
     }
 
     function handleApprove() {
         if (!approveTarget) return;
-        router.post(`/staff/requests/${approveTarget.id}/approve`, { remarks }, {
-            onSuccess: () => {
-                setApproveTarget(null);
-                setRemarks('');
-            }
-        });
+        router.post(
+            `/staff/requests/${approveTarget.id}/approve`,
+            { remarks },
+            {
+                onSuccess: () => {
+                    setApproveTarget(null);
+                    setRemarks('');
+                },
+            },
+        );
     }
 
     function handleReject() {
         if (!rejectTarget) return;
-        router.post(`/staff/requests/${rejectTarget.id}/reject`, { remarks }, {
-            onSuccess: () => {
-                setRejectTarget(null);
-                setRemarks('');
-            }
-        });
+        router.post(
+            `/staff/requests/${rejectTarget.id}/reject`,
+            { remarks },
+            {
+                onSuccess: () => {
+                    setRejectTarget(null);
+                    setRemarks('');
+                },
+            },
+        );
     }
 
     return (
@@ -79,10 +108,18 @@ export default function RequestsIndex({ requests, filters }: Props) {
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="flex flex-col gap-6 p-6"
             >
-                <PageHeader title="Borrow Requests" description="Process student requests." />
+                <PageHeader
+                    title="Borrow Requests"
+                    description="Process student requests."
+                />
 
                 <Card className="flex flex-row flex-wrap items-center gap-2 p-3">
-                    <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
+                    <Select
+                        value={filters.status ?? 'all'}
+                        onValueChange={(v) =>
+                            handleFilterChange('status', v === 'all' ? '' : v)
+                        }
+                    >
                         <SelectTrigger className="h-9 w-[150px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
@@ -102,32 +139,50 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 key: 'requester',
                                 label: 'Requester',
                                 width: '28%',
-                                render: (r) => <span className="font-medium text-foreground truncate block">{r.requester.name}</span>,
+                                render: (r) => (
+                                    <span className="block truncate font-medium text-foreground">
+                                        {r.requester.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'equipment',
                                 label: 'Equipment',
                                 width: '25%',
-                                render: (r) => <span className="text-muted-foreground truncate block">{r.equipment.name}</span>,
+                                render: (r) => (
+                                    <span className="block truncate text-muted-foreground">
+                                        {r.equipment.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'borrow_date',
                                 label: 'Borrow Date',
                                 width: '14%',
-                                render: (r) => <span className="text-muted-foreground text-xs">{r.borrow_date}</span>,
+                                render: (r) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {r.borrow_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'return_date',
                                 label: 'Return Date',
                                 width: '14%',
-                                render: (r) => <span className="text-muted-foreground text-xs">{r.expected_return_date}</span>,
+                                render: (r) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {r.expected_return_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'status',
                                 label: 'Status',
                                 width: '11%',
                                 align: 'center',
-                                render: (r) => <StatusBadge status={r.status} />,
+                                render: (r) => (
+                                    <StatusBadge status={r.status} />
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -136,13 +191,40 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 align: 'right',
                                 render: (r) => (
                                     <div className="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon" className="size-7" asChild>
-                                            <Link href={`/staff/requests/${r.id}`}><Eye className="size-3.5" /></Link>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={`/staff/requests/${r.id}`}
+                                            >
+                                                <Eye className="size-3.5" />
+                                            </Link>
                                         </Button>
                                         {r.status === 'pending' && (
                                             <>
-                                                <Button variant="ghost" size="icon" className="size-7 text-emerald-600" onClick={() => setApproveTarget(r)}><CheckCircle className="size-3.5" /></Button>
-                                                <Button variant="ghost" size="icon" className="size-7 text-destructive" onClick={() => setRejectTarget(r)}><XCircle className="size-3.5" /></Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-7 text-emerald-600"
+                                                    onClick={() =>
+                                                        setApproveTarget(r)
+                                                    }
+                                                >
+                                                    <CheckCircle className="size-3.5" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-7 text-destructive"
+                                                    onClick={() =>
+                                                        setRejectTarget(r)
+                                                    }
+                                                >
+                                                    <XCircle className="size-3.5" />
+                                                </Button>
                                             </>
                                         )}
                                     </div>
@@ -160,34 +242,67 @@ export default function RequestsIndex({ requests, filters }: Props) {
                     />
                 </Card>
 
-                <Dialog open={!!approveTarget} onOpenChange={() => setApproveTarget(null)}>
+                <Dialog
+                    open={!!approveTarget}
+                    onOpenChange={() => setApproveTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Approve Request</DialogTitle>
                             <DialogDescription>
-                                Approving request for <strong>{approveTarget?.equipment.name}</strong>. You may add an optional remark.
+                                Approving request for{' '}
+                                <strong>{approveTarget?.equipment.name}</strong>
+                                . You may add an optional remark.
                             </DialogDescription>
                         </DialogHeader>
-                        <Input placeholder="Remarks (optional)" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+                        <Input
+                            placeholder="Remarks (optional)"
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
+                        />
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setApproveTarget(null)}>Cancel</Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setApproveTarget(null)}
+                            >
+                                Cancel
+                            </Button>
                             <Button onClick={handleApprove}>Approve</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
 
-                <Dialog open={!!rejectTarget} onOpenChange={() => setRejectTarget(null)}>
+                <Dialog
+                    open={!!rejectTarget}
+                    onOpenChange={() => setRejectTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Reject Request</DialogTitle>
                             <DialogDescription>
-                                Please provide a reason for rejecting this request.
+                                Please provide a reason for rejecting this
+                                request.
                             </DialogDescription>
                         </DialogHeader>
-                        <Input placeholder="Reason (required)" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+                        <Input
+                            placeholder="Reason (required)"
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
+                        />
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancel</Button>
-                            <Button variant="destructive" onClick={handleReject} disabled={!remarks}>Reject</Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setRejectTarget(null)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                onClick={handleReject}
+                                disabled={!remarks}
+                            >
+                                Reject
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

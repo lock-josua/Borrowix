@@ -5,6 +5,7 @@ import {
     BarChart3,
     CreditCard,
     Settings,
+    RefreshCw,
 } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
@@ -37,12 +38,30 @@ const platformNav = [
         href: '/super-admin/subscriptions',
         icon: CreditCard,
     },
-    
+
     { title: 'Analytics', href: '/super-admin/analytics', icon: BarChart3 },
 ];
 
 interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
+}
+
+function VersionBadge({ version }: { version: string }) {
+    // updateStatus is only present on the updates page; on all other pages has_update will be undefined
+    const props = usePage().props as { updateStatus?: { has_update: boolean } };
+    const hasUpdate = props.updateStatus?.has_update ?? false;
+
+    return (
+        <div className="flex items-center gap-1.5 px-3 py-2">
+            <span className="text-xs text-muted-foreground">v{version}</span>
+            {hasUpdate && (
+                <span
+                    className="inline-flex size-2 animate-pulse rounded-full bg-amber-400"
+                    title="A new version is available"
+                />
+            )}
+        </div>
+    );
 }
 
 export default function SuperAdminLayout({
@@ -105,7 +124,9 @@ export default function SuperAdminLayout({
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     asChild
-                                    isActive={isCurrentUrl('/super-admin/settings')}
+                                    isActive={isCurrentUrl(
+                                        '/super-admin/settings',
+                                    )}
                                     tooltip={{ children: 'Settings' }}
                                     className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
                                 >
@@ -115,14 +136,27 @@ export default function SuperAdminLayout({
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={isCurrentUrl(
+                                        '/super-admin/settings/updates',
+                                    )}
+                                    tooltip={{ children: 'Updates' }}
+                                    className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
+                                >
+                                    <Link href="/super-admin/settings/updates">
+                                        <RefreshCw className="size-4" />
+                                        <span>Updates</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroup>
                 </SidebarContent>
 
                 <SidebarFooter>
-                    <div className="px-3 py-2 text-xs text-muted-foreground">
-                        v{version}
-                    </div>
+                    <VersionBadge version={version} />
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>
@@ -134,4 +168,3 @@ export default function SuperAdminLayout({
         </AppShell>
     );
 }
-

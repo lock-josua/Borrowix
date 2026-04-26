@@ -71,7 +71,6 @@ export function UserMenuContent({ user }: Props) {
                 </div>
             </DropdownMenuGroup>
 
-            
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
                 <Link

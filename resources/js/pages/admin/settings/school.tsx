@@ -29,17 +29,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function SchoolSettingsPage({ admin }: Props) {
-    const {
-        data,
-        setData,
-        patch,
-        processing,
-        errors,
-        recentlySuccessful,
-    } = useForm({
-        name: admin.name,
-        email: admin.email,
-    });
+    const { data, setData, patch, processing, errors, recentlySuccessful } =
+        useForm({
+            name: admin.name,
+            email: admin.email,
+        });
 
     const {
         data: passwordData,
@@ -94,7 +88,10 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                             id="name"
                                             value={data.name}
                                             onChange={(event) =>
-                                                setData('name', event.target.value)
+                                                setData(
+                                                    'name',
+                                                    event.target.value,
+                                                )
                                             }
                                         />
                                         {errors.name && (
@@ -105,13 +102,18 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="email">Admin Email</Label>
+                                        <Label htmlFor="email">
+                                            Admin Email
+                                        </Label>
                                         <Input
                                             id="email"
                                             type="email"
                                             value={data.email}
                                             onChange={(event) =>
-                                                setData('email', event.target.value)
+                                                setData(
+                                                    'email',
+                                                    event.target.value,
+                                                )
                                             }
                                         />
                                         {errors.email && (
@@ -131,7 +133,8 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                         leaveTo="opacity-0"
                                     >
                                         <p className="flex items-center gap-1 text-xs text-emerald-600">
-                                            <CheckCircle className="size-3" /> Saved
+                                            <CheckCircle className="size-3" />{' '}
+                                            Saved
                                         </p>
                                     </Transition>
 
@@ -151,8 +154,8 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                     Change Password
                                 </CardTitle>
                                 <CardDescription className="text-xs">
-                                    Ensure your account stays secure with a strong
-                                    password.
+                                    Ensure your account stays secure with a
+                                    strong password.
                                 </CardDescription>
                             </CardHeader>
 
@@ -165,7 +168,9 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                         <Input
                                             id="current_password"
                                             type="password"
-                                            value={passwordData.current_password}
+                                            value={
+                                                passwordData.current_password
+                                            }
                                             onChange={(event) =>
                                                 setPasswordData(
                                                     'current_password',
@@ -175,13 +180,17 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                         />
                                         {passwordErrors.current_password && (
                                             <p className="text-xs text-destructive">
-                                                {passwordErrors.current_password}
+                                                {
+                                                    passwordErrors.current_password
+                                                }
                                             </p>
                                         )}
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="password">New Password</Label>
+                                        <Label htmlFor="password">
+                                            New Password
+                                        </Label>
                                         <Input
                                             id="password"
                                             type="password"
@@ -207,7 +216,9 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                         <Input
                                             id="password_confirmation"
                                             type="password"
-                                            value={passwordData.password_confirmation}
+                                            value={
+                                                passwordData.password_confirmation
+                                            }
                                             onChange={(event) =>
                                                 setPasswordData(
                                                     'password_confirmation',
@@ -217,7 +228,9 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                         />
                                         {passwordErrors.password_confirmation && (
                                             <p className="text-xs text-destructive">
-                                                {passwordErrors.password_confirmation}
+                                                {
+                                                    passwordErrors.password_confirmation
+                                                }
                                             </p>
                                         )}
                                     </div>

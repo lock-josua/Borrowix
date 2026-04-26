@@ -40,21 +40,30 @@ export function AppearanceToggle() {
                 </DropdownMenuLabel>
                 <DropdownMenuItem
                     onClick={() => updateAppearance('light')}
-                    className={cn('cursor-pointer', appearance === 'light' && 'bg-accent/50')}
+                    className={cn(
+                        'cursor-pointer',
+                        appearance === 'light' && 'bg-accent/50',
+                    )}
                 >
                     <Sun className="mr-2 size-4" />
                     Light
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => updateAppearance('dark')}
-                    className={cn('cursor-pointer', appearance === 'dark' && 'bg-accent/50')}
+                    className={cn(
+                        'cursor-pointer',
+                        appearance === 'dark' && 'bg-accent/50',
+                    )}
                 >
                     <Moon className="mr-2 size-4" />
                     Dark
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => updateAppearance('system')}
-                    className={cn('cursor-pointer', appearance === 'system' && 'bg-accent/50')}
+                    className={cn(
+                        'cursor-pointer',
+                        appearance === 'system' && 'bg-accent/50',
+                    )}
                 >
                     <Monitor className="mr-2 size-4" />
                     System

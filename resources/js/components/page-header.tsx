@@ -11,7 +11,12 @@ interface PageHeaderProps {
     backHref?: string;
 }
 
-export function PageHeader({ title, description, actions, backHref }: PageHeaderProps) {
+export function PageHeader({
+    title,
+    description,
+    actions,
+    backHref,
+}: PageHeaderProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: -6 }}
@@ -28,11 +33,21 @@ export function PageHeader({ title, description, actions, backHref }: PageHeader
                     </Button>
                 )}
                 <div>
-                    <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
-                    {description && <p className="text-sm text-muted-foreground mt-0.5">{description}</p>}
+                    <h1 className="text-xl font-semibold tracking-tight text-foreground">
+                        {title}
+                    </h1>
+                    {description && (
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            {description}
+                        </p>
+                    )}
                 </div>
             </div>
-            {actions && <div className="flex items-center gap-2 ml-4 shrink-0">{actions}</div>}
+            {actions && (
+                <div className="ml-4 flex shrink-0 items-center gap-2">
+                    {actions}
+                </div>
+            )}
         </motion.div>
     );
 }

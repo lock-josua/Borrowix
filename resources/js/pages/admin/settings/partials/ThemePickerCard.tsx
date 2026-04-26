@@ -14,7 +14,8 @@ interface Props {
 }
 
 export function ThemePickerCard({ themes, value, onChange }: Props) {
-    const activeHex = themes.find((t) => t.slug === value)?.swatch_hex ?? '#EA580C';
+    const activeHex =
+        themes.find((t) => t.slug === value)?.swatch_hex ?? '#EA580C';
 
     return (
         <div className="space-y-5">
@@ -29,16 +30,20 @@ export function ThemePickerCard({ themes, value, onChange }: Props) {
                             onClick={() => onChange(theme.slug)}
                             className={cn(
                                 'relative flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-all hover:border-foreground/40',
-                                isSelected ? 'border-foreground shadow-sm' : 'border-border',
+                                isSelected
+                                    ? 'border-foreground shadow-sm'
+                                    : 'border-border',
                             )}
                         >
                             <span
                                 className="size-10 rounded-full shadow-inner"
                                 style={{ backgroundColor: theme.swatch_hex }}
                             />
-                            <span className="text-xs font-medium">{theme.label}</span>
+                            <span className="text-xs font-medium">
+                                {theme.label}
+                            </span>
                             {isSelected && (
-                                <span className="absolute right-2 top-2 flex size-4 items-center justify-center rounded-full bg-foreground text-background">
+                                <span className="absolute top-2 right-2 flex size-4 items-center justify-center rounded-full bg-foreground text-background">
                                     <Check className="size-2.5" />
                                 </span>
                             )}

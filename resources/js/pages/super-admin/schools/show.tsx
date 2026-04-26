@@ -68,8 +68,6 @@ interface Props {
     } | null;
 }
 
-
-
 export default function SchoolShow({ school, subscription }: Props) {
     const { flash } = usePage().props as {
         flash?: { credentials?: Credentials };
@@ -98,9 +96,13 @@ export default function SchoolShow({ school, subscription }: Props) {
 
     function handleResendCredentials() {
         setResending(true);
-        router.post(`/super-admin/schools/${school.id}/resend-credentials`, {}, {
-            onFinish: () => setResending(false),
-        });
+        router.post(
+            `/super-admin/schools/${school.id}/resend-credentials`,
+            {},
+            {
+                onFinish: () => setResending(false),
+            },
+        );
     }
 
     function handleSuspend() {
@@ -141,7 +143,9 @@ export default function SchoolShow({ school, subscription }: Props) {
                         <div className="flex items-center gap-2">
                             <StatusBadge status={school.status} />
                             <StatusBadge status={school.plan} />
-                            <Link href={`/super-admin/schools/${school.id}/edit`}>
+                            <Link
+                                href={`/super-admin/schools/${school.id}/edit`}
+                            >
                                 <Button variant="outline" size="sm">
                                     <Pencil className="mr-2 size-3.5" />
                                     Edit
@@ -161,10 +165,7 @@ export default function SchoolShow({ school, subscription }: Props) {
                                 Resend Credentials
                             </Button>
                             {school.status === 'suspended' ? (
-                                <Button
-                                    size="sm"
-                                    onClick={handleReactivate}
-                                >
+                                <Button size="sm" onClick={handleReactivate}>
                                     <ShieldCheck className="mr-2 size-3.5" />
                                     Reactivate
                                 </Button>
@@ -296,7 +297,6 @@ export default function SchoolShow({ school, subscription }: Props) {
                                                 : '—'
                                         }
                                     />
-                                   
                                 </>
                             ) : (
                                 <p className="text-muted-foreground">
@@ -384,8 +384,8 @@ export default function SchoolShow({ school, subscription }: Props) {
                         <DialogTitle>Suspend School</DialogTitle>
                         <DialogDescription>
                             This will immediately log out all users at{' '}
-                            <strong>{school.name}</strong> and block access to their
-                            portal.
+                            <strong>{school.name}</strong> and block access to
+                            their portal.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-1">

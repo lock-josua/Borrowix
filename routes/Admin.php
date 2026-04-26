@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\RbacController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\UpdateController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -97,6 +98,12 @@ Route::prefix('admin')
             ->name('settings.customization');
         Route::post('/settings/customization', [SettingsController::class, 'updateCustomization'])
             ->name('settings.customization.update');
+
+        // Updates
+        Route::get('/settings/updates', [UpdateController::class, 'index'])
+            ->name('settings.updates');
+        Route::post('/settings/updates/check', [UpdateController::class, 'check'])
+            ->name('settings.updates.check');
 
         // RBAC — role permissions matrix
         Route::get('/rbac', [RbacController::class, 'index'])->name('rbac.index');

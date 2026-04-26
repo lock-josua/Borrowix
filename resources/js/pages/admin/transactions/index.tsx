@@ -246,7 +246,8 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                         <DialogHeader>
                             <DialogTitle>Mark as Returned</DialogTitle>
                             <DialogDescription>
-                                Record the return condition and any applicable fine.
+                                Record the return condition and any applicable
+                                fine.
                             </DialogDescription>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">

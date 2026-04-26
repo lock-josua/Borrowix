@@ -45,10 +45,20 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
     };
 
     const navItems = [
-        { title: 'Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
+        {
+            title: 'Dashboard',
+            href: '/student/dashboard',
+            icon: LayoutDashboard,
+        },
         { title: 'Browse Equipment', href: '/student/browse', icon: Search },
         ...(can?.can_scan
-            ? [{ title: 'Scan Equipment', href: '/student/scan', icon: ScanLine }]
+            ? [
+                  {
+                      title: 'Scan Equipment',
+                      href: '/student/scan',
+                      icon: ScanLine,
+                  },
+              ]
             : []),
         {
             title: 'My Requests',

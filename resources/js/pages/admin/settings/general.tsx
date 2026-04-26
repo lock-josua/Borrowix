@@ -64,7 +64,8 @@ export default function GeneralSettingsPage({ general }: Props) {
                                 General Settings
                             </CardTitle>
                             <CardDescription className="text-xs">
-                                Configure your school profile and borrowing defaults.
+                                Configure your school profile and borrowing
+                                defaults.
                             </CardDescription>
                         </CardHeader>
 
@@ -130,7 +131,10 @@ export default function GeneralSettingsPage({ general }: Props) {
                                         id="address"
                                         value={data.address}
                                         onChange={(event) =>
-                                            setData('address', event.target.value)
+                                            setData(
+                                                'address',
+                                                event.target.value,
+                                            )
                                         }
                                     />
                                     {errors.address && (

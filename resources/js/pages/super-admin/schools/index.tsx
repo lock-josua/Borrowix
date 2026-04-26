@@ -147,10 +147,16 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                             <SelectValue placeholder="Subscription" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All Subscriptions</SelectItem>
+                            <SelectItem value="all">
+                                All Subscriptions
+                            </SelectItem>
                             <SelectItem value="trialing">Trialing</SelectItem>
-                            <SelectItem value="subscribed">Subscribed</SelectItem>
-                            <SelectItem value="trial_expired">Trial Expired</SelectItem>
+                            <SelectItem value="subscribed">
+                                Subscribed
+                            </SelectItem>
+                            <SelectItem value="trial_expired">
+                                Trial Expired
+                            </SelectItem>
                             <SelectItem value="suspended">Suspended</SelectItem>
                         </SelectContent>
                     </Select>
@@ -211,7 +217,13 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                 label: 'Subscription',
                                 width: '15%',
                                 align: 'center',
-                                render: (s) => <StatusBadge status={s.subscription_status ?? 'trialing'} />,
+                                render: (s) => (
+                                    <StatusBadge
+                                        status={
+                                            s.subscription_status ?? 'trialing'
+                                        }
+                                    />
+                                ),
                             },
                             {
                                 key: 'status',

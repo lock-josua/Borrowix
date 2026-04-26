@@ -43,7 +43,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/admin/settings/customization' },
 ];
 
-export default function CustomizationSettingsPage({ customization, available_themes }: Props) {
+export default function CustomizationSettingsPage({
+    customization,
+    available_themes,
+}: Props) {
     const { data, setData, post, transform, processing, errors } = useForm({
         logo: null as File | null,
         login_bg_image: null as File | null,
@@ -58,7 +61,9 @@ export default function CustomizationSettingsPage({ customization, available_the
         maintenance_message: customization.maintenance_message,
     });
 
-    const [logoPreview, setLogoPreview] = useState<string | null>(customization.logo_url);
+    const [logoPreview, setLogoPreview] = useState<string | null>(
+        customization.logo_url,
+    );
     const [bgImagePreview, setBgImagePreview] = useState<string | null>(
         customization.login_bg_image_url,
     );
@@ -78,7 +83,8 @@ export default function CustomizationSettingsPage({ customization, available_the
         if (file) {
             setData('login_bg_image', file);
             const reader = new FileReader();
-            reader.onload = (e) => setBgImagePreview(e.target?.result as string);
+            reader.onload = (e) =>
+                setBgImagePreview(e.target?.result as string);
             reader.readAsDataURL(file);
         }
     }
@@ -117,7 +123,8 @@ export default function CustomizationSettingsPage({ customization, available_the
                                         School Branding
                                     </CardTitle>
                                     <CardDescription className="text-xs">
-                                        Customize your school's visual identity and tagline.
+                                        Customize your school's visual identity
+                                        and tagline.
                                     </CardDescription>
                                 </div>
                             </div>
@@ -127,10 +134,12 @@ export default function CustomizationSettingsPage({ customization, available_the
                             {/* School Logo */}
                             <div className="grid grid-cols-1 gap-6 py-6 sm:grid-cols-3">
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium">School Logo</p>
+                                    <p className="text-sm font-medium">
+                                        School Logo
+                                    </p>
                                     <p className="text-xs text-muted-foreground">
-                                        Displayed in the navigation and login page. PNG or SVG
-                                        recommended.
+                                        Displayed in the navigation and login
+                                        page. PNG or SVG recommended.
                                     </p>
                                 </div>
 
@@ -156,12 +165,18 @@ export default function CustomizationSettingsPage({ customization, available_the
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() =>
-                                                    document.getElementById('logo-input')?.click()
+                                                    document
+                                                        .getElementById(
+                                                            'logo-input',
+                                                        )
+                                                        ?.click()
                                                 }
                                                 className="flex items-center gap-2"
                                             >
                                                 <Upload className="size-3.5" />
-                                                {logoPreview ? 'Change Logo' : 'Upload Logo'}
+                                                {logoPreview
+                                                    ? 'Change Logo'
+                                                    : 'Upload Logo'}
                                             </Button>
 
                                             {logoPreview && (
@@ -181,7 +196,9 @@ export default function CustomizationSettingsPage({ customization, available_the
                                             Max 2 MB · PNG, JPG, SVG, WEBP
                                         </p>
                                         {errors.logo && (
-                                            <p className="text-xs text-destructive">{errors.logo}</p>
+                                            <p className="text-xs text-destructive">
+                                                {errors.logo}
+                                            </p>
                                         )}
                                     </div>
                                 </div>
@@ -198,20 +215,31 @@ export default function CustomizationSettingsPage({ customization, available_the
                             {/* School Tagline */}
                             <div className="grid grid-cols-1 gap-6 py-6 sm:grid-cols-3">
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium">Tagline / Motto</p>
+                                    <p className="text-sm font-medium">
+                                        Tagline / Motto
+                                    </p>
                                     <p className="text-xs text-muted-foreground">
-                                        Shown on the login screen beneath your school name.
+                                        Shown on the login screen beneath your
+                                        school name.
                                     </p>
                                 </div>
 
                                 <div className="col-span-2 space-y-2">
-                                    <Label htmlFor="school_tagline" className="sr-only">
+                                    <Label
+                                        htmlFor="school_tagline"
+                                        className="sr-only"
+                                    >
                                         School Tagline
                                     </Label>
                                     <Input
                                         id="school_tagline"
                                         value={data.school_tagline}
-                                        onChange={(e) => setData('school_tagline', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'school_tagline',
+                                                e.target.value,
+                                            )
+                                        }
                                         maxLength={150}
                                         placeholder="Enter your school's inspiring tagline…"
                                         className="text-sm"
@@ -230,10 +258,12 @@ export default function CustomizationSettingsPage({ customization, available_the
                             {/* Login Background */}
                             <div className="grid grid-cols-1 gap-6 py-6 sm:grid-cols-3">
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium">Login Background</p>
+                                    <p className="text-sm font-medium">
+                                        Login Background
+                                    </p>
                                     <p className="text-xs text-muted-foreground">
-                                        Choose a solid color or an image for the login page
-                                        background.
+                                        Choose a solid color or an image for the
+                                        login page background.
                                     </p>
                                 </div>
 
@@ -242,7 +272,12 @@ export default function CustomizationSettingsPage({ customization, available_the
                                     <div className="inline-flex rounded-lg border border-border bg-muted p-1 text-sm">
                                         <button
                                             type="button"
-                                            onClick={() => setData('login_bg_mode', 'color')}
+                                            onClick={() =>
+                                                setData(
+                                                    'login_bg_mode',
+                                                    'color',
+                                                )
+                                            }
                                             className={`rounded-md px-4 py-1.5 font-medium transition-colors ${
                                                 data.login_bg_mode === 'color'
                                                     ? 'bg-background text-foreground shadow-sm'
@@ -253,7 +288,12 @@ export default function CustomizationSettingsPage({ customization, available_the
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setData('login_bg_mode', 'image')}
+                                            onClick={() =>
+                                                setData(
+                                                    'login_bg_mode',
+                                                    'image',
+                                                )
+                                            }
                                             className={`rounded-md px-4 py-1.5 font-medium transition-colors ${
                                                 data.login_bg_mode === 'image'
                                                     ? 'bg-background text-foreground shadow-sm'
@@ -269,7 +309,10 @@ export default function CustomizationSettingsPage({ customization, available_the
                                         {data.login_bg_mode === 'color' ? (
                                             <div
                                                 className="size-full"
-                                                style={{ backgroundColor: data.login_bg_color }}
+                                                style={{
+                                                    backgroundColor:
+                                                        data.login_bg_color,
+                                                }}
                                             />
                                         ) : bgImagePreview ? (
                                             <img
@@ -280,7 +323,9 @@ export default function CustomizationSettingsPage({ customization, available_the
                                         ) : (
                                             <div className="flex size-full flex-col items-center justify-center gap-2 bg-muted/30 text-muted-foreground/50">
                                                 <Upload className="size-7" />
-                                                <span className="text-xs">No image selected</span>
+                                                <span className="text-xs">
+                                                    No image selected
+                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -292,14 +337,20 @@ export default function CustomizationSettingsPage({ customization, available_the
                                                 type="color"
                                                 value={data.login_bg_color}
                                                 onChange={(e) =>
-                                                    setData('login_bg_color', e.target.value)
+                                                    setData(
+                                                        'login_bg_color',
+                                                        e.target.value,
+                                                    )
                                                 }
                                                 className="size-9 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
                                             />
                                             <Input
                                                 value={data.login_bg_color}
                                                 onChange={(e) =>
-                                                    setData('login_bg_color', e.target.value)
+                                                    setData(
+                                                        'login_bg_color',
+                                                        e.target.value,
+                                                    )
                                                 }
                                                 className="w-36 font-mono text-sm"
                                                 placeholder="#F9FAFB"
@@ -315,13 +366,17 @@ export default function CustomizationSettingsPage({ customization, available_the
                                                 size="sm"
                                                 onClick={() =>
                                                     document
-                                                        .getElementById('bg-image-input')
+                                                        .getElementById(
+                                                            'bg-image-input',
+                                                        )
                                                         ?.click()
                                                 }
                                                 className="flex items-center gap-2"
                                             >
                                                 <Upload className="size-3.5" />
-                                                {bgImagePreview ? 'Change Image' : 'Upload Image'}
+                                                {bgImagePreview
+                                                    ? 'Change Image'
+                                                    : 'Upload Image'}
                                             </Button>
 
                                             <input
@@ -357,7 +412,8 @@ export default function CustomizationSettingsPage({ customization, available_the
                                         Color Theme
                                     </CardTitle>
                                     <CardDescription className="text-xs">
-                                        Choose the primary color scheme used throughout the dashboard.
+                                        Choose the primary color scheme used
+                                        throughout the dashboard.
                                     </CardDescription>
                                 </div>
                             </div>
@@ -367,14 +423,20 @@ export default function CustomizationSettingsPage({ customization, available_the
                             <ThemePickerCard
                                 themes={available_themes}
                                 value={data.active_theme}
-                                onChange={(slug) => setData('active_theme', slug)}
+                                onChange={(slug) =>
+                                    setData('active_theme', slug)
+                                }
                             />
                         </CardContent>
                     </Card>
 
                     {/* ── Save ────────────────────────────────────────── */}
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={processing} className="min-w-28">
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="min-w-28"
+                        >
                             {processing ? (
                                 <>
                                     <Loader2 className="mr-2 size-4 animate-spin" />

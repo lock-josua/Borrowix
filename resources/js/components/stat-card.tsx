@@ -12,7 +12,15 @@ interface StatCardProps {
     delay?: number;
 }
 
-export function StatCard({ title, value, sub, trend, valueColor, icon, delay = 0 }: StatCardProps) {
+export function StatCard({
+    title,
+    value,
+    sub,
+    trend,
+    valueColor,
+    icon,
+    delay = 0,
+}: StatCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -21,16 +29,25 @@ export function StatCard({ title, value, sub, trend, valueColor, icon, delay = 0
         >
             <Card className="transition-all duration-150 hover:shadow-sm">
                 <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</p>
-                        {icon && <div className="text-muted-foreground/50 [&_svg]:size-4">{icon}</div>}
+                    <div className="mb-2 flex items-center justify-between">
+                        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                            {title}
+                        </p>
+                        {icon && (
+                            <div className="text-muted-foreground/50 [&_svg]:size-4">
+                                {icon}
+                            </div>
+                        )}
                     </div>
-                    <p className="text-2xl font-semibold leading-none" style={valueColor ? { color: valueColor } : undefined}>
+                    <p
+                        className="text-2xl leading-none font-semibold"
+                        style={valueColor ? { color: valueColor } : undefined}
+                    >
                         {value}
                     </p>
                     {sub && (
                         <p
-                            className={`text-xs mt-1.5 flex items-center gap-1 ${
+                            className={`mt-1.5 flex items-center gap-1 text-xs ${
                                 trend === 'up'
                                     ? 'text-emerald-600 dark:text-emerald-400'
                                     : trend === 'down'

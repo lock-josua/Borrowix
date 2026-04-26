@@ -1,7 +1,12 @@
 import { Link } from '@inertiajs/react';
 import { PageHeader } from '@/components/page-header';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { general, school, customization } from '@/pages/admin/settings/routes';
+import {
+    general,
+    school,
+    customization,
+    updates,
+} from '@/pages/admin/settings/routes';
 
 interface Props {
     children: React.ReactNode;
@@ -11,6 +16,7 @@ const tabs = [
     { title: 'General', href: school },
     { title: 'School', href: general },
     { title: 'Customization', href: customization },
+    { title: 'Updates', href: updates },
 ];
 
 export default function AdminSettingsLayout({ children }: Props) {

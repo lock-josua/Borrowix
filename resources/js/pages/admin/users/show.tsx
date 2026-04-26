@@ -119,7 +119,9 @@ export default function UserShow({ user }: Props) {
                         title="Email Verified"
                         value={user.email_verified_at ? 'Verified' : 'Pending'}
                         valueColor={
-                            user.email_verified_at ? 'hsl(var(--primary))' : 'hsl(var(--chart-4))'
+                            user.email_verified_at
+                                ? 'hsl(var(--primary))'
+                                : 'hsl(var(--chart-4))'
                         }
                         delay={0.15}
                     />

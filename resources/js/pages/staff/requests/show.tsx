@@ -147,10 +147,16 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                             value={r.equipment.category?.name ?? '—'}
                         />
                         {r.equipment.brand && (
-                            <DetailRow label="Brand" value={r.equipment.brand} />
+                            <DetailRow
+                                label="Brand"
+                                value={r.equipment.brand}
+                            />
                         )}
                         {r.equipment.model && (
-                            <DetailRow label="Model" value={r.equipment.model} />
+                            <DetailRow
+                                label="Model"
+                                value={r.equipment.model}
+                            />
                         )}
                     </DetailCard>
 
@@ -161,7 +167,9 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                         />
                         <DetailRow
                             label="Return Date"
-                            value={new Date(r.expected_return_date).toLocaleString()}
+                            value={new Date(
+                                r.expected_return_date,
+                            ).toLocaleString()}
                         />
                         <DetailRow label="Purpose" value={r.purpose} />
                     </DetailCard>
@@ -174,7 +182,9 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                             />
                             <DetailRow
                                 label="Processed At"
-                                value={new Date(r.processed_at!).toLocaleString()}
+                                value={new Date(
+                                    r.processed_at!,
+                                ).toLocaleString()}
                             />
                             {r.remarks && (
                                 <DetailRow label="Remarks" value={r.remarks} />
@@ -190,7 +200,8 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                         <DialogTitle>Approve Request</DialogTitle>
                         <DialogDescription>
                             Approving the borrow request for{' '}
-                            <strong>{r.equipment.name}</strong>. You may add an optional remark.
+                            <strong>{r.equipment.name}</strong>. You may add an
+                            optional remark.
                         </DialogDescription>
                     </DialogHeader>
                     <Input

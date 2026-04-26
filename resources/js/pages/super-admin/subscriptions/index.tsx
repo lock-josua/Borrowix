@@ -58,11 +58,19 @@ export default function SubscriptionsIndex({
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
-        router.get('/super-admin/subscriptions', { ...filters, search }, { preserveState: true });
+        router.get(
+            '/super-admin/subscriptions',
+            { ...filters, search },
+            { preserveState: true },
+        );
     }
 
     function handleFilterChange(key: string, value: string) {
-        router.get('/super-admin/subscriptions', { ...filters, [key]: value === 'all' ? '' : value }, { preserveState: true });
+        router.get(
+            '/super-admin/subscriptions',
+            { ...filters, [key]: value === 'all' ? '' : value },
+            { preserveState: true },
+        );
     }
 
     const columns = [
@@ -72,7 +80,9 @@ export default function SubscriptionsIndex({
             render: (row: Subscription) => (
                 <div>
                     <p className="font-medium">{row.school.name}</p>
-                    <p className="text-xs text-muted-foreground">{row.school.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                        {row.school.email}
+                    </p>
                 </div>
             ),
         },
@@ -96,7 +106,9 @@ export default function SubscriptionsIndex({
                     {row.status === 'trialing' && row.trial_ends_at
                         ? new Date(row.trial_ends_at).toLocaleDateString()
                         : row.current_period_end
-                          ? new Date(row.current_period_end).toLocaleDateString()
+                          ? new Date(
+                                row.current_period_end,
+                            ).toLocaleDateString()
                           : '—'}
                 </span>
             ),
@@ -136,17 +148,39 @@ export default function SubscriptionsIndex({
 
                 {/* Status Breakdown */}
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    <StatCard title="Trialing" value={statusBreakdown.trialing ?? 0} delay={0} />
-                    <StatCard title="Subscribed" value={statusBreakdown.subscribed ?? 0} valueColor="hsl(var(--chart-2))" delay={0.05} />
-                    <StatCard title="Trial Expired" value={statusBreakdown.trial_expired ?? 0} valueColor="hsl(var(--destructive))" delay={0.1} />
-                    <StatCard title="Suspended" value={statusBreakdown.suspended ?? 0} valueColor="hsl(var(--destructive))" delay={0.15} />
+                    <StatCard
+                        title="Trialing"
+                        value={statusBreakdown.trialing ?? 0}
+                        delay={0}
+                    />
+                    <StatCard
+                        title="Subscribed"
+                        value={statusBreakdown.subscribed ?? 0}
+                        valueColor="hsl(var(--chart-2))"
+                        delay={0.05}
+                    />
+                    <StatCard
+                        title="Trial Expired"
+                        value={statusBreakdown.trial_expired ?? 0}
+                        valueColor="hsl(var(--destructive))"
+                        delay={0.1}
+                    />
+                    <StatCard
+                        title="Suspended"
+                        value={statusBreakdown.suspended ?? 0}
+                        valueColor="hsl(var(--destructive))"
+                        delay={0.15}
+                    />
                 </div>
 
                 {/* Filters */}
                 <Card>
                     <CardContent className="flex flex-col gap-4 p-4">
                         <div className="flex flex-col gap-3 sm:flex-row">
-                            <form onSubmit={handleSearch} className="flex flex-1 gap-2">
+                            <form
+                                onSubmit={handleSearch}
+                                className="flex flex-1 gap-2"
+                            >
                                 <Input
                                     placeholder="Search schools..."
                                     value={search}
@@ -159,30 +193,50 @@ export default function SubscriptionsIndex({
                             </form>
                             <Select
                                 value={filters.status ?? 'all'}
-                                onValueChange={(v) => handleFilterChange('status', v)}
+                                onValueChange={(v) =>
+                                    handleFilterChange('status', v)
+                                }
                             >
                                 <SelectTrigger className="w-[150px]">
                                     <SelectValue placeholder="Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value="trialing">Trialing</SelectItem>
-                                    <SelectItem value="subscribed">Subscribed</SelectItem>
-                                    <SelectItem value="trial_expired">Trial Expired</SelectItem>
-                                    <SelectItem value="suspended">Suspended</SelectItem>
+                                    <SelectItem value="all">
+                                        All Status
+                                    </SelectItem>
+                                    <SelectItem value="trialing">
+                                        Trialing
+                                    </SelectItem>
+                                    <SelectItem value="subscribed">
+                                        Subscribed
+                                    </SelectItem>
+                                    <SelectItem value="trial_expired">
+                                        Trial Expired
+                                    </SelectItem>
+                                    <SelectItem value="suspended">
+                                        Suspended
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                             <Select
                                 value={filters.plan ?? 'all'}
-                                onValueChange={(v) => handleFilterChange('plan', v)}
+                                onValueChange={(v) =>
+                                    handleFilterChange('plan', v)
+                                }
                             >
                                 <SelectTrigger className="w-[150px]">
                                     <SelectValue placeholder="Plan" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Plans</SelectItem>
-                                    <SelectItem value="monthly">Monthly</SelectItem>
-                                    <SelectItem value="annually">Annually</SelectItem>
+                                    <SelectItem value="all">
+                                        All Plans
+                                    </SelectItem>
+                                    <SelectItem value="monthly">
+                                        Monthly
+                                    </SelectItem>
+                                    <SelectItem value="annually">
+                                        Annually
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

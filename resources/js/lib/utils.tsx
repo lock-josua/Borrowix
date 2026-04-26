@@ -27,11 +27,14 @@ export const statusStyles: Record<string, { bg: string; text: string }> = {
 };
 
 export function StatusBadge({ status }: { status: string }) {
-    const s = statusStyles[status?.toLowerCase()] ?? { bg: '#E2E8F0', text: '#4A5568' };
+    const s = statusStyles[status?.toLowerCase()] ?? {
+        bg: '#E2E8F0',
+        text: '#4A5568',
+    };
     return (
         <span
             style={{ background: s.bg, color: s.text }}
-            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize whitespace-nowrap"
+            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap capitalize"
         >
             {status?.replace(/_/g, ' ')}
         </span>

@@ -10,6 +10,7 @@ import {
     Tag,
     Settings,
     ShieldCheck,
+    RefreshCw,
 } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
@@ -54,6 +55,23 @@ interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
 
+function VersionBadge({ version }: { version: string }) {
+    const props = usePage().props as { updateStatus?: { has_update: boolean } };
+    const hasUpdate = props.updateStatus?.has_update ?? false;
+
+    return (
+        <div className="flex items-center gap-1.5 px-3 py-2">
+            <span className="text-xs text-muted-foreground">v{version}</span>
+            {hasUpdate && (
+                <span
+                    className="inline-flex size-2 animate-pulse rounded-full bg-amber-400"
+                    title="A new version is available"
+                />
+            )}
+        </div>
+    );
+}
+
 export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
     const { can, version, tenantSubscription, tenant } = usePage().props as {
@@ -78,6 +96,7 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
             icon: CreditCard,
         },
         { title: 'Settings', href: '/admin/settings', icon: Settings },
+        { title: 'Updates', href: '/admin/settings/updates', icon: RefreshCw },
     ];
 
     const administrationNav: NavItem[] = [
@@ -203,23 +222,24 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
                 </SidebarContent>
 
                 <SidebarFooter>
-                    <div className="px-3 py-2 text-xs text-muted-foreground">
-                        v{version}
-                    </div>
+                    <VersionBadge version={version} />
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>
 
             <AppContent variant="sidebar" className="overflow-x-hidden">
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
-                {tenantSubscription?.status === 'trialing' && tenantSubscription.trial_ends_at && (
-                    <div className="px-4 pt-3">
-                        <TrialCountdown
-                            trialEndsAt={tenantSubscription.trial_ends_at}
-                            daysRemaining={tenantSubscription.trial_days_remaining}
-                        />
-                    </div>
-                )}
+                {tenantSubscription?.status === 'trialing' &&
+                    tenantSubscription.trial_ends_at && (
+                        <div className="px-4 pt-3">
+                            <TrialCountdown
+                                trialEndsAt={tenantSubscription.trial_ends_at}
+                                daysRemaining={
+                                    tenantSubscription.trial_days_remaining
+                                }
+                            />
+                        </div>
+                    )}
                 {children}
             </AppContent>
         </AppShell>

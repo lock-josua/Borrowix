@@ -44,20 +44,23 @@ export function TrialCountdown({
         >
             <Clock className="size-4 shrink-0" />
 
-            <div className="flex flex-1 items-center gap-2 flex-wrap">
-                <span className="font-medium">
-                    Trial ends in
-                </span>
+            <div className="flex flex-1 flex-wrap items-center gap-2">
+                <span className="font-medium">Trial ends in</span>
                 <Badge
                     variant="outline"
                     className={`font-mono text-xs ${isUrgent ? 'border-destructive text-destructive' : 'border-amber-400 text-amber-700'}`}
                 >
-                    {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+                    {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{' '}
+                    {timeLeft.seconds}s
                 </Badge>
             </div>
 
             {showSubscribeButton && (
-                <Button asChild size="sm" className="h-7 px-3 text-xs bg-amber-600 hover:bg-amber-700 text-white">
+                <Button
+                    asChild
+                    size="sm"
+                    className="h-7 bg-amber-600 px-3 text-xs text-white hover:bg-amber-700"
+                >
                     <Link href="/admin/subscription">Subscribe</Link>
                 </Button>
             )}
@@ -66,13 +69,13 @@ export function TrialCountdown({
 }
 
 function getTimeLeft(trialEndsAt: string) {
-    const end  = new Date(trialEndsAt).getTime();
-    const now  = Date.now();
+    const end = new Date(trialEndsAt).getTime();
+    const now = Date.now();
     const diff = Math.max(0, end - now);
 
     return {
-        days:    Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours:   Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
         minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((diff % (1000 * 60)) / 1000),
     };

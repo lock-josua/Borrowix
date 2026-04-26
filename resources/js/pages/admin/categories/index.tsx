@@ -6,7 +6,14 @@ import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -49,18 +56,25 @@ export default function CategoriesIndex({ categories }: Props) {
 
     function openEdit(cat: Category) {
         setEditTarget(cat);
-        editForm.setData({ name: cat.name, description: cat.description ?? '' });
+        editForm.setData({
+            name: cat.name,
+            description: cat.description ?? '',
+        });
     }
 
     function handleEdit(e: React.FormEvent) {
         e.preventDefault();
         if (!editTarget) return;
-        editForm.patch(`/admin/categories/${editTarget.id}`, { onSuccess: () => setEditTarget(null) });
+        editForm.patch(`/admin/categories/${editTarget.id}`, {
+            onSuccess: () => setEditTarget(null),
+        });
     }
 
     function handleDelete() {
         if (!deleteTarget) return;
-        router.delete(`/admin/categories/${deleteTarget.id}`, { onSuccess: () => setDeleteTarget(null) });
+        router.delete(`/admin/categories/${deleteTarget.id}`, {
+            onSuccess: () => setDeleteTarget(null),
+        });
     }
 
     return (
@@ -77,7 +91,11 @@ export default function CategoriesIndex({ categories }: Props) {
                     title="Categories"
                     description="Manage equipment categories"
                     actions={
-                        <Button size="sm" className="gap-1.5" onClick={() => setIsCreateOpen(true)}>
+                        <Button
+                            size="sm"
+                            className="gap-1.5"
+                            onClick={() => setIsCreateOpen(true)}
+                        >
                             <Plus className="size-3.5" />
                             Add Category
                         </Button>
@@ -85,7 +103,7 @@ export default function CategoriesIndex({ categories }: Props) {
                 />
 
                 {/* Table */}
-                <Card className="overflow-hidden p-0 border-border/60">
+                <Card className="overflow-hidden border-border/60 p-0">
                     <DataTable
                         columns={[
                             {
@@ -94,8 +112,14 @@ export default function CategoriesIndex({ categories }: Props) {
                                 width: '45%',
                                 render: (cat) => (
                                     <div className="flex flex-col">
-                                        <span className="font-medium text-foreground truncate">{cat.name}</span>
-                                        {cat.description && <span className="text-xs text-muted-foreground truncate">{cat.description}</span>}
+                                        <span className="truncate font-medium text-foreground">
+                                            {cat.name}
+                                        </span>
+                                        {cat.description && (
+                                            <span className="truncate text-xs text-muted-foreground">
+                                                {cat.description}
+                                            </span>
+                                        )}
                                     </div>
                                 ),
                             },
@@ -104,13 +128,21 @@ export default function CategoriesIndex({ categories }: Props) {
                                 label: 'Equipment Count',
                                 width: '25%',
                                 align: 'center',
-                                render: (cat) => <span className="text-muted-foreground font-medium">{cat.equipment_count}</span>,
+                                render: (cat) => (
+                                    <span className="font-medium text-muted-foreground">
+                                        {cat.equipment_count}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'created',
                                 label: 'Created',
                                 width: '20%',
-                                render: (cat) => <span className="text-muted-foreground text-xs">{cat.created_at || '—'}</span>,
+                                render: (cat) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {cat.created_at || '—'}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -119,10 +151,20 @@ export default function CategoriesIndex({ categories }: Props) {
                                 align: 'right',
                                 render: (cat) => (
                                     <div className="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon" className="size-7" onClick={() => openEdit(cat)}>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            onClick={() => openEdit(cat)}
+                                        >
                                             <Pencil className="size-3.5" />
                                         </Button>
-                                        <Button variant="ghost" size="icon" className="size-7 hover:text-destructive" onClick={() => setDeleteTarget(cat)}>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7 hover:text-destructive"
+                                            onClick={() => setDeleteTarget(cat)}
+                                        >
                                             <Trash2 className="size-3.5" />
                                         </Button>
                                     </div>
@@ -143,29 +185,57 @@ export default function CategoriesIndex({ categories }: Props) {
                                 Add a new category to organise your equipment.
                             </DialogDescription>
                         </DialogHeader>
-                        <form onSubmit={handleCreate} className="space-y-4 py-2">
+                        <form
+                            onSubmit={handleCreate}
+                            className="space-y-4 py-2"
+                        >
                             <div className="space-y-1.5">
-                                <Label className="text-sm font-medium">Name</Label>
+                                <Label className="text-sm font-medium">
+                                    Name
+                                </Label>
                                 <Input
                                     placeholder="Laptops"
                                     value={createForm.data.name}
-                                    onChange={(e) => createForm.setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        createForm.setData(
+                                            'name',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
-                                {createForm.errors.name && <p className="text-xs text-destructive">{createForm.errors.name}</p>}
+                                {createForm.errors.name && (
+                                    <p className="text-xs text-destructive">
+                                        {createForm.errors.name}
+                                    </p>
+                                )}
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-sm font-medium">Description</Label>
+                                <Label className="text-sm font-medium">
+                                    Description
+                                </Label>
                                 <Input
                                     placeholder="Optional"
                                     value={createForm.data.description}
-                                    onChange={(e) => createForm.setData('description', e.target.value)}
+                                    onChange={(e) =>
+                                        createForm.setData(
+                                            'description',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                             </div>
                             <DialogFooter>
-                                <Button variant="outline" type="button" onClick={() => setIsCreateOpen(false)}>
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    onClick={() => setIsCreateOpen(false)}
+                                >
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={createForm.processing}>
+                                <Button
+                                    type="submit"
+                                    disabled={createForm.processing}
+                                >
                                     Add Category
                                 </Button>
                             </DialogFooter>
@@ -174,32 +244,61 @@ export default function CategoriesIndex({ categories }: Props) {
                 </Dialog>
 
                 {/* Edit Dialog */}
-                <Dialog open={!!editTarget} onOpenChange={() => setEditTarget(null)}>
+                <Dialog
+                    open={!!editTarget}
+                    onOpenChange={() => setEditTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Edit Category</DialogTitle>
                             <DialogDescription>
-                                Update the name or description for this category.
+                                Update the name or description for this
+                                category.
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleEdit} className="space-y-4 py-2">
                             <div className="space-y-1.5">
-                                <Label className="text-sm font-medium">Name</Label>
-                                <Input value={editForm.data.name} onChange={(e) => editForm.setData('name', e.target.value)} />
-                                {editForm.errors.name && <p className="text-xs text-destructive">{editForm.errors.name}</p>}
+                                <Label className="text-sm font-medium">
+                                    Name
+                                </Label>
+                                <Input
+                                    value={editForm.data.name}
+                                    onChange={(e) =>
+                                        editForm.setData('name', e.target.value)
+                                    }
+                                />
+                                {editForm.errors.name && (
+                                    <p className="text-xs text-destructive">
+                                        {editForm.errors.name}
+                                    </p>
+                                )}
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-sm font-medium">Description</Label>
+                                <Label className="text-sm font-medium">
+                                    Description
+                                </Label>
                                 <Input
                                     value={editForm.data.description}
-                                    onChange={(e) => editForm.setData('description', e.target.value)}
+                                    onChange={(e) =>
+                                        editForm.setData(
+                                            'description',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                             </div>
                             <DialogFooter>
-                                <Button variant="outline" type="button" onClick={() => setEditTarget(null)}>
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    onClick={() => setEditTarget(null)}
+                                >
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={editForm.processing}>
+                                <Button
+                                    type="submit"
+                                    disabled={editForm.processing}
+                                >
                                     Save Changes
                                 </Button>
                             </DialogFooter>
@@ -208,20 +307,34 @@ export default function CategoriesIndex({ categories }: Props) {
                 </Dialog>
 
                 {/* Delete Dialog */}
-                <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+                <Dialog
+                    open={!!deleteTarget}
+                    onOpenChange={() => setDeleteTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Delete "{deleteTarget?.name}"?</DialogTitle>
+                            <DialogTitle>
+                                Delete "{deleteTarget?.name}"?
+                            </DialogTitle>
                             <DialogDescription>
-                                Equipment in this category will be uncategorized. This action cannot be undone.
+                                Equipment in this category will be
+                                uncategorized. This action cannot be undone.
                             </DialogDescription>
                         </DialogHeader>
-                        <p className="text-sm text-muted-foreground">Equipment in this category will be uncategorized.</p>
+                        <p className="text-sm text-muted-foreground">
+                            Equipment in this category will be uncategorized.
+                        </p>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setDeleteTarget(null)}
+                            >
                                 Cancel
                             </Button>
-                            <Button variant="destructive" onClick={handleDelete}>
+                            <Button
+                                variant="destructive"
+                                onClick={handleDelete}
+                            >
                                 Delete
                             </Button>
                         </DialogFooter>

@@ -28,8 +28,9 @@ export default function TrialExpiredBlock({ schoolName, contactEmail }: Props) {
                             System Unavailable
                         </h1>
                         <p className="mt-2 mb-6 text-sm text-muted-foreground">
-                            <strong>{schoolName}</strong>'s subscription has ended.
-                            Please contact your school administrator to restore access.
+                            <strong>{schoolName}</strong>'s subscription has
+                            ended. Please contact your school administrator to
+                            restore access.
                         </p>
                         <Button variant="outline" className="w-full" asChild>
                             <a href={`mailto:${contactEmail}`}>

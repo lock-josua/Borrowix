@@ -89,7 +89,11 @@ export default function TransactionShow({ transaction: t }: Props) {
                 </Link>
             </Button>
             {t.status !== 'returned' && (
-                <Button size="sm" className="gap-1.5" onClick={() => setReturnOpen(true)}>
+                <Button
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setReturnOpen(true)}
+                >
                     <RotateCcw className="size-3.5" /> Mark Returned
                 </Button>
             )}
@@ -112,8 +116,8 @@ export default function TransactionShow({ transaction: t }: Props) {
                         description={`Issued to ${t.borrower.name}`}
                         actions={actionButtons}
                     />
-                    <div className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
-                         <StatusBadge status={t.status} />
+                    <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                        <StatusBadge status={t.status} />
                     </div>
                 </div>
 
@@ -126,10 +130,16 @@ export default function TransactionShow({ transaction: t }: Props) {
                     <DetailCard title="Equipment">
                         <DetailRow label="Name" value={t.equipment.name} />
                         {t.equipment.brand && (
-                            <DetailRow label="Brand" value={t.equipment.brand} />
+                            <DetailRow
+                                label="Brand"
+                                value={t.equipment.brand}
+                            />
                         )}
                         {t.equipment.model && (
-                            <DetailRow label="Model" value={t.equipment.model} />
+                            <DetailRow
+                                label="Model"
+                                value={t.equipment.model}
+                            />
                         )}
                     </DetailCard>
 
@@ -149,7 +159,10 @@ export default function TransactionShow({ transaction: t }: Props) {
                             />
                         )}
                         {t.issuedBy && (
-                            <DetailRow label="Issued By" value={t.issuedBy.name} />
+                            <DetailRow
+                                label="Issued By"
+                                value={t.issuedBy.name}
+                            />
                         )}
                     </DetailCard>
 
@@ -161,12 +174,14 @@ export default function TransactionShow({ transaction: t }: Props) {
                             />
                             <DetailRow
                                 label="Borrow Date"
-                                value={new Date(t.borrowRequest.borrow_date).toLocaleString()}
+                                value={new Date(
+                                    t.borrowRequest.borrow_date,
+                                ).toLocaleString()}
                             />
                             <DetailRow
                                 label="Expected Return"
                                 value={new Date(
-                                    t.borrowRequest.expected_return_date
+                                    t.borrowRequest.expected_return_date,
                                 ).toLocaleString()}
                             />
                         </DetailCard>
@@ -188,7 +203,9 @@ export default function TransactionShow({ transaction: t }: Props) {
                     <DialogHeader>
                         <DialogTitle>Mark as Returned</DialogTitle>
                         <DialogDescription>
-                            Confirm the return of <strong>{t.equipment.name}</strong> from <strong>{t.borrower.name}</strong>.
+                            Confirm the return of{' '}
+                            <strong>{t.equipment.name}</strong> from{' '}
+                            <strong>{t.borrower.name}</strong>.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -216,7 +233,9 @@ export default function TransactionShow({ transaction: t }: Props) {
                                 <Input
                                     placeholder="Optional"
                                     value={fineReason}
-                                    onChange={(e) => setFineReason(e.target.value)}
+                                    onChange={(e) =>
+                                        setFineReason(e.target.value)
+                                    }
                                 />
                             </div>
                         </div>

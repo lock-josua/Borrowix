@@ -231,7 +231,8 @@ export default function TransactionShow({ transaction: t }: Props) {
                         <DialogHeader>
                             <DialogTitle>Mark as Returned</DialogTitle>
                             <DialogDescription>
-                                Record the return condition and any applicable fine for this transaction.
+                                Record the return condition and any applicable
+                                fine for this transaction.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-2">

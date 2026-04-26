@@ -54,7 +54,12 @@ interface Props {
     payments: Payment[];
 }
 
-export default function SubscriptionIndex({ school, subscription, plans, payments }: Props) {
+export default function SubscriptionIndex({
+    school,
+    subscription,
+    plans,
+    payments,
+}: Props) {
     const { errors } = usePage().props as { errors?: Record<string, string> };
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
@@ -64,7 +69,7 @@ export default function SubscriptionIndex({ school, subscription, plans, payment
     // browser blocks cross-origin XHR redirects to paypal.com.
     const formRefs = useRef<Record<string, HTMLFormElement | null>>({});
 
-    const isTrialing   = subscription?.status === 'trialing';
+    const isTrialing = subscription?.status === 'trialing';
     const isSubscribed = subscription?.status === 'subscribed';
 
     function handleCheckout(planKey: string) {
@@ -73,7 +78,9 @@ export default function SubscriptionIndex({ school, subscription, plans, payment
     }
 
     // Get the CSRF token from the meta tag Inertia injects
-    const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
+    const csrfToken =
+        (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
+            ?.content ?? '';
 
     return (
         <AdminLayout breadcrumbs={breadcrumbs}>
@@ -83,13 +90,15 @@ export default function SubscriptionIndex({ school, subscription, plans, payment
             {Object.keys(plans).map((key) => (
                 <form
                     key={key}
-                    ref={(el) => { formRefs.current[key] = el; }}
+                    ref={(el) => {
+                        formRefs.current[key] = el;
+                    }}
                     method="POST"
                     action="/admin/subscription/checkout"
                     style={{ display: 'none' }}
                 >
                     <input type="hidden" name="_token" value={csrfToken} />
-                    <input type="hidden" name="plan"   value={key} />
+                    <input type="hidden" name="plan" value={key} />
                 </form>
             ))}
 
@@ -127,13 +136,22 @@ export default function SubscriptionIndex({ school, subscription, plans, payment
                                 Active Subscription
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="text-sm text-muted-foreground space-y-1">
-                            <p>Plan: <span className="font-medium capitalize text-foreground">{subscription.plan}</span></p>
+                        <CardContent className="space-y-1 text-sm text-muted-foreground">
+                            <p>
+                                Plan:{' '}
+                                <span className="font-medium text-foreground capitalize">
+                                    {subscription.plan}
+                                </span>
+                            </p>
                             {subscription.current_period_end && (
                                 <p>
                                     Next billing:{' '}
                                     <span className="font-medium text-foreground">
-                                        {new Date(subscription.current_period_end).toLocaleDateString('en-PH', { dateStyle: 'long' })}
+                                        {new Date(
+                                            subscription.current_period_end,
+                                        ).toLocaleDateString('en-PH', {
+                                            dateStyle: 'long',
+                                        })}
                                     </span>
                                 </p>
                             )}
@@ -156,22 +174,30 @@ export default function SubscriptionIndex({ school, subscription, plans, payment
                                     className={`transition-shadow ${key === 'annually' ? 'border-amber-400/60 shadow-sm' : ''}`}
                                 >
                                     <CardHeader>
-                                        <CardTitle className="text-lg">{plan.label}</CardTitle>
+                                        <CardTitle className="text-lg">
+                                            {plan.label}
+                                        </CardTitle>
                                         <CardDescription>
                                             <span className="text-2xl font-bold text-foreground">
                                                 ₱{plan.price.toLocaleString()}
                                             </span>
                                             <span className="text-muted-foreground">
-                                                {key === 'monthly' ? '/month' : '/year'}
+                                                {key === 'monthly'
+                                                    ? '/month'
+                                                    : '/year'}
                                             </span>
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="text-sm text-muted-foreground">
                                         {key === 'annually' && (
-                                            <p className="text-amber-600 font-medium">Save ~17% vs monthly</p>
+                                            <p className="font-medium text-amber-600">
+                                                Save ~17% vs monthly
+                                            </p>
                                         )}
-                                        <ul className="mt-2 space-y-1 list-disc list-inside">
-                                            <li>Unlimited equipment management</li>
+                                        <ul className="mt-2 list-inside list-disc space-y-1">
+                                            <li>
+                                                Unlimited equipment management
+                                            </li>
                                             <li>Unlimited borrow requests</li>
                                             <li>Full reporting & analytics</li>
                                             <li>Priority support</li>
@@ -179,14 +205,21 @@ export default function SubscriptionIndex({ school, subscription, plans, payment
                                     </CardContent>
                                     <CardFooter>
                                         <Button
-                                            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                                            className="w-full bg-amber-600 text-white hover:bg-amber-700"
                                             onClick={() => handleCheckout(key)}
                                             disabled={loadingPlan !== null}
                                         >
-                                            {loadingPlan === key
-                                                ? <><Loader2 className="mr-2 size-4 animate-spin" /> Redirecting to PayPal…</>
-                                                : <><CreditCard className="mr-2 size-4" /> Subscribe — {plan.label}</>
-                                            }
+                                            {loadingPlan === key ? (
+                                                <>
+                                                    <Loader2 className="mr-2 size-4 animate-spin" />{' '}
+                                                    Redirecting to PayPal…
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CreditCard className="mr-2 size-4" />{' '}
+                                                    Subscribe — {plan.label}
+                                                </>
+                                            )}
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -198,20 +231,34 @@ export default function SubscriptionIndex({ school, subscription, plans, payment
                 {payments.length > 0 && (
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-sm font-semibold">Payment History</CardTitle>
+                            <CardTitle className="text-sm font-semibold">
+                                Payment History
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="divide-y divide-border">
                                 {payments.map((p, i) => (
-                                    <div key={i} className="flex items-center justify-between py-2 text-sm">
+                                    <div
+                                        key={i}
+                                        className="flex items-center justify-between py-2 text-sm"
+                                    >
                                         <div>
-                                            <span className="font-medium capitalize">{p.plan} Plan</span>
+                                            <span className="font-medium capitalize">
+                                                {p.plan} Plan
+                                            </span>
                                             <span className="ml-2 text-muted-foreground">
-                                                {new Date(p.paid_at).toLocaleDateString('en-PH')}
+                                                {new Date(
+                                                    p.paid_at,
+                                                ).toLocaleDateString('en-PH')}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium">₱{Number(p.amount).toLocaleString()}</span>
+                                            <span className="font-medium">
+                                                ₱
+                                                {Number(
+                                                    p.amount,
+                                                ).toLocaleString()}
+                                            </span>
                                             <StatusBadge status={p.status} />
                                         </div>
                                     </div>

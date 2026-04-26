@@ -5,6 +5,7 @@ use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
 use App\Http\Controllers\SuperAdmin\SettingsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
+use App\Http\Controllers\SuperAdmin\UpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('super-admin')
@@ -55,4 +56,10 @@ Route::prefix('super-admin')
             ->name('settings.profile.update');
         Route::put('/settings/password', [SettingsController::class, 'updatePassword'])
             ->name('settings.password.update');
+
+        // Updates
+        Route::get('/settings/updates', [UpdateController::class, 'index'])
+            ->name('settings.updates');
+        Route::post('/settings/updates/check', [UpdateController::class, 'check'])
+            ->name('settings.updates.check');
     });

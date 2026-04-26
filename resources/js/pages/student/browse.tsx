@@ -91,14 +91,14 @@ export default function BrowseEquipment({
                     description="Find and borrow ICT equipment for your school needs."
                 />
 
-                <Card className="flex flex-col gap-4 p-4 mb-2">
+                <Card className="mb-2 flex flex-col gap-4 p-4">
                     <div className="relative max-w-sm">
                         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search equipment..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="h-10 pl-9 bg-muted/20"
+                            className="h-10 bg-muted/20 pl-9"
                         />
                     </div>
 

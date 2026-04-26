@@ -28,23 +28,31 @@ export default function ResetPassword({ token, email }: Props) {
                 {({ processing, errors }) => (
                     <div className="grid gap-5">
                         <div className="grid gap-1.5">
-                            <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
+                            <Label
+                                htmlFor="email"
+                                className="text-sm font-medium text-foreground"
+                            >
+                                Email
+                            </Label>
                             <Input
                                 id="email"
                                 type="email"
                                 name="email"
                                 autoComplete="email"
                                 value={email}
-                                className="h-10 bg-muted/50 cursor-not-allowed"
+                                className="h-10 cursor-not-allowed bg-muted/50"
                                 readOnly
                             />
-                            <InputError
-                                message={errors.email}
-                            />
+                            <InputError message={errors.email} />
                         </div>
 
                         <div className="grid gap-1.5">
-                            <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
+                            <Label
+                                htmlFor="password"
+                                className="text-sm font-medium text-foreground"
+                            >
+                                Password
+                            </Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -58,7 +66,10 @@ export default function ResetPassword({ token, email }: Props) {
                         </div>
 
                         <div className="grid gap-1.5">
-                            <Label htmlFor="password_confirmation" className="text-sm font-medium text-foreground">
+                            <Label
+                                htmlFor="password_confirmation"
+                                className="text-sm font-medium text-foreground"
+                            >
                                 Confirm password
                             </Label>
                             <Input
@@ -76,7 +87,7 @@ export default function ResetPassword({ token, email }: Props) {
 
                         <Button
                             type="submit"
-                            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-150 h-10 font-medium mt-2"
+                            className="mt-2 h-10 w-full bg-primary font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary/90"
                             disabled={processing}
                             data-test="reset-password-button"
                         >

@@ -40,7 +40,9 @@ export default function CreateSchool() {
 
                 <Card className="max-w-lg">
                     <CardHeader>
-                        <CardTitle className="text-base">School Details</CardTitle>
+                        <CardTitle className="text-base">
+                            School Details
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -49,7 +51,9 @@ export default function CreateSchool() {
                                 <Input
                                     placeholder="e.g. Demo School"
                                     value={data.school_name}
-                                    onChange={(e) => setData('school_name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('school_name', e.target.value)
+                                    }
                                     autoFocus
                                 />
                                 {errors.school_name && (
@@ -64,7 +68,9 @@ export default function CreateSchool() {
                                 <Input
                                     placeholder="Full name of the school admin"
                                     value={data.admin_name}
-                                    onChange={(e) => setData('admin_name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('admin_name', e.target.value)
+                                    }
                                 />
                                 {errors.admin_name && (
                                     <p className="text-xs text-destructive">
@@ -79,7 +85,9 @@ export default function CreateSchool() {
                                     type="email"
                                     placeholder="admin@school.edu"
                                     value={data.admin_email}
-                                    onChange={(e) => setData('admin_email', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('admin_email', e.target.value)
+                                    }
                                 />
                                 {errors.admin_email && (
                                     <p className="text-xs text-destructive">
@@ -91,12 +99,19 @@ export default function CreateSchool() {
                             <div className="space-y-1.5">
                                 <Label>
                                     Contact Number{' '}
-                                    <span className="text-muted-foreground">(optional)</span>
+                                    <span className="text-muted-foreground">
+                                        (optional)
+                                    </span>
                                 </Label>
                                 <Input
                                     placeholder="+63 912 345 6789"
                                     value={data.contact_number}
-                                    onChange={(e) => setData('contact_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'contact_number',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                             </div>
 
@@ -105,10 +120,14 @@ export default function CreateSchool() {
                                     {processing && (
                                         <Loader2 className="mr-2 size-4 animate-spin" />
                                     )}
-                                    {processing ? 'Creating...' : 'Create School'}
+                                    {processing
+                                        ? 'Creating...'
+                                        : 'Create School'}
                                 </Button>
                                 <Button variant="outline" type="button" asChild>
-                                    <Link href="/super-admin/schools">Cancel</Link>
+                                    <Link href="/super-admin/schools">
+                                        Cancel
+                                    </Link>
                                 </Button>
                             </div>
                         </form>

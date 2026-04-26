@@ -8,9 +8,14 @@ interface PaginationProps {
     prevUrl: string | null;
 }
 
-export function TablePagination({ currentPage, lastPage, nextUrl, prevUrl }: PaginationProps) {
+export function TablePagination({
+    currentPage,
+    lastPage,
+    nextUrl,
+    prevUrl,
+}: PaginationProps) {
     return (
-        <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+        <div className="flex items-center justify-between border-t border-border px-4 py-3">
             <span className="text-xs text-muted-foreground">
                 Page {currentPage} of {lastPage}
             </span>

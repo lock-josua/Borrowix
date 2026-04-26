@@ -40,4 +40,9 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'github' => [
+        'repo' => env('GITHUB_REPO', 'lock-josua/Borrowix'),
+        'update_token' => env('GITHUB_UPDATE_TOKEN'),
+    ],
+
 ];

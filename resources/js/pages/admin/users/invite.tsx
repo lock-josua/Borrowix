@@ -51,25 +51,31 @@ export default function InviteUser() {
                 />
 
                 <div className="max-w-md">
-                    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                        <div className="px-6 py-4 border-b border-border bg-muted/5">
-                            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                        <div className="border-b border-border bg-muted/5 px-6 py-4">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                                 <UserPlus className="size-4 text-muted-foreground" />
                                 User Details
                             </h3>
                         </div>
 
                         <form onSubmit={handleSubmit}>
-                            <div className="px-6 py-5 space-y-5">
+                            <div className="space-y-5 px-6 py-5">
                                 <FormField label="Full Name" required>
                                     <Input
                                         placeholder="e.g. Juan dela Cruz"
                                         value={data.name}
-                                        onChange={(e) => setData('name', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('name', e.target.value)
+                                        }
                                         className="h-9 transition-shadow duration-150 focus:ring-2 focus:ring-ring/30"
                                         autoFocus
                                     />
-                                    {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                                    {errors.name && (
+                                        <p className="text-xs text-destructive">
+                                            {errors.name}
+                                        </p>
+                                    )}
                                 </FormField>
 
                                 <FormField label="Email Address" required>
@@ -77,38 +83,67 @@ export default function InviteUser() {
                                         type="email"
                                         placeholder="e.g. juan@school.edu.ph"
                                         value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('email', e.target.value)
+                                        }
                                         className="h-9 transition-shadow duration-150 focus:ring-2 focus:ring-ring/30"
                                     />
-                                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                                    {errors.email && (
+                                        <p className="text-xs text-destructive">
+                                            {errors.email}
+                                        </p>
+                                    )}
                                 </FormField>
 
                                 <FormField label="System Role" required>
-                                    <Select value={data.role} onValueChange={(v) => setData('role', v)}>
+                                    <Select
+                                        value={data.role}
+                                        onValueChange={(v) =>
+                                            setData('role', v)
+                                        }
+                                    >
                                         <SelectTrigger className="h-9 transition-shadow duration-150 focus:ring-2 focus:ring-ring/30">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="student">Student</SelectItem>
-                                            <SelectItem value="staff">Staff</SelectItem>
+                                            <SelectItem value="student">
+                                                Student
+                                            </SelectItem>
+                                            <SelectItem value="staff">
+                                                Staff
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
+                                    {errors.role && (
+                                        <p className="text-xs text-destructive">
+                                            {errors.role}
+                                        </p>
+                                    )}
                                 </FormField>
 
-                                <div className="p-3 rounded-lg bg-blue-50 border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800/30">
-                                    <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-                                        The invited user will receive an email invitation to set up their account password and access the
-                                        portal.
+                                <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 dark:border-blue-800/30 dark:bg-blue-900/20">
+                                    <p className="text-xs leading-relaxed text-blue-700 dark:text-blue-300">
+                                        The invited user will receive an email
+                                        invitation to set up their account
+                                        password and access the portal.
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="px-6 py-4 border-t border-border bg-muted/20 flex justify-end gap-3">
-                                <Button variant="outline" type="button" asChild size="sm">
+                            <div className="flex justify-end gap-3 border-t border-border bg-muted/20 px-6 py-4">
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    asChild
+                                    size="sm"
+                                >
                                     <Link href="/admin/users">Cancel</Link>
                                 </Button>
-                                <Button type="submit" disabled={processing} size="sm">
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    size="sm"
+                                >
                                     {processing ? 'Adding...' : 'Add User'}
                                 </Button>
                             </div>

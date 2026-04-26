@@ -11,7 +11,12 @@ interface Props {
     amount: number;
 }
 
-export default function SubscriptionSuccess({ schoolName, plan, planLabel, amount }: Props) {
+export default function SubscriptionSuccess({
+    schoolName,
+    plan,
+    planLabel,
+    amount,
+}: Props) {
     return (
         <div className="flex min-h-screen items-center justify-center bg-background p-6">
             <Head title="Subscription Activated" />
@@ -25,7 +30,9 @@ export default function SubscriptionSuccess({ schoolName, plan, planLabel, amoun
                         <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-green-100">
                             <BadgeCheck className="size-6 text-green-600" />
                         </div>
-                        <h1 className="text-lg font-semibold">Subscription Activated!</h1>
+                        <h1 className="text-lg font-semibold">
+                            Subscription Activated!
+                        </h1>
                         <p className="mt-2 mb-1 text-sm text-muted-foreground">
                             {schoolName} is now subscribed to the
                         </p>
@@ -33,9 +40,13 @@ export default function SubscriptionSuccess({ schoolName, plan, planLabel, amoun
                             {planLabel} Plan — ₱{amount.toLocaleString()}
                         </p>
                         <p className="mt-1 mb-6 text-xs text-muted-foreground">
-                            A confirmation email has been sent to your registered address.
+                            A confirmation email has been sent to your
+                            registered address.
                         </p>
-                        <Button asChild className="w-full bg-amber-600 hover:bg-amber-700 text-white">
+                        <Button
+                            asChild
+                            className="w-full bg-amber-600 text-white hover:bg-amber-700"
+                        >
                             <Link href="/admin/dashboard">Go to Dashboard</Link>
                         </Button>
                     </CardContent>

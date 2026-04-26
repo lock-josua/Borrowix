@@ -8,10 +8,23 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import StaffLayout from '@/layouts/StaffLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -39,22 +52,33 @@ interface Props {
     filters: { status?: string };
 }
 
-export default function StaffTransactionsIndex({ transactions, filters }: Props) {
+export default function StaffTransactionsIndex({
+    transactions,
+    filters,
+}: Props) {
     const [returnTarget, setReturnTarget] = useState<Transaction | null>(null);
     const [notes, setNotes] = useState('');
 
     function handleFilterChange(key: string, value: string) {
-        router.get('/staff/transactions', { ...filters, [key]: value || undefined }, { preserveState: true });
+        router.get(
+            '/staff/transactions',
+            { ...filters, [key]: value || undefined },
+            { preserveState: true },
+        );
     }
 
     function handleReturn() {
         if (!returnTarget) return;
-        router.post(`/staff/transactions/${returnTarget.id}/return`, { return_condition_notes: notes }, {
-            onSuccess: () => {
-                setReturnTarget(null);
-                setNotes('');
-            }
-        });
+        router.post(
+            `/staff/transactions/${returnTarget.id}/return`,
+            { return_condition_notes: notes },
+            {
+                onSuccess: () => {
+                    setReturnTarget(null);
+                    setNotes('');
+                },
+            },
+        );
     }
 
     return (
@@ -67,10 +91,18 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="flex flex-col gap-6 p-6"
             >
-                <PageHeader title="Transactions" description="Track loans and process returns." />
+                <PageHeader
+                    title="Transactions"
+                    description="Track loans and process returns."
+                />
 
                 <Card className="flex flex-row flex-wrap items-center gap-2 p-3">
-                    <Select value={filters.status ?? 'all'} onValueChange={(v) => handleFilterChange('status', v === 'all' ? '' : v)}>
+                    <Select
+                        value={filters.status ?? 'all'}
+                        onValueChange={(v) =>
+                            handleFilterChange('status', v === 'all' ? '' : v)
+                        }
+                    >
                         <SelectTrigger className="h-9 w-[150px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
@@ -90,26 +122,40 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
                                 key: 'borrower',
                                 label: 'Borrower',
                                 width: '25%',
-                                render: (t) => <span className="font-medium text-foreground truncate block">{t.borrower.name}</span>,
+                                render: (t) => (
+                                    <span className="block truncate font-medium text-foreground">
+                                        {t.borrower.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'equipment',
                                 label: 'Equipment',
                                 width: '25%',
-                                render: (t) => <span className="text-muted-foreground truncate block">{t.equipment.name}</span>,
+                                render: (t) => (
+                                    <span className="block truncate text-muted-foreground">
+                                        {t.equipment.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'due',
                                 label: 'Due Date',
                                 width: '15%',
-                                render: (t) => <span className="text-muted-foreground text-xs">{t.due_date}</span>,
+                                render: (t) => (
+                                    <span className="text-xs text-muted-foreground">
+                                        {t.due_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'status',
                                 label: 'Status',
                                 width: '11%',
                                 align: 'center',
-                                render: (t) => <StatusBadge status={t.status} />,
+                                render: (t) => (
+                                    <StatusBadge status={t.status} />
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -118,11 +164,29 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
                                 align: 'right',
                                 render: (t) => (
                                     <div className="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon" className="size-7" asChild>
-                                            <Link href={`/staff/transactions/${t.id}`}><Eye className="size-3.5" /></Link>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={`/staff/transactions/${t.id}`}
+                                            >
+                                                <Eye className="size-3.5" />
+                                            </Link>
                                         </Button>
                                         {t.status !== 'returned' && (
-                                            <Button variant="ghost" size="icon" className="size-7 text-primary" onClick={() => setReturnTarget(t)}><RotateCcw className="size-3.5" /></Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-7 text-primary"
+                                                onClick={() =>
+                                                    setReturnTarget(t)
+                                                }
+                                            >
+                                                <RotateCcw className="size-3.5" />
+                                            </Button>
                                         )}
                                     </div>
                                 ),
@@ -139,7 +203,10 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
                     />
                 </Card>
 
-                <Dialog open={!!returnTarget} onOpenChange={() => setReturnTarget(null)}>
+                <Dialog
+                    open={!!returnTarget}
+                    onOpenChange={() => setReturnTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Mark as Returned</DialogTitle>
@@ -148,15 +215,30 @@ export default function StaffTransactionsIndex({ transactions, filters }: Props)
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-2">
-                            <p className="text-sm text-muted-foreground"><strong>{returnTarget?.borrower.name}</strong> returning <strong>{returnTarget?.equipment.name}</strong>.</p>
+                            <p className="text-sm text-muted-foreground">
+                                <strong>{returnTarget?.borrower.name}</strong>{' '}
+                                returning{' '}
+                                <strong>{returnTarget?.equipment.name}</strong>.
+                            </p>
                             <div className="space-y-1.5">
                                 <Label>Condition Notes</Label>
-                                <Input placeholder="Any notes..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+                                <Input
+                                    placeholder="Any notes..."
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                />
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setReturnTarget(null)}>Cancel</Button>
-                            <Button onClick={handleReturn}>Confirm Return</Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setReturnTarget(null)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button onClick={handleReturn}>
+                                Confirm Return
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

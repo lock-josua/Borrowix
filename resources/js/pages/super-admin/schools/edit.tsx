@@ -56,7 +56,9 @@ export default function EditSchool({ school }: Props) {
 
                 <Card className="max-w-lg">
                     <CardHeader>
-                        <CardTitle className="text-base">School Profile</CardTitle>
+                        <CardTitle className="text-base">
+                            School Profile
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -68,10 +70,14 @@ export default function EditSchool({ school }: Props) {
                                 <Input
                                     placeholder="Enter school name"
                                     value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('name', e.target.value)
+                                    }
                                 />
                                 {errors.name && (
-                                    <p className="text-xs text-destructive">{errors.name}</p>
+                                    <p className="text-xs text-destructive">
+                                        {errors.name}
+                                    </p>
                                 )}
                             </div>
 
@@ -84,22 +90,33 @@ export default function EditSchool({ school }: Props) {
                                     type="email"
                                     placeholder="school@example.com"
                                     value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('email', e.target.value)
+                                    }
                                 />
                                 {errors.email && (
-                                    <p className="text-xs text-destructive">{errors.email}</p>
+                                    <p className="text-xs text-destructive">
+                                        {errors.email}
+                                    </p>
                                 )}
                             </div>
 
                             <div className="space-y-1.5">
                                 <Label>
                                     Contact Number{' '}
-                                    <span className="text-muted-foreground">(optional)</span>
+                                    <span className="text-muted-foreground">
+                                        (optional)
+                                    </span>
                                 </Label>
                                 <Input
                                     placeholder="+63 912 345 6789"
                                     value={data.contact_number}
-                                    onChange={(e) => setData('contact_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'contact_number',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                                 {errors.contact_number && (
                                     <p className="text-xs text-destructive">
@@ -111,15 +128,21 @@ export default function EditSchool({ school }: Props) {
                             <div className="space-y-1.5">
                                 <Label>
                                     Address{' '}
-                                    <span className="text-muted-foreground">(optional)</span>
+                                    <span className="text-muted-foreground">
+                                        (optional)
+                                    </span>
                                 </Label>
                                 <Input
                                     placeholder="Enter address"
                                     value={data.address}
-                                    onChange={(e) => setData('address', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('address', e.target.value)
+                                    }
                                 />
                                 {errors.address && (
-                                    <p className="text-xs text-destructive">{errors.address}</p>
+                                    <p className="text-xs text-destructive">
+                                        {errors.address}
+                                    </p>
                                 )}
                             </div>
 
@@ -128,10 +151,16 @@ export default function EditSchool({ school }: Props) {
                                     {processing && (
                                         <Loader2 className="mr-2 size-4 animate-spin" />
                                     )}
-                                    {processing ? 'Updating...' : 'Update School'}
+                                    {processing
+                                        ? 'Updating...'
+                                        : 'Update School'}
                                 </Button>
                                 <Button variant="outline" type="button" asChild>
-                                    <Link href={`/super-admin/schools/${school.id}`}>Cancel</Link>
+                                    <Link
+                                        href={`/super-admin/schools/${school.id}`}
+                                    >
+                                        Cancel
+                                    </Link>
                                 </Button>
                             </div>
                         </form>

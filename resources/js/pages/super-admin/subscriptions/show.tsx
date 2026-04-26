@@ -89,7 +89,9 @@ export default function SubscriptionShow({
                     description={school.email}
                     actions={
                         <div className="flex items-center gap-2">
-                            <StatusBadge status={subscription?.status ?? 'trialing'} />
+                            <StatusBadge
+                                status={subscription?.status ?? 'trialing'}
+                            />
                         </div>
                     }
                 />
@@ -117,26 +119,34 @@ export default function SubscriptionShow({
                                             </span>
                                         </Row>
                                         <Row label="Status">
-                                            <StatusBadge status={subscription.status} />
+                                            <StatusBadge
+                                                status={subscription.status}
+                                            />
                                         </Row>
                                         {subscription.trial_ends_at && (
                                             <Row label="Trial Ends">
                                                 <span className="text-muted-foreground">
-                                                    {new Date(subscription.trial_ends_at).toLocaleDateString()}
+                                                    {new Date(
+                                                        subscription.trial_ends_at,
+                                                    ).toLocaleDateString()}
                                                 </span>
                                             </Row>
                                         )}
                                         {subscription.current_period_end && (
                                             <Row label="Next Billing">
                                                 <span className="text-muted-foreground">
-                                                    {new Date(subscription.current_period_end).toLocaleDateString()}
+                                                    {new Date(
+                                                        subscription.current_period_end,
+                                                    ).toLocaleDateString()}
                                                 </span>
                                             </Row>
                                         )}
                                         {subscription.paypal_subscription_id && (
                                             <Row label="PayPal ID">
                                                 <span className="font-mono text-xs text-muted-foreground">
-                                                    {subscription.paypal_subscription_id}
+                                                    {
+                                                        subscription.paypal_subscription_id
+                                                    }
                                                 </span>
                                             </Row>
                                         )}
@@ -161,7 +171,8 @@ export default function SubscriptionShow({
                                     Payment History
                                 </CardTitle>
                                 <span className="text-xs text-muted-foreground">
-                                    {payments.length} record{payments.length !== 1 ? 's' : ''}
+                                    {payments.length} record
+                                    {payments.length !== 1 ? 's' : ''}
                                 </span>
                             </CardHeader>
                             <CardContent className="p-0">
@@ -197,16 +208,27 @@ export default function SubscriptionShow({
                                                         className="border-b border-border transition-colors last:border-0 hover:bg-muted/40"
                                                     >
                                                         <td className="px-4 py-3">
-                                                            <span className="capitalize">{p.plan}</span>
+                                                            <span className="capitalize">
+                                                                {p.plan}
+                                                            </span>
                                                         </td>
                                                         <td className="px-4 py-3">
-                                                            ₱{Number(p.amount).toLocaleString()}
+                                                            ₱
+                                                            {Number(
+                                                                p.amount,
+                                                            ).toLocaleString()}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            <StatusBadge status={p.status} />
+                                                            <StatusBadge
+                                                                status={
+                                                                    p.status
+                                                                }
+                                                            />
                                                         </td>
                                                         <td className="px-4 py-3 text-xs text-muted-foreground">
-                                                            {new Date(p.paid_at).toLocaleDateString()}
+                                                            {new Date(
+                                                                p.paid_at,
+                                                            ).toLocaleDateString()}
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -231,7 +253,9 @@ export default function SubscriptionShow({
                                     <Label className="text-xs">Status</Label>
                                     <Select
                                         value={data.status}
-                                        onValueChange={(v) => setData('status', v)}
+                                        onValueChange={(v) =>
+                                            setData('status', v)
+                                        }
                                     >
                                         <SelectTrigger className="h-10">
                                             <SelectValue />
@@ -256,7 +280,9 @@ export default function SubscriptionShow({
                                     <Label className="text-xs">Plan</Label>
                                     <Select
                                         value={data.plan ?? ''}
-                                        onValueChange={(v) => setData('plan', v)}
+                                        onValueChange={(v) =>
+                                            setData('plan', v)
+                                        }
                                     >
                                         <SelectTrigger className="h-10">
                                             <SelectValue placeholder="Select plan" />
@@ -280,7 +306,9 @@ export default function SubscriptionShow({
                                     {processing && (
                                         <Loader2 className="mr-2 size-4 animate-spin" />
                                     )}
-                                    {processing ? 'Updating...' : 'Update subscription'}
+                                    {processing
+                                        ? 'Updating...'
+                                        : 'Update subscription'}
                                 </Button>
                             </CardContent>
                         </Card>

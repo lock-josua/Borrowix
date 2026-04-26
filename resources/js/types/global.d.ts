@@ -26,7 +26,11 @@ declare module '@inertiajs/core' {
                 info: string | null;
             };
             tenant: TenantProps | null;
-            availableThemes: Array<{ slug: string; label: string; swatch_hex: string }>;
+            availableThemes: Array<{
+                slug: string;
+                label: string;
+                swatch_hex: string;
+            }>;
             [key: string]: unknown;
         };
     }

@@ -96,13 +96,13 @@ export default function Show({ borrowRequest: r }: Props) {
                 className="flex flex-col gap-6 p-6"
             >
                 <div>
-                   <PageHeader
+                    <PageHeader
                         title="Request Details"
                         description={`Request #${r.id}`}
                         actions={actionButtons}
                     />
-                    <div className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
-                         <StatusBadge status={r.status} />
+                    <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                        <StatusBadge status={r.status} />
                     </div>
                 </div>
 
@@ -114,10 +114,16 @@ export default function Show({ borrowRequest: r }: Props) {
                             value={r.equipment.category?.name ?? '—'}
                         />
                         {r.equipment.brand && (
-                            <DetailRow label="Brand" value={r.equipment.brand} />
+                            <DetailRow
+                                label="Brand"
+                                value={r.equipment.brand}
+                            />
                         )}
                         {r.equipment.model && (
-                            <DetailRow label="Model" value={r.equipment.model} />
+                            <DetailRow
+                                label="Model"
+                                value={r.equipment.model}
+                            />
                         )}
                     </DetailCard>
 
@@ -128,7 +134,9 @@ export default function Show({ borrowRequest: r }: Props) {
                         />
                         <DetailRow
                             label="Expected Return"
-                            value={new Date(r.expected_return_date).toLocaleString()}
+                            value={new Date(
+                                r.expected_return_date,
+                            ).toLocaleString()}
                         />
                         <DetailRow label="Purpose" value={r.purpose} />
                     </DetailCard>
@@ -142,7 +150,9 @@ export default function Show({ borrowRequest: r }: Props) {
                             {r.processed_at && (
                                 <DetailRow
                                     label="Processed At"
-                                    value={new Date(r.processed_at).toLocaleString()}
+                                    value={new Date(
+                                        r.processed_at,
+                                    ).toLocaleString()}
                                 />
                             )}
                             {r.remarks && (
@@ -151,7 +161,7 @@ export default function Show({ borrowRequest: r }: Props) {
                         </DetailCard>
                     )}
                 </div>
-                
+
                 {r.transaction && (
                     <div className="flex justify-start">
                         <Button variant="link" asChild className="px-0">
@@ -172,7 +182,8 @@ export default function Show({ borrowRequest: r }: Props) {
                         <DialogTitle>Cancel Request?</DialogTitle>
                         <DialogDescription>
                             Cancel your request for{' '}
-                            <strong>{r.equipment.name}</strong>? This cannot be undone.
+                            <strong>{r.equipment.name}</strong>? This cannot be
+                            undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -183,8 +194,14 @@ export default function Show({ borrowRequest: r }: Props) {
                         >
                             Keep
                         </Button>
-                        <Button variant="destructive" onClick={handleCancel} disabled={processing}>
-                            {processing && <Loader2 className="mr-2 size-4 animate-spin" />}
+                        <Button
+                            variant="destructive"
+                            onClick={handleCancel}
+                            disabled={processing}
+                        >
+                            {processing && (
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                            )}
                             Cancel Request
                         </Button>
                     </DialogFooter>

@@ -8,7 +8,14 @@ import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -37,11 +44,17 @@ interface Props {
 }
 
 export default function StudentRequestsIndex({ requests }: Props) {
-    const [cancelTarget, setCancelTarget] = useState<BorrowRequest | null>(null);
+    const [cancelTarget, setCancelTarget] = useState<BorrowRequest | null>(
+        null,
+    );
 
     function handleCancel() {
         if (!cancelTarget) return;
-        router.post(`/student/borrow-requests/${cancelTarget.id}/cancel`, {}, { onSuccess: () => setCancelTarget(null) });
+        router.post(
+            `/student/borrow-requests/${cancelTarget.id}/cancel`,
+            {},
+            { onSuccess: () => setCancelTarget(null) },
+        );
     }
 
     return (
@@ -60,7 +73,7 @@ export default function StudentRequestsIndex({ requests }: Props) {
                     actions={
                         <Button size="sm" asChild>
                             <Link href="/student/borrow-requests/create">
-                                <Plus className="size-3.5 mr-1.5" />
+                                <Plus className="mr-1.5 size-3.5" />
                                 New Request
                             </Link>
                         </Button>
@@ -74,32 +87,50 @@ export default function StudentRequestsIndex({ requests }: Props) {
                                 key: 'equipment',
                                 label: 'Equipment',
                                 width: '35%',
-                                render: (r) => <span className="font-medium text-foreground">{r.equipment.name}</span>,
+                                render: (r) => (
+                                    <span className="font-medium text-foreground">
+                                        {r.equipment.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'purpose',
                                 label: 'Purpose',
                                 width: '25%',
-                                render: (r) => <span className="text-muted-foreground truncate block">{r.purpose}</span>,
+                                render: (r) => (
+                                    <span className="block truncate text-muted-foreground">
+                                        {r.purpose}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'borrow_date',
                                 label: 'Borrow Date',
                                 width: '15%',
-                                render: (r) => <span className="text-xs">{r.borrow_date}</span>,
+                                render: (r) => (
+                                    <span className="text-xs">
+                                        {r.borrow_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'return_date',
                                 label: 'Return Date',
                                 width: '15%',
-                                render: (r) => <span className="text-xs">{r.expected_return_date}</span>,
+                                render: (r) => (
+                                    <span className="text-xs">
+                                        {r.expected_return_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'status',
                                 label: 'Status',
                                 width: '10%',
                                 align: 'center',
-                                render: (r) => <StatusBadge status={r.status} />,
+                                render: (r) => (
+                                    <StatusBadge status={r.status} />
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -108,8 +139,15 @@ export default function StudentRequestsIndex({ requests }: Props) {
                                 align: 'right',
                                 render: (r) => (
                                     <div className="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon" className="size-7" asChild>
-                                            <Link href={`/student/borrow-requests/${r.id}`}>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={`/student/borrow-requests/${r.id}`}
+                                            >
                                                 <Eye className="size-3.5" />
                                             </Link>
                                         </Button>
@@ -118,7 +156,9 @@ export default function StudentRequestsIndex({ requests }: Props) {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="size-7 hover:text-destructive"
-                                                onClick={() => setCancelTarget(r)}
+                                                onClick={() =>
+                                                    setCancelTarget(r)
+                                                }
                                             >
                                                 <XCircle className="size-3.5" />
                                             </Button>
@@ -138,7 +178,10 @@ export default function StudentRequestsIndex({ requests }: Props) {
                     />
                 </Card>
 
-                <Dialog open={!!cancelTarget} onOpenChange={() => setCancelTarget(null)}>
+                <Dialog
+                    open={!!cancelTarget}
+                    onOpenChange={() => setCancelTarget(null)}
+                >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Cancel Request?</DialogTitle>
@@ -147,10 +190,16 @@ export default function StudentRequestsIndex({ requests }: Props) {
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setCancelTarget(null)}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setCancelTarget(null)}
+                            >
                                 No
                             </Button>
-                            <Button variant="destructive" onClick={handleCancel}>
+                            <Button
+                                variant="destructive"
+                                onClick={handleCancel}
+                            >
                                 Yes, Cancel
                             </Button>
                         </DialogFooter>

@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 
 export interface Column<T> {
     key: string;
@@ -17,7 +24,12 @@ interface DataTableProps<T> {
     keyExtractor: (row: T) => string | number;
 }
 
-export function DataTable<T>({ columns, data, emptyMessage = 'No records found.', keyExtractor }: DataTableProps<T>) {
+export function DataTable<T>({
+    columns,
+    data,
+    emptyMessage = 'No records found.',
+    keyExtractor,
+}: DataTableProps<T>) {
     return (
         <div className="w-full overflow-x-auto">
             <Table style={{ tableLayout: 'fixed', width: '100%' }}>
@@ -27,8 +39,12 @@ export function DataTable<T>({ columns, data, emptyMessage = 'No records found.'
                             <TableHead
                                 key={col.key}
                                 style={{ width: col.width }}
-                                className={`text-xs font-medium uppercase tracking-wider text-muted-foreground py-3 px-4 ${
-                                    col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'
+                                className={`px-4 py-3 text-xs font-medium tracking-wider text-muted-foreground uppercase ${
+                                    col.align === 'center'
+                                        ? 'text-center'
+                                        : col.align === 'right'
+                                          ? 'text-right'
+                                          : 'text-left'
                                 }`}
                             >
                                 {col.label}
@@ -39,7 +55,10 @@ export function DataTable<T>({ columns, data, emptyMessage = 'No records found.'
                 <TableBody>
                     {data.length === 0 ? (
                         <TableRow>
-                            <TableCell colSpan={columns.length} className="text-center text-sm text-muted-foreground py-12">
+                            <TableCell
+                                colSpan={columns.length}
+                                className="py-12 text-center text-sm text-muted-foreground"
+                            >
                                 {emptyMessage}
                             </TableCell>
                         </TableRow>
@@ -49,16 +68,28 @@ export function DataTable<T>({ columns, data, emptyMessage = 'No records found.'
                                 key={keyExtractor(row)}
                                 initial={{ opacity: 0, x: -4 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.18, ease: 'easeOut', delay: i * 0.035 }}
-                                className="border-b border-border last:border-0 hover:bg-muted/40 transition-colors duration-100"
+                                transition={{
+                                    duration: 0.18,
+                                    ease: 'easeOut',
+                                    delay: i * 0.035,
+                                }}
+                                className="border-b border-border transition-colors duration-100 last:border-0 hover:bg-muted/40"
                             >
                                 {columns.map((col) => (
                                     <TableCell
                                         key={col.key}
-                                        className={`py-3 px-4 text-sm ${
-                                            col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : ''
+                                        className={`px-4 py-3 text-sm ${
+                                            col.align === 'center'
+                                                ? 'text-center'
+                                                : col.align === 'right'
+                                                  ? 'text-right'
+                                                  : ''
                                         }`}
-                                        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                        style={{
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                        }}
                                     >
                                         {col.render(row)}
                                     </TableCell>

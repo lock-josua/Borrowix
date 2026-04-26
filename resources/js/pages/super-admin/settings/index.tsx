@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { CheckCircle, Loader2 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -29,17 +29,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function SuperAdminSettingsIndex({ user }: Props) {
-    const {
-        data,
-        setData,
-        patch,
-        processing,
-        errors,
-        recentlySuccessful,
-    } = useForm({
-        name: user.name,
-        email: user.email,
-    });
+    const { data, setData, patch, processing, errors, recentlySuccessful } =
+        useForm({
+            name: user.name,
+            email: user.email,
+        });
 
     const {
         data: passwordData,
@@ -83,6 +77,14 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                     <ul className="flex items-center gap-6">
                         <li className="border-b-2 border-primary pb-2 text-sm font-semibold text-foreground">
                             Profile
+                        </li>
+                        <li>
+                            <Link
+                                href="/super-admin/settings/updates"
+                                className="inline-flex border-b-2 border-transparent pb-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                                Updates
+                            </Link>
                         </li>
                     </ul>
                 </nav>
@@ -193,7 +195,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="password">New Password</Label>
+                                    <Label htmlFor="password">
+                                        New Password
+                                    </Label>
                                     <Input
                                         id="password"
                                         type="password"
@@ -219,7 +223,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                     <Input
                                         id="password_confirmation"
                                         type="password"
-                                        value={passwordData.password_confirmation}
+                                        value={
+                                            passwordData.password_confirmation
+                                        }
                                         onChange={(event) =>
                                             setPasswordData(
                                                 'password_confirmation',
@@ -229,7 +235,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                     />
                                     {passwordErrors.password_confirmation && (
                                         <p className="text-xs text-destructive">
-                                            {passwordErrors.password_confirmation}
+                                            {
+                                                passwordErrors.password_confirmation
+                                            }
                                         </p>
                                     )}
                                 </div>

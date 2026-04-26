@@ -26,18 +26,25 @@ export function Breadcrumbs({
                                 <Fragment key={index}>
                                     <BreadcrumbItem>
                                         {isLast ? (
-                                            <BreadcrumbPage className="text-foreground font-medium">
+                                            <BreadcrumbPage className="font-medium text-foreground">
                                                 {item.title}
                                             </BreadcrumbPage>
                                         ) : (
-                                            <BreadcrumbLink asChild className="hover:text-foreground transition-colors">
+                                            <BreadcrumbLink
+                                                asChild
+                                                className="transition-colors hover:text-foreground"
+                                            >
                                                 <Link href={item.href}>
                                                     {item.title}
                                                 </Link>
                                             </BreadcrumbLink>
                                         )}
                                     </BreadcrumbItem>
-                                    {!isLast && <BreadcrumbSeparator className="[&>svg]:size-3.5">/</BreadcrumbSeparator>}
+                                    {!isLast && (
+                                        <BreadcrumbSeparator className="[&>svg]:size-3.5">
+                                            /
+                                        </BreadcrumbSeparator>
+                                    )}
                                 </Fragment>
                             );
                         })}

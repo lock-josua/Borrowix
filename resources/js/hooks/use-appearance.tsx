@@ -56,10 +56,12 @@ export function initializeTheme(): void {
     currentAppearance = getStoredAppearance();
     applyAppearance(currentAppearance);
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        applyAppearance(currentAppearance);
-        notify();
-    });
+    window
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', () => {
+            applyAppearance(currentAppearance);
+            notify();
+        });
 }
 
 export function useAppearance(): UseAppearanceReturn {

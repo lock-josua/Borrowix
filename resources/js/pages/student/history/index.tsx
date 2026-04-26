@@ -46,7 +46,10 @@ export default function StudentHistory({ history }: Props) {
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="flex flex-col gap-6 p-6"
             >
-                <PageHeader title="My History" description="Your past and active equipment transactions." />
+                <PageHeader
+                    title="My History"
+                    description="Your past and active equipment transactions."
+                />
 
                 <Card className="overflow-hidden p-0">
                     <DataTable
@@ -55,32 +58,50 @@ export default function StudentHistory({ history }: Props) {
                                 key: 'equipment',
                                 label: 'Equipment',
                                 width: '30%',
-                                render: (t) => <span className="font-medium text-foreground">{t.equipment.name}</span>,
+                                render: (t) => (
+                                    <span className="font-medium text-foreground">
+                                        {t.equipment.name}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'borrowed',
                                 label: 'Borrowed',
                                 width: '18%',
-                                render: (t) => <span className="text-xs">{t.issued_at}</span>,
+                                render: (t) => (
+                                    <span className="text-xs">
+                                        {t.issued_at}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'returned',
                                 label: 'Returned',
                                 width: '18%',
-                                render: (t) => <span className="text-xs">{t.returned_at || '—'}</span>,
+                                render: (t) => (
+                                    <span className="text-xs">
+                                        {t.returned_at || '—'}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'duration',
                                 label: 'Due',
                                 width: '14%',
-                                render: (t) => <span className="text-xs">{t.due_date}</span>,
+                                render: (t) => (
+                                    <span className="text-xs">
+                                        {t.due_date}
+                                    </span>
+                                ),
                             },
                             {
                                 key: 'status',
                                 label: 'Status',
                                 width: '12%',
                                 align: 'center',
-                                render: (t) => <StatusBadge status={t.status} />,
+                                render: (t) => (
+                                    <StatusBadge status={t.status} />
+                                ),
                             },
                             {
                                 key: 'actions',
@@ -88,8 +109,15 @@ export default function StudentHistory({ history }: Props) {
                                 width: '8%',
                                 align: 'right',
                                 render: (t) => (
-                                    <Button variant="ghost" size="icon" className="size-7" asChild>
-                                        <Link href={`/student/transactions/${t.id}`}>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-7"
+                                        asChild
+                                    >
+                                        <Link
+                                            href={`/student/transactions/${t.id}`}
+                                        >
                                             <Eye className="size-3.5" />
                                         </Link>
                                     </Button>

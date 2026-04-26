@@ -245,88 +245,98 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
 
                                             return (
                                                 <>
-                                        <h4 className="px-1 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
-                                            {group.resource}
-                                        </h4>
-                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                            {visibleActions.map((action) => {
-                                                const fullPermission = `${group.resource}.${action}`;
-                                                const granted =
-                                                    currentRole.permissions.includes(
-                                                        fullPermission,
-                                                    );
-                                                const isPending = pending.has(
-                                                    `${currentRole.name}:${fullPermission}`,
-                                                );
-                                                const isAdmin =
-                                                    currentRole.name ===
-                                                    'admin';
-                                                const isStudent =
-                                                    currentRole.name ===
-                                                    'student';
-                                                const isLockedForStudent =
-                                                    isStudent &&
-                                                    ((group.resource ===
-                                                        'equipment' &&
-                                                        [
-                                                            'create',
-                                                            'update',
-                                                            'delete',
-                                                        ].includes(action)) ||
-                                                        (group.resource ===
-                                                            'request' &&
-                                                            [
-                                                                'approve',
-                                                                'reject',
-                                                            ].includes(
-                                                                action,
-                                                            )));
-
-                                                return (
-                                                    <div
-                                                        key={fullPermission}
-                                                        className="flex items-center justify-between rounded-lg border bg-muted/20 p-3"
-                                                    >
-                                                        <div className="text-sm font-medium capitalize">
-                                                            {action}
-                                                        </div>
-                                                        <Switch
-                                                            checked={
-                                                                granted ?? false
-                                                            }
-                                                            disabled={
-                                                                isPending ||
-                                                                isAdmin ||
-                                                                isLockedForStudent
-                                                            }
-                                                            onCheckedChange={(
-                                                                checked,
-                                                            ) => {
-                                                                if (
-                                                                    isLockedForStudent
-                                                                ) {
-                                                                    toast.error(
-                                                                        'This permission is locked for students',
+                                                    <h4 className="px-1 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
+                                                        {group.resource}
+                                                    </h4>
+                                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                                        {visibleActions.map(
+                                                            (action) => {
+                                                                const fullPermission = `${group.resource}.${action}`;
+                                                                const granted =
+                                                                    currentRole.permissions.includes(
+                                                                        fullPermission,
                                                                     );
-                                                                    return;
-                                                                }
-                                                                if (
-                                                                    isPending ||
-                                                                    isAdmin
-                                                                ) {
-                                                                    return;
-                                                                }
-                                                                handleToggle(
-                                                                    currentRole.name,
-                                                                    fullPermission,
-                                                                    checked,
+                                                                const isPending =
+                                                                    pending.has(
+                                                                        `${currentRole.name}:${fullPermission}`,
+                                                                    );
+                                                                const isAdmin =
+                                                                    currentRole.name ===
+                                                                    'admin';
+                                                                const isStudent =
+                                                                    currentRole.name ===
+                                                                    'student';
+                                                                const isLockedForStudent =
+                                                                    isStudent &&
+                                                                    ((group.resource ===
+                                                                        'equipment' &&
+                                                                        [
+                                                                            'create',
+                                                                            'update',
+                                                                            'delete',
+                                                                        ].includes(
+                                                                            action,
+                                                                        )) ||
+                                                                        (group.resource ===
+                                                                            'request' &&
+                                                                            [
+                                                                                'approve',
+                                                                                'reject',
+                                                                            ].includes(
+                                                                                action,
+                                                                            )));
+
+                                                                return (
+                                                                    <div
+                                                                        key={
+                                                                            fullPermission
+                                                                        }
+                                                                        className="flex items-center justify-between rounded-lg border bg-muted/20 p-3"
+                                                                    >
+                                                                        <div className="text-sm font-medium capitalize">
+                                                                            {
+                                                                                action
+                                                                            }
+                                                                        </div>
+                                                                        <Switch
+                                                                            checked={
+                                                                                granted ??
+                                                                                false
+                                                                            }
+                                                                            disabled={
+                                                                                isPending ||
+                                                                                isAdmin ||
+                                                                                isLockedForStudent
+                                                                            }
+                                                                            onCheckedChange={(
+                                                                                checked,
+                                                                            ) => {
+                                                                                if (
+                                                                                    isLockedForStudent
+                                                                                ) {
+                                                                                    toast.error(
+                                                                                        'This permission is locked for students',
+                                                                                    );
+                                                                                    return;
+                                                                                }
+                                                                                if (
+                                                                                    isPending ||
+                                                                                    isAdmin
+                                                                                ) {
+                                                                                    return;
+                                                                                }
+                                                                                handleToggle(
+                                                                                    currentRole.name,
+                                                                                    fullPermission,
+                                                                                    checked,
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                    </div>
                                                                 );
-                                                            }}
-                                                        />
+                                                            },
+                                                        )}
                                                     </div>
-                                                );
-                                            })}
-                                        </div>
                                                 </>
                                             );
                                         })()}
