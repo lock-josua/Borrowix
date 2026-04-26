@@ -62,4 +62,6 @@ Route::prefix('super-admin')
             ->name('settings.updates');
         Route::post('/settings/updates/check', [UpdateController::class, 'check'])
             ->name('settings.updates.check');
+        Route::post('/settings/updates/install', [UpdateController::class, 'install'])
+            ->name('settings.updates.install');
     });

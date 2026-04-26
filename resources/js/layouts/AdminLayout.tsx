@@ -96,7 +96,6 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
             icon: CreditCard,
         },
         { title: 'Settings', href: '/admin/settings', icon: Settings },
-        { title: 'Updates', href: '/admin/settings/updates', icon: RefreshCw },
     ];
 
     const administrationNav: NavItem[] = [

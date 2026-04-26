@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import {
     ArrowUpCircle,
     CheckCircle2,
@@ -55,6 +55,24 @@ function formatDate(iso: string | null): string {
 export default function SuperAdminUpdates({ updateStatus }: Props) {
     const [status, setStatus] = useState<UpdateStatus>(updateStatus);
     const [checking, setChecking] = useState(false);
+    const [installing, setInstalling] = useState(false);
+
+    function handleInstall() {
+        if (
+            confirm(
+                `Are you sure you want to install v${status.latest_version}? This may take a moment.`,
+            )
+        ) {
+            router.post(
+                '/super-admin/settings/updates/install',
+                {},
+                {
+                    onStart: () => setInstalling(true),
+                    onFinish: () => setInstalling(false),
+                },
+            );
+        }
+    }
 
     async function handleCheck() {
         setChecking(true);
@@ -126,9 +144,10 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                             {status.has_update ? (
                                 <Badge
                                     variant="destructive"
-                                    className="text-xs"
+                                    className="cursor-pointer text-xs transition-colors hover:bg-destructive/80"
+                                    onClick={handleInstall}
                                 >
-                                    Update available
+                                    Update available (Click to Install)
                                 </Badge>
                             ) : (
                                 <Badge
@@ -218,7 +237,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                     <Button
                         variant="outline"
                         size="sm"
-                        disabled={checking}
+                        disabled={checking || installing}
                         onClick={handleCheck}
                     >
                         {checking ? (
@@ -228,6 +247,22 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                         )}
                         Check for updates
                     </Button>
+
+                    {status.has_update && (
+                        <Button
+                            variant="default"
+                            size="sm"
+                            disabled={checking || installing}
+                            onClick={handleInstall}
+                        >
+                            {installing ? (
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                            ) : (
+                                <ArrowUpCircle className="mr-2 size-4" />
+                            )}
+                            Install Update
+                        </Button>
+                    )}
 
                     {status.release_url && (
                         <Button variant="ghost" size="sm" asChild>

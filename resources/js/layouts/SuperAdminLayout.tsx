@@ -136,21 +136,6 @@ export default function SuperAdminLayout({
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    asChild
-                                    isActive={isCurrentUrl(
-                                        '/super-admin/settings/updates',
-                                    )}
-                                    tooltip={{ children: 'Updates' }}
-                                    className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
-                                >
-                                    <Link href="/super-admin/settings/updates">
-                                        <RefreshCw className="size-4" />
-                                        <span>Updates</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroup>
                 </SidebarContent>
