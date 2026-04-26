@@ -39,6 +39,18 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'school_email',
             'admin_email',
             'contact_number',
+            // Tenant customization fields - stored as direct columns
+            'logo_path',
+            'login_bg_image',
+            'login_bg_mode',
+            'login_bg_color',
+            'primary_color',
+            'active_theme',
+            'school_tagline',
+            'allowed_proof_types',
+            'max_daily_requests',
+            'public_browse_enabled',
+            'maintenance_message',
         ];
     }
 }

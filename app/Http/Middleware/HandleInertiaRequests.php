@@ -4,7 +4,9 @@ namespace App\Http\Middleware;
 
 use App\Enums\Permission;
 use App\Models\Subscription;
+use App\Services\TenantThemeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
@@ -89,13 +91,23 @@ class HandleInertiaRequests extends Middleware
             })() : null,
             'tenant' => tenant() ? [
                 'logo_url' => tenant()->logo_path
-                                ? (str_starts_with(tenant()->logo_path, 'http')
-                                    ? tenant()->logo_path  // Full secure_url from new upload
-                                    : Storage::url(tenant()->logo_path))  // Legacy path
-                                : null,
+                                        ? (str_starts_with(tenant()->logo_path, 'http')
+                                            ? tenant()->logo_path
+                                            : $this->safeStorageUrl(tenant()->logo_path))
+                                        : null,
                 'primary_color' => tenant()->primary_color ?? '#EA580C',
+                'active_theme' => tenant()->active_theme ?? 'default',
                 'school_name' => tenant()->school_name ?? config('app.name'),
+                'school_tagline' => tenant()->school_tagline ?? '',
+                'login_bg_mode' => tenant()->login_bg_mode ?? 'color',
+                'login_bg_color' => tenant()->login_bg_color ?? '#04305d',
+                'login_bg_image_url' => tenant()->login_bg_image
+                                        ? (str_starts_with(tenant()->login_bg_image, 'http')
+                                            ? tenant()->login_bg_image
+                                            : Storage::url(tenant()->login_bg_image))
+                                        : null,
             ] : null,
+            'availableThemes' => TenantThemeService::themesForFrontend(),
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
@@ -103,5 +115,19 @@ class HandleInertiaRequests extends Middleware
                 'info' => $request->session()->get('info'),
             ],
         ];
+    }
+
+    protected function safeStorageUrl(string $path): ?string
+    {
+        try {
+            return Storage::url($path);
+        } catch (\Exception $e) {
+            Log::warning('Failed to resolve storage URL for tenant logo', [
+                'path' => $path,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 }
