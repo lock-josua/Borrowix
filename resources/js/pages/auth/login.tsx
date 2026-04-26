@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,17 +13,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { request } from '@/routes/password';
 
+interface TenantBranding {
+    logo_url: string | null;
+    school_name: string;
+    school_tagline: string;
+    login_bg_mode: 'color' | 'image';
+    login_bg_color: string;
+    login_bg_image_url: string | null;
+    primary_color: string;
+}
+
 type Props = {
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
 };
 
-export default function Login({
-    status,
-    canResetPassword,
-    canRegister,
-}: Props) {
+export default function Login({ status, canResetPassword, canRegister }: Props) {
+    const { tenant } = usePage().props as { tenant: TenantBranding | null };
+
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
@@ -32,15 +40,29 @@ export default function Login({
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        post('/login', {
-            onSuccess: () => {},
-        });
+        post('/login');
     }
+
+    const rightPanelStyle: React.CSSProperties = (() => {
+        if (!tenant) return {};
+        if (tenant.login_bg_mode === 'image' && tenant.login_bg_image_url) {
+            return {
+                backgroundImage: `url(${tenant.login_bg_image_url})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            };
+        }
+        return { backgroundColor: tenant.login_bg_color ?? '#04305d' };
+    })();
+
+    const schoolName    = tenant?.school_name    ?? 'Borrowix';
+    const schoolTagline = tenant?.school_tagline ?? 'Manage ICT equipment borrowing across your school.';
 
     return (
         <div className="flex min-h-screen flex-col bg-background lg:flex-row">
             <Head title="Log in" />
 
+            {/* ── Left panel: login form ── */}
             <div className="order-2 flex flex-1 items-center justify-center p-6 sm:p-10 lg:order-1">
                 <motion.div
                     initial={{ opacity: 0, x: -12 }}
@@ -50,17 +72,26 @@ export default function Login({
                 >
                     <Card className="border-0 shadow-none sm:border sm:shadow-sm">
                         <CardHeader className="space-y-1 px-0 sm:px-6">
-                            <div className="mb-4 flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                                <LayoutDashboard className="size-4" />
+                            <div className="mb-4 flex size-12 items-center justify-center overflow-hidden rounded-md bg-primary text-primary-foreground">
+                                {tenant?.logo_url ? (
+                                    <img
+                                        src={tenant.logo_url}
+                                        alt={schoolName}
+                                        className="size-full object-cover"
+                                    />
+                                ) : (
+                                    <LayoutDashboard className="size-5" />
+                                )}
                             </div>
                             <h1 className="text-xl font-semibold tracking-tight text-foreground">
                                 Welcome back
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                Sign in to your Borrowix account
+                                Sign in with your account
                             </p>
                         </CardHeader>
-                        <CardContent className="px-0 pt-4 sm:px-6">
+
+                        <CardContent className="px-0 pt-4 sm:px-6 pb-6">
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="space-y-1">
                                     <Label htmlFor="email">Email address</Label>
@@ -69,9 +100,7 @@ export default function Login({
                                         type="email"
                                         name="email"
                                         value={data.email}
-                                        onChange={(
-                                            e: React.ChangeEvent<HTMLInputElement>,
-                                        ) => setData('email', e.target.value)}
+                                        onChange={(e) => setData('email', e.target.value)}
                                         required
                                         autoFocus
                                         autoComplete="email"
@@ -87,9 +116,7 @@ export default function Login({
 
                                 <div className="space-y-1">
                                     <div className="flex items-center justify-between">
-                                        <Label htmlFor="password">
-                                            Password
-                                        </Label>
+                                        <Label htmlFor="password">Password</Label>
                                         {canResetPassword && (
                                             <Link
                                                 href={request()}
@@ -104,11 +131,7 @@ export default function Login({
                                         type="password"
                                         name="password"
                                         value={data.password}
-                                        onChange={(
-                                            e: React.ChangeEvent<HTMLInputElement>,
-                                        ) =>
-                                            setData('password', e.target.value)
-                                        }
+                                        onChange={(e) => setData('password', e.target.value)}
                                         required
                                         autoComplete="current-password"
                                         placeholder="••••••••"
@@ -129,10 +152,7 @@ export default function Login({
                                             setData('remember', checked)
                                         }
                                     />
-                                    <Label
-                                        htmlFor="remember"
-                                        className="cursor-pointer text-sm font-medium"
-                                    >
+                                    <Label htmlFor="remember" className="cursor-pointer text-sm font-medium">
                                         Remember me
                                     </Label>
                                 </div>
@@ -149,6 +169,7 @@ export default function Login({
                                 </Button>
                             </form>
                         </CardContent>
+
                         <CardFooter className="flex flex-col gap-4 px-0 sm:px-6">
                             {canRegister && (
                                 <div className="w-full text-center text-sm text-muted-foreground">
@@ -172,25 +193,39 @@ export default function Login({
                 </motion.div>
             </div>
 
-            <div className="relative order-1 hidden flex-1 flex-col justify-between overflow-hidden bg-primary p-12 text-primary-foreground lg:order-2 lg:flex">
+            {/* ── Right panel: branding / background ── */}
+            <div
+                className="relative order-1 hidden flex-1 flex-col justify-between overflow-hidden p-12 text-white lg:order-2 lg:flex"
+                style={rightPanelStyle}
+            >
+                {/* Dark overlay for image mode readability */}
+                {tenant?.login_bg_mode === 'image' && tenant.login_bg_image_url && (
+                    <div className="absolute inset-0 bg-black/40" />
+                )}
+
                 <div className="relative z-10">
-                    <div className="flex items-center gap-2">
-                        <div className="flex size-8 items-center justify-center rounded-lg bg-white/10">
-                            <LayoutDashboard className="size-5 text-white" />
+                    <div className="flex items-center gap-3">
+                        <div className="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-white/10">
+                            {tenant?.logo_url ? (
+                                <img
+                                    src={tenant.logo_url}
+                                    alt={schoolName}
+                                    className="size-full object-cover"
+                                />
+                            ) : (
+                                <LayoutDashboard className="size-5 text-white" />
+                            )}
                         </div>
-                        <span className="text-2xl font-bold tracking-tight">
-                            Borrowix
-                        </span>
+                        <span className="text-2xl font-bold tracking-tight">{schoolName}</span>
                     </div>
                 </div>
 
                 <div className="relative z-10 max-w-md">
                     <h2 className="mb-4 text-3xl leading-tight font-semibold">
-                        Manage ICT equipment borrowing across your school.
+                        {schoolTagline}
                     </h2>
-                    <p className="text-lg leading-relaxed text-primary-foreground/70">
-                        Simple, trackable, and fair equipment management for
-                        students and staff.
+                    <p className="text-lg leading-relaxed text-white/70">
+                        Simple, trackable, and fair equipment management for students and staff.
                     </p>
                 </div>
 
@@ -200,8 +235,12 @@ export default function Login({
                     <div className="ml-16 h-16 w-48 rounded-2xl border border-white/10 bg-white/10 opacity-30 backdrop-blur-sm" />
                 </div>
 
-                <div className="absolute top-[-10%] right-[-10%] h-96 w-96 rounded-full bg-white/5 blur-3xl" />
-                <div className="absolute bottom-[-5%] left-[-5%] h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+                {tenant?.login_bg_mode !== 'image' && (
+                    <>
+                        <div className="absolute top-[-10%] right-[-10%] h-96 w-96 rounded-full bg-white/5 blur-3xl" />
+                        <div className="absolute bottom-[-5%] left-[-5%] h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+                    </>
+                )}
             </div>
         </div>
     );
