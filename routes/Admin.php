@@ -88,7 +88,15 @@ Route::prefix('admin')
 
         // School Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-        Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('/settings/general', [SettingsController::class, 'general'])->name('settings.general');
+        Route::patch('/settings/general', [SettingsController::class, 'updateGeneral'])->name('settings.general.update');
+        Route::get('/settings/school', [SettingsController::class, 'school'])->name('settings.school');
+        Route::patch('/settings/school', [SettingsController::class, 'updateSchool'])->name('settings.school.update');
+        Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password.update');
+        Route::get('/settings/customization', [SettingsController::class, 'customization'])
+            ->name('settings.customization');
+        Route::post('/settings/customization', [SettingsController::class, 'updateCustomization'])
+            ->name('settings.customization.update');
 
         // RBAC — role permissions matrix
         Route::get('/rbac', [RbacController::class, 'index'])->name('rbac.index');

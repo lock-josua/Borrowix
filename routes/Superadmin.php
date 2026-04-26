@@ -3,6 +3,7 @@
 use App\Http\Controllers\SuperAdmin\AnalyticsController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\SchoolController;
+use App\Http\Controllers\SuperAdmin\SettingsController;
 use App\Http\Controllers\SuperAdmin\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,4 +47,12 @@ Route::prefix('super-admin')
         // Analytics
         Route::get('/analytics', [AnalyticsController::class, 'index'])
             ->name('analytics');
+
+        // Settings
+        Route::get('/settings', [SettingsController::class, 'index'])
+            ->name('settings');
+        Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])
+            ->name('settings.profile.update');
+        Route::put('/settings/password', [SettingsController::class, 'updatePassword'])
+            ->name('settings.password.update');
     });
