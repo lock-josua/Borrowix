@@ -56,7 +56,7 @@ interface Props extends PropsWithChildren {
 
 export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
-    const { can, version, tenantSubscription } = usePage().props as {
+    const { can, version, tenantSubscription, tenant } = usePage().props as {
         can: Record<string, boolean>;
         version: string;
         tenantSubscription?: {
@@ -64,6 +64,9 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
             plan: string | null;
             trial_ends_at: string | null;
             trial_days_remaining: number;
+        } | null;
+        tenant: {
+            logo_url: string | null;
         } | null;
     };
 
@@ -103,8 +106,16 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" asChild>
                                 <Link href="/admin/dashboard">
-                                    <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                                        <LayoutDashboard className="size-4" />
+                                    <div className="flex aspect-square size-10 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground">
+                                        {tenant?.logo_url ? (
+                                            <img
+                                                src={tenant.logo_url}
+                                                alt="Tenant logo"
+                                                className="size-full rounded-full object-contain"
+                                            />
+                                        ) : (
+                                            <LayoutDashboard className="size-4" />
+                                        )}
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
                                         <span className="truncate font-semibold text-foreground">

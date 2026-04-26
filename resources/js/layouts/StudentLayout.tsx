@@ -34,11 +34,14 @@ interface Props extends PropsWithChildren {
 export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
     const isMobileOrTablet = useIsTabletOrBelow();
-    const { version, can } = usePage().props as {
+    const { version, can, tenant } = usePage().props as {
         version: string;
         can?: {
             can_scan?: boolean;
         };
+        tenant: {
+            logo_url: string | null;
+        } | null;
     };
 
     const navItems = [
@@ -60,8 +63,16 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
             <AppShell variant="header">
                 <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background/95 px-4 backdrop-blur">
                     <div className="flex items-center gap-2">
-                        <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                            <Zap className="size-3.5" />
+                        <div className="flex size-7 items-center justify-center overflow-hidden rounded-lg bg-primary text-primary-foreground">
+                            {tenant?.logo_url ? (
+                                <img
+                                    src={tenant.logo_url}
+                                    alt="Tenant logo"
+                                    className="size-full rounded-lg object-contain"
+                                />
+                            ) : (
+                                <Zap className="size-3.5" />
+                            )}
                         </div>
                         <span className="text-[13px] font-semibold text-foreground">
                             Borrowix
@@ -121,8 +132,16 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" asChild>
                                 <Link href="/student/dashboard">
-                                    <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                                        <Zap className="size-4" />
+                                    <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-md bg-primary text-primary-foreground">
+                                        {tenant?.logo_url ? (
+                                            <img
+                                                src={tenant.logo_url}
+                                                alt="Tenant logo"
+                                                className="size-full rounded-md object-contain"
+                                            />
+                                        ) : (
+                                            <Zap className="size-4" />
+                                        )}
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">
                                         <span className="truncate font-semibold text-foreground">

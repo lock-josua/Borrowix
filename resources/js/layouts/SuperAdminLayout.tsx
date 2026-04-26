@@ -105,11 +105,11 @@ export default function SuperAdminLayout({
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     asChild
-                                    isActive={isCurrentUrl('/settings/profile')}
+                                    isActive={isCurrentUrl('/super-admin/settings')}
                                     tooltip={{ children: 'Settings' }}
                                     className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
                                 >
-                                    <Link href="/settings/profile">
+                                    <Link href="/super-admin/settings">
                                         <Settings className="size-4" />
                                         <span>Settings</span>
                                     </Link>
