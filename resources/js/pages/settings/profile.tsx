@@ -76,7 +76,7 @@ export default function Profile({
                             setData,
                         }) => (
                             <>
-                                <CardContent className="space-y-5 pt-6">
+                                <CardContent className="space-y-5 pt-6 pb-6">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="name">Full Name</Label>
                                         <Input

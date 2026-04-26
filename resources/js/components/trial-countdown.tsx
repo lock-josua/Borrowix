@@ -1,9 +1,9 @@
+import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
 
 interface TrialCountdownProps {
     trialEndsAt: string;

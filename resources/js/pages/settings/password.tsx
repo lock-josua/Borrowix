@@ -57,7 +57,7 @@ export default function Password() {
                         setData,
                     }) => (
                         <>
-                            <CardContent className="space-y-5 pt-6">
+                            <CardContent className="space-y-5 pt-6 pb-6">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="current_password">
                                         Current Password

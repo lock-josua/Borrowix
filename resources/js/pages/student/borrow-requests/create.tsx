@@ -105,7 +105,7 @@ export default function CreateRequest({
                             <CardTitle>Request Details</CardTitle>
                         </CardHeader>
                         <form onSubmit={handleSubmit}>
-                            <CardContent className="space-y-5">
+                            <CardContent className="space-y-5 pb-6">
                                 <div className="space-y-2">
                                     <Label>Equipment</Label>
                                     {selectedEquipment ? (
