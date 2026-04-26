@@ -34,40 +34,54 @@ class UpdateService
      */
     public function latestRelease(): ?array
     {
-        return Cache::remember('github_latest_release', $this->cacheTtl, function () {
-            try {
-                $response = Http::withHeaders($this->buildHeaders())
-                    ->timeout(8)
-                    ->get("https://api.github.com/repos/{$this->repo}/releases/latest");
+        $cacheFile = base_path('storage/framework/cache/github_latest_release.json');
 
-                if ($response->failed()) {
-                    Log::warning('UpdateService: GitHub API returned non-2xx', [
-                        'status' => $response->status(),
-                        'repo' => $this->repo,
-                    ]);
+        if (file_exists($cacheFile)) {
+            $data = json_decode(file_get_contents($cacheFile), true);
+            if (isset($data['expires_at']) && time() < $data['expires_at']) {
+                return $data['release'];
+            }
+        }
 
-                    return null;
-                }
+        try {
+            $response = Http::withHeaders($this->buildHeaders())
+                ->timeout(8)
+                ->get("https://api.github.com/repos/{$this->repo}/releases/latest");
 
-                $data = $response->json();
-
-                return [
-                    'version' => ltrim($data['tag_name'] ?? '0.0.0', 'v'),
-                    'tag_name' => $data['tag_name'] ?? '',
-                    'name' => $data['name'] ?? '',
-                    'body' => $data['body'] ?? '',
-                    'published_at' => $data['published_at'] ?? null,
-                    'html_url' => $data['html_url'] ?? '',
-                    'prerelease' => $data['prerelease'] ?? false,
-                ];
-            } catch (\Exception $e) {
-                Log::warning('UpdateService: Exception fetching release', [
-                    'error' => $e->getMessage(),
+            if ($response->failed()) {
+                Log::warning('UpdateService: GitHub API returned non-2xx', [
+                    'status' => $response->status(),
+                    'repo'   => $this->repo,
                 ]);
 
                 return null;
             }
-        });
+
+            $data = $response->json();
+
+            $release = [
+                'version'      => ltrim($data['tag_name'] ?? '0.0.0', 'v'),
+                'tag_name'     => $data['tag_name'] ?? '',
+                'name'         => $data['name'] ?? '',
+                'body'         => $data['body'] ?? '',
+                'published_at' => $data['published_at'] ?? null,
+                'html_url'     => $data['html_url'] ?? '',
+                'prerelease'   => $data['prerelease'] ?? false,
+            ];
+
+            file_put_contents($cacheFile, json_encode([
+                'expires_at' => time() + $this->cacheTtl,
+                'release' => $release,
+            ]));
+
+            return $release;
+        } catch (\Exception $e) {
+            Log::warning('UpdateService: Exception fetching release', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     /**
@@ -107,7 +121,11 @@ class UpdateService
      */
     public function forceRefresh(): array
     {
-        Cache::forget('github_latest_release');
+        $cacheFile = base_path('storage/framework/cache/github_latest_release.json');
+        
+        if (file_exists($cacheFile)) {
+            @unlink($cacheFile);
+        }
 
         return $this->status();
     }
