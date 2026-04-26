@@ -27,18 +27,6 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useIsTabletOrBelow } from '@/hooks/use-mobile';
 import type { BreadcrumbItem } from '@/types';
 
-const navItems = [
-    { title: 'Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
-    { title: 'Browse Equipment', href: '/student/browse', icon: Search },
-    { title: 'Scan Equipment', href: '/student/scan', icon: ScanLine },
-    {
-        title: 'My Requests',
-        href: '/student/borrow-requests',
-        icon: ClipboardList,
-    },
-    { title: 'My History', href: '/student/history', icon: History },
-];
-
 interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
@@ -46,7 +34,26 @@ interface Props extends PropsWithChildren {
 export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
     const isMobileOrTablet = useIsTabletOrBelow();
-    const { version } = usePage().props;
+    const { version, can } = usePage().props as {
+        version: string;
+        can?: {
+            can_scan?: boolean;
+        };
+    };
+
+    const navItems = [
+        { title: 'Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
+        { title: 'Browse Equipment', href: '/student/browse', icon: Search },
+        ...(can?.can_scan
+            ? [{ title: 'Scan Equipment', href: '/student/scan', icon: ScanLine }]
+            : []),
+        {
+            title: 'My Requests',
+            href: '/student/borrow-requests',
+            icon: ClipboardList,
+        },
+        { title: 'My History', href: '/student/history', icon: History },
+    ];
 
     if (isMobileOrTablet) {
         return (

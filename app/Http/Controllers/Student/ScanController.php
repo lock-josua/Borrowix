@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Enums\BorrowRequestStatus;
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowRequest;
 use App\Models\BorrowTransaction;
@@ -20,11 +21,15 @@ class ScanController extends Controller
 {
     public function index(): Response
     {
+        $this->authorize(Permission::EquipmentScan->value);
+
         return Inertia::render('student/scan');
     }
 
     public function resolve(Request $request): JsonResponse
     {
+        $this->authorize(Permission::EquipmentScan->value);
+
         $request->validate([
             'qr_token' => ['required', 'string', 'size:36'],
         ]);

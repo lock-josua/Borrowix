@@ -3,9 +3,14 @@
 use App\Enums\BorrowRequestStatus;
 use App\Enums\BorrowTransactionStatus;
 use App\Enums\EquipmentStatus;
+use App\Enums\Permission;
 use App\Models\EquipmentScanLog;
+use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 
@@ -94,6 +99,33 @@ describe('ScanController Methods', function () {
     test('scan controller has private logScan method', function () {
         $controller = app(App\Http\Controllers\Student\ScanController::class);
         expect(method_exists($controller, 'logScan'))->toBeTrue();
+    });
+
+    test('index is forbidden when student scan permission is revoked', function () {
+        Role::findByName('student')->revokePermissionTo(Permission::EquipmentScan->value);
+
+        $student = User::factory()->student()->create();
+
+        $this->actingAs($student);
+
+        $controller = app(App\Http\Controllers\Student\ScanController::class);
+
+        expect(fn () => $controller->index())->toThrow(AuthorizationException::class);
+    });
+
+    test('resolve is forbidden when student scan permission is revoked', function () {
+        Role::findByName('student')->revokePermissionTo(Permission::EquipmentScan->value);
+
+        $student = User::factory()->student()->create();
+
+        $this->actingAs($student);
+
+        $controller = app(App\Http\Controllers\Student\ScanController::class);
+        $request = Request::create('/student/scan/resolve', 'POST', [
+            'qr_token' => (string) Str::uuid(),
+        ]);
+
+        expect(fn () => $controller->resolve($request))->toThrow(AuthorizationException::class);
     });
 });
 

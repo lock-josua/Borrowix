@@ -223,11 +223,33 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
                                         key={group.resource}
                                         className="space-y-4"
                                     >
+                                        {(() => {
+                                            const visibleActions =
+                                                group.permissions.filter(
+                                                    (action) => {
+                                                        if (
+                                                            selectedRole ===
+                                                                'student' &&
+                                                            group.resource ===
+                                                                'equipment'
+                                                        ) {
+                                                            return (
+                                                                action !==
+                                                                'qr.generate'
+                                                            );
+                                                        }
+
+                                                        return true;
+                                                    },
+                                                );
+
+                                            return (
+                                                <>
                                         <h4 className="px-1 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
                                             {group.resource}
                                         </h4>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                            {group.permissions.map((action) => {
+                                            {visibleActions.map((action) => {
                                                 const fullPermission = `${group.resource}.${action}`;
                                                 const granted =
                                                     currentRole.permissions.includes(
@@ -305,6 +327,9 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
                                                 );
                                             })}
                                         </div>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 ))}
                             </div>

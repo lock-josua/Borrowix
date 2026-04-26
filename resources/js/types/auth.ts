@@ -26,6 +26,7 @@ export type TwoFactorSecretKey = {
 export type Can = {
     manage_equipment?: boolean;
     delete_equipment?: boolean;
+    can_scan?: boolean;
     approve_requests?: boolean;
     create_request?: boolean;
     process_returns?: boolean;

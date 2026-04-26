@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Enums\Permission;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -64,6 +65,7 @@ class HandleInertiaRequests extends Middleware
             'can' => tenant() && $request->user() ? [
                 'manage_equipment' => $request->user()->can(Permission::EquipmentCreate->value),
                 'delete_equipment' => $request->user()->can(Permission::EquipmentDelete->value),
+                'can_scan' => $request->user()->can(Permission::EquipmentScan->value),
                 'approve_requests' => $request->user()->can(Permission::RequestApprove->value),
                 'reject_requests' => $request->user()->can(Permission::RequestReject->value),
                 'create_request' => $request->user()->can(Permission::RequestCreate->value),
@@ -85,6 +87,15 @@ class HandleInertiaRequests extends Middleware
                     'trial_days_remaining' => $sub->trialDaysRemaining(),
                 ] : null;
             })() : null,
+            'tenant' => tenant() ? [
+                'logo_url' => tenant()->logo_path
+                                ? (str_starts_with(tenant()->logo_path, 'http')
+                                    ? tenant()->logo_path  // Full secure_url from new upload
+                                    : Storage::url(tenant()->logo_path))  // Legacy path
+                                : null,
+                'primary_color' => tenant()->primary_color ?? '#EA580C',
+                'school_name' => tenant()->school_name ?? config('app.name'),
+            ] : null,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
