@@ -38,13 +38,19 @@ class AnalyticsController extends Controller
 
     private function getSchoolsGrowth(): array
     {
-        return Tenant::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(*) as total')
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->pluck('total', 'month')
-            ->map(fn ($total, $month) => ['month' => $month, 'total' => (int) $total])
-            ->values()
+        return Tenant::leftJoin('subscriptions', 'tenants.id', '=', 'subscriptions.tenant_id')
+            ->selectRaw('DATE_FORMAT(tenants.created_at, "%Y-%m-%d") as date')
+            ->selectRaw('SUM(CASE WHEN subscriptions.plan = "annually" THEN 1 ELSE 0 END) as annual')
+            ->selectRaw('SUM(CASE WHEN subscriptions.plan = "monthly" OR subscriptions.plan IS NULL THEN 1 ELSE 0 END) as monthly')
+            ->where('tenants.created_at', '>=', now()->subMonths(12))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(fn ($item) => [
+                'date' => $item->date,
+                'annual' => (int) $item->annual,
+                'monthly' => (int) $item->monthly,
+            ])
             ->toArray();
     }
 

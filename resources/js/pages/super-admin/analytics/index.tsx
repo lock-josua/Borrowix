@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { CreditCard, School, TrendingUp } from 'lucide-react';
@@ -25,7 +26,16 @@ import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
+    ChartLegend,
+    ChartLegendContent,
 } from '@/components/ui/chart';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -34,13 +44,14 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Analytics', href: '/super-admin/analytics' },
 ];
 
-interface MonthlyData {
-    month: string;
-    total: number;
+interface GrowthData {
+    date: string;
+    annual: number;
+    monthly: number;
 }
 
 interface Props {
-    schoolsGrowth: MonthlyData[];
+    schoolsGrowth: GrowthData[];
     totals: { schools: number };
     subscriptionStats: Record<string, number>;
     statusBreakdown: Record<string, number>;
@@ -58,10 +69,41 @@ export default function Analytics({
     statusBreakdown,
     revenue,
 }: Props) {
+    const [timeRange, setTimeRange] = React.useState('90d');
+
     const revenueData = [
         { month: 'This Month', revenue: revenue.monthly_recurring },
         { month: 'This Year', revenue: revenue.annual_recurring },
     ];
+
+    const filteredSchoolsGrowth = React.useMemo(() => {
+        const referenceDate = new Date();
+        let daysToSubtract = 90;
+        if (timeRange === '30d') {
+            daysToSubtract = 30;
+        } else if (timeRange === '7d') {
+            daysToSubtract = 7;
+        }
+
+        const startDate = new Date(referenceDate);
+        startDate.setDate(startDate.getDate() - daysToSubtract);
+
+        return schoolsGrowth.filter((item) => new Date(item.date) >= startDate);
+    }, [schoolsGrowth, timeRange]);
+
+    const chartConfig = {
+        growth: {
+            label: 'Growth',
+        },
+        annual: {
+            label: 'Annual Plan',
+            color: 'var(--chart-1)',
+        },
+        monthly: {
+            label: 'Monthly Plan',
+            color: 'var(--chart-2)',
+        },
+    } satisfies ChartConfig;
 
     const pieData = Object.entries(subscriptionStats).map(([name, value]) => ({
         name,
@@ -211,28 +253,126 @@ export default function Analytics({
 
                 {/* Schools Growth */}
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            Schools Growth
-                        </CardTitle>
-                        <CardDescription>
-                            New schools over the last 6 months
-                        </CardDescription>
+                    <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+                        <div className="grid flex-1 gap-1 text-center sm:text-left">
+                            <CardTitle className="text-base">
+                                Schools Growth
+                            </CardTitle>
+                            <CardDescription>
+                                Showing new schools by plan type
+                            </CardDescription>
+                        </div>
+                        <Select value={timeRange} onValueChange={setTimeRange}>
+                            <SelectTrigger
+                                className="w-[160px] rounded-lg sm:ml-auto"
+                                aria-label="Select a value"
+                            >
+                                <SelectValue placeholder="Last 3 months" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                                <SelectItem value="90d" className="rounded-lg">
+                                    Last 3 months
+                                </SelectItem>
+                                <SelectItem value="30d" className="rounded-lg">
+                                    Last 30 days
+                                </SelectItem>
+                                <SelectItem value="7d" className="rounded-lg">
+                                    Last 7 days
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
                     </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={{}} className="h-[200px]">
-                            <AreaChart data={schoolsGrowth}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="month" />
-                                <YAxis />
+                    <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+                        <ChartContainer
+                            config={chartConfig}
+                            className="aspect-auto h-[350px] w-full"
+                        >
+                            <AreaChart data={filteredSchoolsGrowth}>
+                                <defs>
+                                    <linearGradient
+                                        id="fillAnnual"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
+                                    >
+                                        <stop
+                                            offset="5%"
+                                            stopColor="var(--color-annual)"
+                                            stopOpacity={0.8}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor="var(--color-annual)"
+                                            stopOpacity={0.1}
+                                        />
+                                    </linearGradient>
+                                    <linearGradient
+                                        id="fillMonthly"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
+                                    >
+                                        <stop
+                                            offset="5%"
+                                            stopColor="var(--color-monthly)"
+                                            stopOpacity={0.8}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor="var(--color-monthly)"
+                                            stopOpacity={0.1}
+                                        />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="date"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    minTickGap={32}
+                                    tickFormatter={(value) => {
+                                        const date = new Date(value);
+                                        return date.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                        });
+                                    }}
+                                />
                                 <ChartTooltip
-                                    content={<ChartTooltipContent />}
+                                    cursor={false}
+                                    content={
+                                        <ChartTooltipContent
+                                            labelFormatter={(value) => {
+                                                return new Date(
+                                                    value,
+                                                ).toLocaleDateString('en-US', {
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                });
+                                            }}
+                                            indicator="dot"
+                                        />
+                                    }
                                 />
                                 <Area
-                                    type="monotone"
-                                    dataKey="total"
-                                    stroke="hsl(var(--chart-2))"
-                                    fill="hsl(var(--chart-2))"
+                                    dataKey="monthly"
+                                    type="natural"
+                                    fill="url(#fillMonthly)"
+                                    stroke="var(--color-monthly)"
+                                    stackId="a"
+                                />
+                                <Area
+                                    dataKey="annual"
+                                    type="natural"
+                                    fill="url(#fillAnnual)"
+                                    stroke="var(--color-annual)"
+                                    stackId="a"
+                                />
+                                <ChartLegend
+                                    content={<ChartLegendContent />}
                                 />
                             </AreaChart>
                         </ChartContainer>
