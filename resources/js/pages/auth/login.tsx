@@ -48,15 +48,18 @@ export default function Login({
     }
 
     const rightPanelStyle: React.CSSProperties = (() => {
-        if (!tenant) return {};
-        if (tenant.login_bg_mode === 'image' && tenant.login_bg_image_url) {
+        // Fallback to CSS variable --primary if no tenant color is set
+        // This ensures the login page is affected by the active theme even for Super Admin
+        const bgColor = tenant?.login_bg_color ?? 'var(--primary)';
+        
+        if (tenant?.login_bg_mode === 'image' && tenant.login_bg_image_url) {
             return {
                 backgroundImage: `url(${tenant.login_bg_image_url})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
             };
         }
-        return { backgroundColor: tenant.login_bg_color ?? '#04305d' };
+        return { backgroundColor: bgColor };
     })();
 
     const schoolName = tenant?.school_name ?? 'Borrowix';
