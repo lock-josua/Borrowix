@@ -221,7 +221,6 @@ export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
                 </SidebarContent>
 
                 <SidebarFooter>
-                    <VersionBadge version={version} />
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>

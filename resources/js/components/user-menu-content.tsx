@@ -1,5 +1,6 @@
-import { Link, router } from '@inertiajs/react';
-import { LogOut, Moon, Sun } from 'lucide-react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { LogOut, Moon, Sun, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -7,6 +8,7 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
+import { FeedbackDialog } from '@/components/feedback-dialog';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { logout } from '@/routes';
@@ -20,6 +22,8 @@ type Props = {
 export function UserMenuContent({ user }: Props) {
     const cleanup = useMobileNavigation();
     const { appearance, updateAppearance } = useAppearance();
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const { version } = usePage().props as { version: string };
     // Color theme logic removed
 
     const handleLogout = () => {
@@ -72,6 +76,18 @@ export function UserMenuContent({ user }: Props) {
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />
+            <DropdownMenuItem
+                className="cursor-pointer"
+                onSelect={(e) => {
+                    e.preventDefault();
+                    setFeedbackOpen(true);
+                }}
+            >
+                <MessageSquare className="mr-2 size-4" />
+                Feedback & Support
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
                 <Link
                     className="block w-full cursor-pointer text-destructive focus:text-destructive"
@@ -84,6 +100,16 @@ export function UserMenuContent({ user }: Props) {
                     Log out
                 </Link>
             </DropdownMenuItem>
+
+            <FeedbackDialog
+                open={feedbackOpen}
+                onOpenChange={setFeedbackOpen}
+            />
+
+            <DropdownMenuSeparator />
+            <div className="px-2 py-1.5 text-[10px] font-medium text-muted-foreground/50">
+                Version {version}
+            </div>
         </>
     );
 }

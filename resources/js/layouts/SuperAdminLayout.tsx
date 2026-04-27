@@ -6,6 +6,7 @@ import {
     CreditCard,
     Settings,
     RefreshCw,
+    MessageSquare,
 } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
@@ -40,6 +41,11 @@ const platformNav = [
     },
 
     { title: 'Analytics', href: '/super-admin/analytics', icon: BarChart3 },
+    {
+        title: 'Feedback & Support',
+        href: '/super-admin/feedbacks',
+        icon: MessageSquare,
+    },
 ];
 
 interface Props extends PropsWithChildren {
@@ -141,7 +147,6 @@ export default function SuperAdminLayout({
                 </SidebarContent>
 
                 <SidebarFooter>
-                    <VersionBadge version={version} />
                     <NavUser />
                 </SidebarFooter>
             </Sidebar>

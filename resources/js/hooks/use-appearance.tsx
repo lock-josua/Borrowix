@@ -2,15 +2,19 @@ import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';
 export type Appearance = ResolvedAppearance | 'system';
+export type Theme = 'default' | 'sandstone' | 'sesi';
 
 export type UseAppearanceReturn = {
     readonly appearance: Appearance;
     readonly resolvedAppearance: ResolvedAppearance;
     readonly updateAppearance: (mode: Appearance) => void;
+    readonly theme: Theme;
+    readonly updateTheme: (theme: Theme) => void;
 };
 
 const listeners = new Set<() => void>();
 let currentAppearance: Appearance = 'system';
+let currentTheme: Theme = 'default';
 
 const prefersDark = (): boolean => {
     if (typeof window === 'undefined') return false;
@@ -28,6 +32,11 @@ const getStoredAppearance = (): Appearance => {
     return (localStorage.getItem('appearance') as Appearance) || 'system';
 };
 
+const getStoredTheme = (): Theme => {
+    if (typeof window === 'undefined') return 'default';
+    return (localStorage.getItem('theme') as Theme) || 'default';
+};
+
 const isDarkMode = (appearance: Appearance): boolean =>
     appearance === 'dark' || (appearance === 'system' && prefersDark());
 
@@ -36,6 +45,15 @@ const applyAppearance = (appearance: Appearance): void => {
     const isDark = isDarkMode(appearance);
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+};
+
+const applyTheme = (theme: Theme): void => {
+    if (typeof document === 'undefined') return;
+    if (theme === 'default') {
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
 };
 
 const subscribe = (callback: () => void) => {
@@ -53,7 +71,21 @@ export function initializeTheme(): void {
         setCookie('appearance', 'system');
     }
 
+    if (!localStorage.getItem('theme')) {
+        localStorage.setItem('theme', 'default');
+    }
+
     currentAppearance = getStoredAppearance();
+    
+    // Check if the server already set a theme (e.g., via Blade for tenants)
+    const serverTheme = document.documentElement.getAttribute('data-theme') as Theme | null;
+    if (serverTheme && ['default', 'sandstone', 'sesi'].includes(serverTheme)) {
+        currentTheme = serverTheme;
+    } else {
+        currentTheme = getStoredTheme();
+        applyTheme(currentTheme);
+    }
+    
     applyAppearance(currentAppearance);
 
     window
@@ -71,6 +103,12 @@ export function useAppearance(): UseAppearanceReturn {
         () => 'system',
     );
 
+    const theme: Theme = useSyncExternalStore(
+        subscribe,
+        () => currentTheme,
+        () => 'default',
+    );
+
     const resolvedAppearance: ResolvedAppearance = useMemo(
         () => (isDarkMode(appearance) ? 'dark' : 'light'),
         [appearance],
@@ -84,5 +122,19 @@ export function useAppearance(): UseAppearanceReturn {
         notify();
     }, []);
 
-    return { appearance, resolvedAppearance, updateAppearance } as const;
+    const updateTheme = useCallback((newTheme: Theme): void => {
+        currentTheme = newTheme;
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+        notify();
+    }, []);
+
+    return { 
+        appearance, 
+        resolvedAppearance, 
+        updateAppearance,
+        theme,
+        updateTheme
+    } as const;
 }
+

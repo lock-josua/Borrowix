@@ -23,7 +23,7 @@ export default function AdminSettingsLayout({ children }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 p-6">
             <PageHeader
                 title="Settings"
                 description="Manage your school's settings."

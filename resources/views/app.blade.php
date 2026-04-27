@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 @php
     $tenantThemeAttr = '';
+    $primaryColor = null;
     if (tenancy()->initialized) {
         $tenantThemeAttr = \App\Services\TenantThemeService::dataThemeAttr(tenant('active_theme') ?? 'default') ?? '';
+        $primaryColor = tenant('primary_color');
     }
 @endphp
 <html
@@ -30,10 +32,11 @@
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Inline style to set the HTML background color and primary color based on our theme --}}
         <style>
             html {
                 background-color: oklch(1 0 0);
+                @if(isset($primaryColor)) --primary: {{ $primaryColor }} !important; @endif
             }
 
             html.dark {

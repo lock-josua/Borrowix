@@ -31,13 +31,11 @@ class TenantThemeService
                 'swatch_hex' => '#c49a1e',     // Sandstone accent — hsl(42.15 100% 69%) ≈ warm gold
                 'data_theme' => 'sandstone',   // Matches [data-theme='sandstone'] in app.css
             ],
-            // ── Add more themes here ──────────────────────────────────────────────────
-            // Example:
-            // 'ocean' => [
-            //     'label'      => 'Ocean',
-            //     'swatch_hex' => '#2563EB',
-            //     'data_theme' => 'ocean',    // → add [data-theme='ocean'] to app.css
-            // ],
+            'sesi' => [
+                'label' => 'Sesi',
+                'swatch_hex' => '#1a408e',     // Sesi primary — hsl(219 70.6% 33.3%)
+                'data_theme' => 'sesi',        // Matches [data-theme='sesi'] in app.css
+            ],
         ];
     }
 

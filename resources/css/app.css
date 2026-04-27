@@ -307,6 +307,8 @@
     --shadow-2xl: 0rem 0.3rem 0.6rem 0rem hsl(218.1818 21.5686% 10% / 1.5);
 }
 
+@import './themes/sesi.css';
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
@@ -389,8 +391,8 @@
     padding: 8px 0 0 !important;
 }
 #qr-reader__dashboard_section_csr button {
-    background: hsl(var(--primary)) !important;
-    color: hsl(var(--primary-foreground)) !important;
+    background: var(--primary) !important;
+    color: var(--primary-foreground) !important;
     border: none !important;
     border-radius: 6px !important;
     padding: 6px 14px !important;
@@ -399,5 +401,5 @@
 }
 #qr-reader__status_span {
     font-size: 12px !important;
-    color: hsl(var(--muted-foreground)) !important;
+    color: var(--muted-foreground) !important;
 }
