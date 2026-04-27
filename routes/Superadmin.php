@@ -64,4 +64,10 @@ Route::prefix('super-admin')
             ->name('settings.updates.check');
         Route::post('/settings/updates/install', [UpdateController::class, 'install'])
             ->name('settings.updates.install');
+
+        // Feedbacks
+        Route::get('/feedbacks', [\App\Http\Controllers\SuperAdmin\FeedbackController::class, 'index'])
+            ->name('feedbacks.index');
+        Route::put('/feedbacks/{feedback}', [\App\Http\Controllers\SuperAdmin\FeedbackController::class, 'update'])
+            ->name('feedbacks.update');
     });

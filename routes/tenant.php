@@ -220,6 +220,14 @@ Route::middleware([
         ->middleware(['auth', 'verified'])
         ->name('tenant.dashboard');
 
+    Route::get('/tenant/feedback', [\App\Http\Controllers\Tenant\FeedbackController::class, 'index'])
+        ->middleware(['auth', 'verified'])
+        ->name('tenant.feedback.index');
+
+    Route::post('/tenant/feedback', [\App\Http\Controllers\Tenant\FeedbackController::class, 'store'])
+        ->middleware(['auth', 'verified'])
+        ->name('tenant.feedback.store');
+
     /*
     |--------------------------------------------------------------------------
     | Tenant-specific resource routes
