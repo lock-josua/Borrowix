@@ -26,10 +26,7 @@ Route::prefix('super-admin')
             ->name('schools.store');
         Route::get('/schools/{tenant}', [SchoolController::class, 'show'])
             ->name('schools.show');
-        Route::get('/schools/{tenant}/edit', [SchoolController::class, 'edit'])
-            ->name('schools.edit');
-        Route::patch('/schools/{tenant}', [SchoolController::class, 'update'])
-            ->name('schools.update');
+
         Route::post('/schools/{tenant}/suspend', [SchoolController::class, 'suspend'])
             ->name('schools.suspend');
         Route::post('/schools/{tenant}/reactivate', [SchoolController::class, 'reactivate'])

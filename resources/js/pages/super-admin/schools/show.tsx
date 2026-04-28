@@ -5,7 +5,7 @@ import {
     Check,
     Copy,
     Loader2,
-    Pencil,
+
     RefreshCw,
     ShieldAlert,
     ShieldCheck,
@@ -143,14 +143,6 @@ export default function SchoolShow({ school, subscription }: Props) {
                         <div className="flex items-center gap-2">
                             <StatusBadge status={school.status} />
                             <StatusBadge status={school.plan} />
-                            <Link
-                                href={`/super-admin/schools/${school.id}/edit`}
-                            >
-                                <Button variant="outline" size="sm">
-                                    <Pencil className="mr-2 size-3.5" />
-                                    Edit
-                                </Button>
-                            </Link>
                             <Button
                                 variant="outline"
                                 size="sm"

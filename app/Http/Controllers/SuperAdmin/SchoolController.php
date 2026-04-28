@@ -4,7 +4,6 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SchoolCreatedMail;
-use App\Mail\SchoolProfileUpdatedMail;
 use App\Mail\SchoolReactivatedMail;
 use App\Mail\SchoolSuspendedMail;
 use App\Models\Subscription;
@@ -232,54 +231,6 @@ class SchoolController extends Controller
             ],
             'subscription' => $subscription,
         ]);
-    }
-
-    public function edit(Tenant $tenant): Response
-    {
-        return Inertia::render('super-admin/schools/edit', [
-            'school' => [
-                'id' => $tenant->id,
-                'name' => $tenant->school_name ?? '',
-                'email' => $tenant->school_email ?? '',
-                'contact_number' => $tenant->contact_number ?? '',
-                'address' => $tenant->address ?? '',
-            ],
-        ]);
-    }
-
-    public function update(Request $request, Tenant $tenant): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'contact_number' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $tenant->update([
-            'school_name' => $validated['name'],
-            'school_email' => $validated['email'],
-            'contact_number' => $validated['contact_number'],
-            'address' => $validated['address'],
-        ]);
-
-        Mail::to($tenant->school_email)->send(new SchoolProfileUpdatedMail(
-            schoolName: $validated['name'],
-            adminEmail: $validated['email'],
-            contactNumber: $validated['contact_number'] ?? '',
-            address: $validated['address'] ?? '',
-        ));
-
-        SystemLogService::log(
-            'school_updated',
-            "School profile updated: {$tenant->school_name}",
-            $tenant->id,
-            'super_admin'
-        );
-
-        return redirect()
-            ->route('super-admin.schools.show', $tenant)
-            ->with('success', 'School updated successfully.');
     }
 
     public function suspend(Request $request, Tenant $tenant): RedirectResponse
