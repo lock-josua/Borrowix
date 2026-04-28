@@ -32,6 +32,7 @@ export function SuperAdminAppearanceToggle() {
         { value: 'default', label: 'Default' },
         { value: 'sandstone', label: 'Sandstone' },
         { value: 'sesi', label: 'Sesi' },
+        { value: 'whatsapp', label: 'Whatsapp' },
     ];
 
     const appearances: { value: Appearance; label: string; icon: typeof Sun }[] = [

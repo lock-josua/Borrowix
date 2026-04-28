@@ -308,6 +308,7 @@
 }
 
 @import './themes/sesi.css';
+@import './themes/whatsapp.css';
 
 @layer base {
     * {

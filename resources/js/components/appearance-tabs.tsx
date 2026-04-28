@@ -25,6 +25,8 @@ export default function AppearanceToggleTab({
     const themeTabs: { value: Theme; icon: LucideIcon; label: string }[] = [
         { value: 'default', icon: Palette, label: 'Default' },
         { value: 'sandstone', icon: Palette, label: 'Sandstone' },
+        { value: 'sesi', icon: Palette, label: 'Sesi' },
+        { value: 'whatsapp', icon: Palette, label: 'Whatsapp' },
     ];
 
     return (

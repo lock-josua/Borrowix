@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { ImageIcon, Loader2, Palette, Upload, X } from 'lucide-react';
 import { useState } from 'react';
@@ -43,11 +44,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/admin/settings/customization' },
 ];
 
+import { useEditMode } from '@/hooks/use-edit-mode';
+
 export default function CustomizationSettingsPage({
     customization,
     available_themes,
 }: Props) {
-    const { data, setData, post, transform, processing, errors } = useForm({
+    const editMode = useEditMode();
+
+    const { data, setData, post, transform, processing, errors, reset } = useForm({
         logo: null as File | null,
         login_bg_image: null as File | null,
         login_bg_mode: customization.login_bg_mode,
@@ -96,13 +101,22 @@ export default function CustomizationSettingsPage({
 
     function handleSubmit(event: React.FormEvent) {
         event.preventDefault();
+
+        if (!editMode.isEditing) {
+            editMode.startEditing();
+            return;
+        }
+
         // Strip null file fields so Laravel doesn't receive empty strings.
         transform((data) => ({
             ...data,
             login_bg_image: data.login_bg_image ?? undefined,
             logo: data.logo ?? undefined,
         }));
-        post('/admin/settings/customization', { forceFormData: true });
+        post('/admin/settings/customization', {
+            forceFormData: true,
+            onSuccess: () => editMode.stopEditing(),
+        });
     }
 
     return (
@@ -172,6 +186,7 @@ export default function CustomizationSettingsPage({
                                                         ?.click()
                                                 }
                                                 className="flex items-center gap-2"
+                                                disabled={!editMode.isEditing}
                                             >
                                                 <Upload className="size-3.5" />
                                                 {logoPreview
@@ -186,6 +201,7 @@ export default function CustomizationSettingsPage({
                                                     size="sm"
                                                     onClick={removeLogo}
                                                     className="flex items-center gap-2 text-destructive hover:bg-destructive/5 hover:text-destructive"
+                                                    disabled={!editMode.isEditing}
                                                 >
                                                     <X className="size-3.5" />
                                                     Remove
@@ -243,6 +259,7 @@ export default function CustomizationSettingsPage({
                                         maxLength={150}
                                         placeholder="Enter your school's inspiring tagline…"
                                         className="text-sm"
+                                        disabled={!editMode.isEditing}
                                     />
                                     <p className="text-right text-xs text-muted-foreground">
                                         {data.school_tagline.length} / 150
@@ -283,6 +300,7 @@ export default function CustomizationSettingsPage({
                                                     ? 'bg-background text-foreground shadow-sm'
                                                     : 'text-muted-foreground hover:text-foreground'
                                             }`}
+                                            disabled={!editMode.isEditing}
                                         >
                                             Solid
                                         </button>
@@ -299,6 +317,7 @@ export default function CustomizationSettingsPage({
                                                     ? 'bg-background text-foreground shadow-sm'
                                                     : 'text-muted-foreground hover:text-foreground'
                                             }`}
+                                            disabled={!editMode.isEditing}
                                         >
                                             Image
                                         </button>
@@ -343,6 +362,7 @@ export default function CustomizationSettingsPage({
                                                     )
                                                 }
                                                 className="size-9 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
+                                                disabled={!editMode.isEditing}
                                             />
                                             <Input
                                                 value={data.login_bg_color}
@@ -354,6 +374,7 @@ export default function CustomizationSettingsPage({
                                                 }
                                                 className="w-36 font-mono text-sm"
                                                 placeholder="#F9FAFB"
+                                                disabled={!editMode.isEditing}
                                             />
                                         </div>
                                     )}
@@ -372,6 +393,7 @@ export default function CustomizationSettingsPage({
                                                         ?.click()
                                                 }
                                                 className="flex items-center gap-2"
+                                                disabled={!editMode.isEditing}
                                             >
                                                 <Upload className="size-3.5" />
                                                 {bgImagePreview
@@ -426,12 +448,29 @@ export default function CustomizationSettingsPage({
                                 onChange={(slug) =>
                                     setData('active_theme', slug)
                                 }
+                                disabled={!editMode.isEditing}
                             />
                         </CardContent>
                     </Card>
 
                     {/* ── Save ────────────────────────────────────────── */}
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-4">
+                        {editMode.isEditing && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => {
+                                    editMode.stopEditing();
+                                    reset();
+                                    setLogoPreview(customization.logo_url);
+                                    setBgImagePreview(
+                                        customization.login_bg_image_url,
+                                    );
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        )}
                         <Button
                             type="submit"
                             disabled={processing}
@@ -442,8 +481,10 @@ export default function CustomizationSettingsPage({
                                     <Loader2 className="mr-2 size-4 animate-spin" />
                                     Saving…
                                 </>
-                            ) : (
+                            ) : editMode.isEditing ? (
                                 'Save Changes'
+                            ) : (
+                                'Edit Customization'
                             )}
                         </Button>
                     </div>

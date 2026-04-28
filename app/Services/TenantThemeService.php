@@ -36,6 +36,11 @@ class TenantThemeService
                 'swatch_hex' => '#1a408e',     // Sesi primary — hsl(219 70.6% 33.3%)
                 'data_theme' => 'sesi',        // Matches [data-theme='sesi'] in app.css
             ],
+            'whatsapp' => [
+                'label' => 'Whatsapp',
+                'swatch_hex' => '#25D366',     // Whatsapp accent — hsl(142.41 70.16% 48.63%)
+                'data_theme' => 'whatsapp',    // Matches [data-theme='whatsapp'] in app.css
+            ],
         ];
     }
 

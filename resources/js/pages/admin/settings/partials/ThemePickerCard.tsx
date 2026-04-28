@@ -11,9 +11,15 @@ interface Props {
     themes: ThemeOption[];
     value: string;
     onChange: (slug: string) => void;
+    disabled?: boolean;
 }
 
-export function ThemePickerCard({ themes, value, onChange }: Props) {
+export function ThemePickerCard({
+    themes,
+    value,
+    onChange,
+    disabled = false,
+}: Props) {
     const activeHex =
         themes.find((t) => t.slug === value)?.swatch_hex ?? '#EA580C';
 
@@ -28,11 +34,15 @@ export function ThemePickerCard({ themes, value, onChange }: Props) {
                             key={theme.slug}
                             type="button"
                             onClick={() => onChange(theme.slug)}
+                            disabled={disabled}
                             className={cn(
-                                'relative flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-all hover:border-foreground/40',
+                                'relative flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-all',
                                 isSelected
                                     ? 'border-foreground shadow-sm'
                                     : 'border-border',
+                                disabled
+                                    ? 'cursor-not-allowed opacity-50'
+                                    : 'hover:border-foreground/40',
                             )}
                         >
                             <span

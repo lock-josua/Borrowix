@@ -2,7 +2,7 @@ import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';
 export type Appearance = ResolvedAppearance | 'system';
-export type Theme = 'default' | 'sandstone' | 'sesi';
+export type Theme = 'default' | 'sandstone' | 'sesi' | 'whatsapp';
 
 export type UseAppearanceReturn = {
     readonly appearance: Appearance;
@@ -79,7 +79,7 @@ export function initializeTheme(): void {
     
     // Check if the server already set a theme (e.g., via Blade for tenants)
     const serverTheme = document.documentElement.getAttribute('data-theme') as Theme | null;
-    if (serverTheme && ['default', 'sandstone', 'sesi'].includes(serverTheme)) {
+    if (serverTheme && ['default', 'sandstone', 'sesi', 'whatsapp'].includes(serverTheme)) {
         currentTheme = serverTheme;
     } else {
         currentTheme = getStoredTheme();
