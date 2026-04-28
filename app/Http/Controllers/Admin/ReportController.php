@@ -8,11 +8,12 @@ use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\BorrowTransaction;
 use App\Models\Equipment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ReportController extends Controller
 {
@@ -63,12 +64,13 @@ class ReportController extends Controller
         ]);
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request): SymfonyResponse
     {
         $this->authorize(Permission::ReportExport->value);
 
         $from = $request->from ?? now()->startOfMonth()->toDateString();
         $to = $request->to ?? now()->toDateString();
+        $type = $request->type ?? 'excel';
 
         $transactions = BorrowTransaction::with(['borrower', 'equipment'])
             ->whereBetween('issued_at', [$from, $to])
@@ -115,8 +117,13 @@ class ReportController extends Controller
             'active' => collect($transactions)->where('status', BorrowTransactionStatus::Active->value)->count(),
         ];
 
-        $filename = "report-{$from}-to-{$to}.xlsx";
+        if ($type === 'pdf') {
+            $pdf = Pdf::loadView('pdf.report', compact('transactions', 'topEquipment', 'topBorrowers', 'summary', 'from', 'to'));
 
+            return $pdf->download("report-{$from}-to-{$to}.pdf");
+        }
+
+        $filename = "report-{$from}-to-{$to}.xlsx";
         $export = new ReportExport($transactions, $topEquipment, $topBorrowers, $summary, $from, $to);
         $spreadsheet = $export->spreadsheet();
 

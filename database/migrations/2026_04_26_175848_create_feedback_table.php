@@ -14,13 +14,19 @@ return new class extends Migration
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
             $table->string('tenant_id')->nullable();
+            $table->foreign('tenant_id')
+                ->references('id')
+                ->on('tenants')
+                ->nullOnDelete();
             $table->string('user_name');
             $table->string('user_email');
             $table->string('user_role');
-            $table->string('type'); // 'bug' or 'concern'
+            $table->string('type');
             $table->string('title');
             $table->text('description');
-            $table->string('status')->default('open'); // 'open', 'in_progress', 'resolved', 'closed'
+            $table->text('admin_response')->nullable();
+            $table->timestamp('responded_at')->nullable();
+            $table->string('status')->default('open');
             $table->string('attachment_path')->nullable();
             $table->timestamps();
         });

@@ -89,14 +89,24 @@ export default function ReportsIndex({
                     title="Reports & Analytics"
                     description="Inventory and borrowing trends analysis."
                     actions={
-                        <Button variant="outline" size="sm" asChild>
-                            <a
-                                href={`/admin/reports/export?from=${from}&to=${to}`}
-                                className="gap-1.5"
-                            >
-                                <Download className="size-3.5" /> Export Excel
-                            </a>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                                <a
+                                    href={`/admin/reports/export?type=excel&from=${from}&to=${to}`}
+                                    className="gap-1.5"
+                                >
+                                    <Download className="size-3.5" /> Export Excel
+                                </a>
+                            </Button>
+                            <Button variant="outline" size="sm" asChild>
+                                <a
+                                    href={`/admin/reports/export?type=pdf&from=${from}&to=${to}`}
+                                    className="gap-1.5"
+                                >
+                                    <FileText className="size-3.5" /> Export PDF
+                                </a>
+                            </Button>
+                        </div>
                     }
                 />
 
