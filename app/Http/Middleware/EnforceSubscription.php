@@ -45,7 +45,13 @@ class EnforceSubscription
             return $next($request);
         }
 
-        $status = $tenant->status ?? 'trialing';
+        // Always read status from the subscriptions table — never from tenant JSON.
+        // $tenant->status is legacy and unreliable after the schema refactor.
+        $subscription = \App\Models\Subscription::where('tenant_id', $tenant->id)
+            ->latest()
+            ->first();
+
+        $status = $subscription?->status ?? 'trialing';
 
         if (in_array($status, ['trialing', 'subscribed'])) {
             return $next($request);

@@ -39,38 +39,35 @@ class EnsureSchoolIsActive
     {
         $tenant = tenant();
 
-        // No tenant context = central domain request (super_admin) — always allow
         if (! $tenant) {
             return $next($request);
         }
 
-        // Always allow auth routes to prevent infinite redirect loop.
-        // If suspended users hit /login, they see the login page.
-        // If they try to log in, the middleware fires AFTER auth — they
-        // get redirected to the suspended page immediately.
         if ($request->routeIs(...self::ALLOWED_ROUTES)) {
             return $next($request);
         }
 
-        $status = $tenant->status ?? 'active';
+        // Always read status from the subscriptions table — never from tenant JSON.
+        $subscription = \App\Models\Subscription::where('tenant_id', $tenant->id)
+            ->latest()
+            ->first();
+
+        $status = $subscription?->status ?? 'trialing';
 
         if ($status !== 'suspended') {
             return $next($request);
         }
 
-        // School is suspended — log out any active session and show
-        // the branded suspended page instead of a generic error.
+        // School is suspended — log out any active session and show the suspended page.
         if (Auth::check()) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }
 
-        // Return the Inertia suspended page with the suspension reason
-        // so users understand why they are locked out.
         return Inertia::render('suspended', [
             'schoolName' => $tenant->school_name ?? $tenant->id,
-            'suspensionReason' => $tenant->suspension_reason ?? null,
+            'suspensionReason' => $subscription?->suspension_reason ?? null,
             'contactEmail' => $tenant->school_email,
         ])->toResponse($request)->setStatusCode(403);
     }

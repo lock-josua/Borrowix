@@ -43,6 +43,17 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * IMPORTANT: Always update a user's role via $user->role = UserRole::X (then save).
+     * The booted() observer below automatically syncs Spatie's model_has_roles table
+     * whenever the role column changes.
+     *
+     * Never call $user->syncRoles() directly without also setting $user->role —
+     * that would update Spatie's table but leave the role column out of sync,
+     * causing hasRole() to return the wrong result since it reads from the column.
+     *
+     * The role column is the single source of truth. Spatie roles are a derived copy.
+     */
     protected static function booted(): void
     {
         static::saved(function (self $user) {
@@ -82,12 +93,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Checks the user's role column against the given role string.
+     * Overrides Spatie's HasRoles::hasRole() to use the role column as the source of truth.
+     * This is intentional — the role column is always in sync via the booted() observer,
+     * and checking a single column is faster than a JOIN on model_has_roles.
      *
-     * This method intentionally shadows Spatie's hasRole() to support
-     * the role column as the source of truth for CheckRole middleware.
-     * When Spatie internals pass a Collection or Role model (e.g. from
-     * hasPermissionViaRole), we delegate to Spatie's trait implementation.
+     * Spatie's original implementation is preserved as spatieHasRole() for cases where
+     * Spatie internals pass a Collection or Role model object (e.g. permission checks via role).
      */
     public function hasRole($role, ?string $guard = null): bool
     {

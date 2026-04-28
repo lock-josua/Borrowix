@@ -28,6 +28,7 @@ import {
     ChartTooltipContent,
     ChartLegend,
     ChartLegendContent,
+    ChartConfig,
 } from '@/components/ui/chart';
 import {
     Select,
@@ -56,8 +57,9 @@ interface Props {
     subscriptionStats: Record<string, number>;
     statusBreakdown: Record<string, number>;
     revenue: {
-        monthly_recurring: number;
-        annual_recurring: number;
+        monthly_recurring: number; // MRR
+        annual_recurring: number;  // ARR
+        monthly_cash_flow: number;
         total: number;
     };
 }
@@ -133,14 +135,14 @@ export default function Analytics({
                         icon={<School />}
                     />
                     <StatCard
-                        title="Monthly Revenue"
+                        title="Monthly Recurring Revenue"
                         value={`₱${revenue.monthly_recurring.toLocaleString()}`}
                         valueColor="hsl(var(--chart-1))"
                         delay={0.05}
                         icon={<CreditCard />}
                     />
                     <StatCard
-                        title="Annual Revenue"
+                        title="Annual Recurring Revenue"
                         value={`₱${revenue.annual_recurring.toLocaleString()}`}
                         valueColor="hsl(var(--chart-2))"
                         delay={0.1}

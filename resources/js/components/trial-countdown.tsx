@@ -30,10 +30,10 @@ export function TrialCountdown({
     const isWarning = daysRemaining <= 10;
 
     const colorClass = isUrgent
-        ? 'border-destructive/30 bg-destructive/5 text-destructive'
+        ? 'border-destructive/30 bg-destructive/10 text-destructive'
         : isWarning
-          ? 'border-amber-400/30 bg-amber-50 text-amber-700'
-          : 'border-amber-300/30 bg-amber-50/50 text-amber-600';
+          ? 'border-accent/30 bg-accent/10 text-accent'
+          : 'border-primary/30 bg-primary/5 text-primary';
 
     return (
         <motion.div
@@ -48,7 +48,13 @@ export function TrialCountdown({
                 <span className="font-medium">Trial ends in</span>
                 <Badge
                     variant="outline"
-                    className={`font-mono text-xs ${isUrgent ? 'border-destructive text-destructive' : 'border-amber-400 text-amber-700'}`}
+                    className={`font-mono text-xs ${
+                        isUrgent
+                            ? 'border-destructive text-destructive'
+                            : isWarning
+                              ? 'border-accent text-accent'
+                              : 'border-primary/50 text-primary'
+                    }`}
                 >
                     {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{' '}
                     {timeLeft.seconds}s
@@ -59,7 +65,7 @@ export function TrialCountdown({
                 <Button
                     asChild
                     size="sm"
-                    className="h-7 bg-amber-600 px-3 text-xs text-white hover:bg-amber-700"
+                    className="h-7 bg-primary px-3 text-xs text-primary-foreground hover:bg-primary/90"
                 >
                     <Link href="/admin/subscription">Subscribe</Link>
                 </Button>

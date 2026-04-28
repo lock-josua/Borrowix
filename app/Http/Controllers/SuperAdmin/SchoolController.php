@@ -29,14 +29,11 @@ class SchoolController extends Controller
 
     public function index(Request $request): Response
     {
-        $schools = Tenant::with('domains')
+        $schools = Tenant::with(['domains', 'subscription'])
             ->when($request->search, fn ($q) => $q->where('school_email', 'like', "%{$request->search}%")
                 ->orWhere('data->school_name', 'like', "%{$request->search}%")
             )
-            ->when($request->plan, fn ($q) => $q->where(fn ($sq) => $sq
-                ->whereHas('subscription', fn ($ss) => $ss->where('status', $request->plan))
-                ->orWhere(fn ($tsq) => $tsq->whereRelation('subscription', null)->where('data->status', $request->plan === 'trialing' ? 'trialing' : null))
-            ))
+            ->when($request->plan, fn ($q) => $q->whereHas('subscription', fn ($ss) => $ss->where('status', $request->plan)))
             ->latest()
             ->paginate(15)
             ->through(fn ($t) => [
@@ -44,9 +41,9 @@ class SchoolController extends Controller
                 'name' => $t->school_name ?? $t->id,
                 'email' => $t->school_email,
                 'contact_number' => $t->contact_number ?? '',
-                'plan' => $t->plan ?? null,
-                'status' => $t->status ?? 'trialing',
-                'subscription_status' => Subscription::where('tenant_id', $t->id)->latest()->value('status') ?? $t->status ?? 'trialing',
+                'plan' => $t->subscription?->plan ?? null,
+                'status' => $t->subscription?->status ?? 'trialing',
+                'subscription_status' => $t->subscription?->status ?? 'trialing',
                 'subdomain' => $t->domains->first()?->domain,
                 'school_url' => $t->domains->first()?->domain
                     ? 'http://'.$t->domains->first()?->domain.'.'.config('tenancy.central_domains')[0].':8000'
@@ -56,7 +53,7 @@ class SchoolController extends Controller
 
         return Inertia::render('super-admin/schools/index', [
             'schools' => $schools,
-            'filters' => $request->only(['search', 'plan', 'status']),
+            'filters' => $request->only(['search', 'plan']),
         ]);
     }
 
@@ -88,7 +85,6 @@ class SchoolController extends Controller
             'admin_email' => $validated['admin_email'],
             'contact_number' => $validated['contact_number'] ?? null,
             'school_name' => $validated['school_name'],
-            'status' => 'trialing',
         ]);
 
         $tenant->domains()->create(['domain' => $slug]);
@@ -198,8 +194,8 @@ class SchoolController extends Controller
 
     public function show(Tenant $tenant): Response
     {
-        $tenant->load('domains');
-        $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->first();
+        $tenant->load(['domains', 'subscription']);
+        $subscription = $tenant->subscription;
 
         $subdomain = $tenant->domains->first()?->domain;
         $centralDomain = config('tenancy.central_domains')[0];
@@ -223,9 +219,9 @@ class SchoolController extends Controller
                 'email' => $tenant->school_email,
                 'contact_number' => $tenant->contact_number ?? '',
                 'address' => $tenant->address ?? '',
-                'plan' => $tenant->plan ?? 'free',
-                'status' => $tenant->status ?? 'active',
-                'suspension_reason' => $tenant->suspension_reason ?? null,
+                'plan' => $subscription?->plan ?? null,
+                'status' => $subscription?->status ?? 'trialing',
+                'suspension_reason' => $subscription?->suspension_reason ?? null,
                 'subdomain' => $subdomain,
                 'school_url' => $schoolUrl,
                 'created_at' => $tenant->created_at,
@@ -290,11 +286,6 @@ class SchoolController extends Controller
     {
         $request->validate(['reason' => ['required', 'string', 'max:255']]);
 
-        $tenant->update([
-            'status' => 'suspended',
-            'suspension_reason' => $request->reason,
-        ]);
-
         $tenant->run(function () {
             DB::table('sessions')->truncate();
         });
@@ -329,16 +320,8 @@ class SchoolController extends Controller
 
         $subscription = Subscription::where('tenant_id', $tenant->id)->latest()->first();
 
-        $newStatus = $subscription?->paypal_subscription_id ? 'subscribed' : 'trial_expired';
-
-        $tenant->update([
-            'status' => $newStatus,
-            'suspension_reason' => null,
-        ]);
-
         if ($subscription) {
             $this->subscriptionService->reactivate($subscription);
-            $tenant->update(['status' => $subscription->fresh()->status]);
         }
 
         $schoolName = $tenant->school_name ?? $tenant->id;

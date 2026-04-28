@@ -4,7 +4,6 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Subscription;
-use App\Models\SubscriptionPayment;
 use App\Models\SystemLog;
 use App\Models\Tenant;
 use Inertia\Inertia;
@@ -16,8 +15,8 @@ class DashboardController extends Controller
     {
         // --- Tenant counts ---
         $totalTenants = Tenant::count();
-        $activeTenants = Tenant::where('data->status', 'active')->count();
-        $suspendedTenants = Tenant::where('data->status', 'suspended')->count();
+        $activeTenants = Subscription::whereIn('status', ['trialing', 'subscribed'])->count();
+        $suspendedTenants = Subscription::where('status', 'suspended')->count();
 
         // New schools registered in the current calendar month
         $newThisMonth = Tenant::whereMonth('created_at', now()->month)
@@ -32,25 +31,25 @@ class DashboardController extends Controller
             ->toArray();
 
         // --- Revenue (from active subscriptions) ---
-        $monthlyRevenue = $this->calculateMonthlyRevenue();
+        $mrr = $this->calculateMRR();
 
         // --- Revenue snapshot for the card ---
         $revenueSnapshot = [
-            'monthly_recurring' => $monthlyRevenue,
-            'annual_recurring' => $this->calculateAnnualRevenue(),
+            'monthly_recurring' => $mrr,
+            'annual_recurring' => $this->calculateARR(),
         ];
 
         // --- Alerts: things that need super admin attention ---
         $alerts = $this->buildAlerts();
 
         // --- Recent schools ---
-        $recentSchools = Tenant::with('domains')->latest()->take(5)->get()
+        $recentSchools = Tenant::with(['domains', 'subscription'])->latest()->take(5)->get()
             ->map(fn ($t) => [
                 'id' => $t->id,
                 'name' => $t->school_name ?? $t->id,
                 'school_email' => $t->school_email,
-                'plan' => $t->plan ?? 'free',
-                'status' => $t->status ?? 'active',
+                'plan' => $t->subscription?->plan ?? null,
+                'status' => $t->subscription?->status ?? 'trialing',
                 'subdomain' => $t->domains->first()?->domain,
                 'school_url' => $t->domains->first()?->domain
                     ? 'http://'.$t->domains->first()->domain.'.'.config('tenancy.central_domains')[0].':8000'
@@ -90,7 +89,7 @@ class DashboardController extends Controller
                 'active_schools' => $activeTenants,
                 'suspended_schools' => $suspendedTenants,
                 'new_this_month' => $newThisMonth,
-                'monthly_revenue' => $monthlyRevenue,
+                'monthly_revenue' => $mrr,
                 'plan_breakdown' => $planBreakdown,
             ],
             'revenueSnapshot' => $revenueSnapshot,
@@ -101,19 +100,22 @@ class DashboardController extends Controller
         ]);
     }
 
-    private function calculateMonthlyRevenue(): float
+    private function calculateMRR(): float
     {
-        return SubscriptionPayment::where('status', 'completed')
-            ->whereMonth('paid_at', now()->month)
-            ->whereYear('paid_at', now()->year)
-            ->sum('amount');
+        // Sum of (Monthly Plan Price) + (Annual Plan Price / 12) for all active subscribers
+        $activeSubscriptions = Subscription::where('status', 'subscribed')->get();
+
+        return $activeSubscriptions->sum(function ($sub) {
+            $planKey = $sub->plan === 'annually' ? 'annually' : 'monthly';
+            $price = config("subscription.plans.{$planKey}.price", 0);
+
+            return $sub->plan === 'annually' ? ($price / 12) : $price;
+        });
     }
 
-    private function calculateAnnualRevenue(): float
+    private function calculateARR(): float
     {
-        return SubscriptionPayment::where('status', 'completed')
-            ->whereYear('paid_at', now()->year)
-            ->sum('amount');
+        return $this->calculateMRR() * 12;
     }
 
     private function buildAlerts(): array

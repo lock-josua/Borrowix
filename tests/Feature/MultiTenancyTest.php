@@ -20,8 +20,6 @@ describe('Tenant Model Tests', function () {
             'admin_email' => 'admin@testschool.com',
             'contact_number' => '09123456789',
             'school_name' => 'Test School',
-            'plan' => 'free',
-            'status' => 'active',
         ]);
 
         expect($tenant->id)->toBeTruthy();
@@ -34,8 +32,6 @@ describe('Tenant Model Tests', function () {
             'school_email' => 'admin@test.com',
             'admin_email' => 'admin@test.com',
             'school_name' => 'Test Domain School',
-            'plan' => 'free',
-            'status' => 'active',
         ]);
 
         $domain = $tenant->domains()->create(['domain' => $tenant->id]);
@@ -63,8 +59,6 @@ describe('Central vs Tenant Database Isolation', function () {
             'school_email' => 'admin@testconn.com',
             'admin_email' => 'admin@testconn.com',
             'school_name' => 'Test Connection School',
-            'plan' => 'free',
-            'status' => 'active',
         ]);
 
         // In tests, the connection is SQLite (from phpunit.xml)

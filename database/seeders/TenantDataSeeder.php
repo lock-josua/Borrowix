@@ -9,6 +9,15 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Seeds demo staff users, student users, equipment categories, and equipment
+ * into ALL tenant databases that currently exist in the central DB.
+ *
+ * NOT called by DatabaseSeeder — run manually after SchoolSeeder:
+ *   php artisan db:seed --class=TenantDataSeeder
+ *
+ * Requires at least one tenant to exist. Run SchoolSeeder first if none do.
+ */
 class TenantDataSeeder extends Seeder
 {
     /**

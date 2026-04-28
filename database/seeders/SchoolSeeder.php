@@ -28,8 +28,6 @@ class SchoolSeeder extends Seeder
                 'contact_number' => '09123456789',
                 // These go into the data JSON column:
                 'school_name' => 'Demo School',
-                'plan' => 'free',
-                'status' => 'active',
                 'address' => '123 Main Street, Cagayan de Oro City',
             ]
         );
@@ -40,9 +38,9 @@ class SchoolSeeder extends Seeder
         Subscription::firstOrCreate(
             ['tenant_id' => $tenant->id],
             [
-                'plan' => 'free',
-                'status' => 'active',
-                'billing_cycle' => 'monthly',
+                'plan' => 'monthly',
+                'status' => 'trialing',
+                'trial_ends_at' => now()->addDays(config('subscription.trial_days', 14)),
                 'current_period_start' => now(),
                 'current_period_end' => now()->addMonth(),
             ]
@@ -64,8 +62,7 @@ class SchoolSeeder extends Seeder
             '--class' => 'Database\Seeders\TenantDatabaseSeeder',
         ]);
 
-        // Note: Demo data (categories, equipment, staff, students) is seeded by
-        // SubscriptionSeeder which runs TenantDataSeeder for all tenants.
+        // TenantDataSeeder which runs for all tenants.
 
         // Seed admin user inside the tenant's database using $tenant->run()
         $tenant->run(function () {

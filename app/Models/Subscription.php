@@ -10,6 +10,18 @@ class Subscription extends Model
 {
     protected $connection = 'mysql';
 
+    /**
+     * Valid enum values enforced by MySQL:
+     *   plan   : 'monthly' | 'annually'
+     *   status : 'trialing' | 'subscribed' | 'trial_expired' | 'suspended'
+     *
+     * There is no 'free' plan and no 'active' status.
+     * Legacy JSON data on the Tenant model may have plan='free' or status='active' —
+     * those values are stale and should be ignored in favor of this table.
+     *
+     * A tenant's access status is always derived from this table, not from tenant()->plan
+     * or tenant()->status. Use $tenant->subscription->status for all status checks.
+     */
     protected $fillable = [
         'tenant_id',
         'plan',

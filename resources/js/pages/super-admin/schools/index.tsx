@@ -58,7 +58,7 @@ interface Props {
         next_page_url: string | null;
         prev_page_url: string | null;
     };
-    filters: { search?: string; plan?: string; status?: string };
+    filters: { search?: string; plan?: string };
 }
 
 export default function SchoolsIndex({ schools, filters }: Props) {
@@ -157,21 +157,6 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                             <SelectItem value="trial_expired">
                                 Trial Expired
                             </SelectItem>
-                            <SelectItem value="suspended">Suspended</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select
-                        value={filters.status ?? 'all'}
-                        onValueChange={(v) =>
-                            handleFilterChange('status', v === 'all' ? '' : v)
-                        }
-                    >
-                        <SelectTrigger className="h-9 w-[130px] bg-muted/20 text-sm">
-                            <SelectValue placeholder="All Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="suspended">Suspended</SelectItem>
                         </SelectContent>
                     </Select>

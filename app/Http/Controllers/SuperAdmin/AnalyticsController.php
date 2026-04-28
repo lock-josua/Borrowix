@@ -79,12 +79,23 @@ class AnalyticsController extends Controller
 
     private function getRevenue(): array
     {
-        $monthlyRevenue = SubscriptionPayment::where('status', 'completed')
-            ->whereMonth('paid_at', now()->month)
-            ->whereYear('paid_at', now()->year)
-            ->sum('amount');
+        // 1. MRR (Monthly Recurring Revenue)
+        // (Monthly Plan Price * Monthly Subscribers) + (Annual Plan Price / 12 * Annual Subscribers)
+        $activeSubscriptions = Subscription::where('status', 'subscribed')->get();
 
-        $annualRevenue = SubscriptionPayment::where('status', 'completed')
+        $mrr = $activeSubscriptions->sum(function ($sub) {
+            $planKey = $sub->plan === 'annually' ? 'annually' : 'monthly';
+            $price = config("subscription.plans.{$planKey}.price", 0);
+
+            return $sub->plan === 'annually' ? ($price / 12) : $price;
+        });
+
+        // 2. ARR (Annual Recurring Revenue)
+        $arr = $mrr * 12;
+
+        // 3. Cash Flow (What was actually collected)
+        $monthlyCashFlow = SubscriptionPayment::where('status', 'completed')
+            ->whereMonth('paid_at', now()->month)
             ->whereYear('paid_at', now()->year)
             ->sum('amount');
 
@@ -92,8 +103,9 @@ class AnalyticsController extends Controller
             ->sum('amount');
 
         return [
-            'monthly_recurring' => (float) $monthlyRevenue,
-            'annual_recurring' => (float) $annualRevenue,
+            'monthly_recurring' => (float) $mrr,
+            'annual_recurring' => (float) $arr,
+            'monthly_cash_flow' => (float) $monthlyCashFlow,
             'total' => (float) $totalRevenue,
         ];
     }
