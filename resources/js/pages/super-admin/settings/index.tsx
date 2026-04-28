@@ -1,6 +1,8 @@
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { CheckCircle, Loader2 } from 'lucide-react';
+import * as React from 'react';
+import { useEditMode } from '@/hooks/use-edit-mode';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,6 +31,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function SuperAdminSettingsIndex({ user }: Props) {
+    const profileEdit = useEditMode();
+    const passwordEdit = useEditMode();
+
     const { data, setData, patch, processing, errors, recentlySuccessful } =
         useForm({
             name: user.name,
@@ -50,16 +55,32 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
 
     function handleProfileSubmit(event: React.FormEvent) {
         event.preventDefault();
+
+        if (!profileEdit.isEditing) {
+            profileEdit.startEditing();
+            return;
+        }
+
         patch('/super-admin/settings/profile', {
             preserveScroll: true,
+            onSuccess: () => profileEdit.stopEditing(),
         });
     }
 
     function handlePasswordSubmit(event: React.FormEvent) {
         event.preventDefault();
+
+        if (!passwordEdit.isEditing) {
+            passwordEdit.startEditing();
+            return;
+        }
+
         put('/super-admin/settings/password', {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                reset();
+                passwordEdit.stopEditing();
+            },
         });
     }
 
@@ -121,6 +142,7 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
+                                                disabled={!profileEdit.isEditing}
                                             />
                                             {errors.name && (
                                                 <p className="text-xs text-destructive">
@@ -143,6 +165,7 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
+                                                disabled={!profileEdit.isEditing}
                                             />
                                             {errors.email && (
                                                 <p className="text-xs text-destructive">
@@ -166,6 +189,23 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                             </p>
                                         </Transition>
 
+                                        {profileEdit.isEditing && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    profileEdit.stopEditing();
+                                                    setData({
+                                                        name: user.name,
+                                                        email: user.email,
+                                                    });
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        )}
+
                                         <Button
                                             type="submit"
                                             disabled={processing}
@@ -173,7 +213,7 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                             {processing && (
                                                 <Loader2 className="mr-2 size-4 animate-spin" />
                                             )}
-                                            Save
+                                            {profileEdit.isEditing ? 'Save' : 'Edit'}
                                         </Button>
                                     </CardFooter>
                                 </form>
@@ -212,6 +252,7 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
+                                                disabled={!passwordEdit.isEditing}
                                             />
                                             {passwordErrors.current_password && (
                                                 <p className="text-xs text-destructive">
@@ -236,6 +277,7 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
+                                                disabled={!passwordEdit.isEditing}
                                             />
                                             {passwordErrors.password && (
                                                 <p className="text-xs text-destructive">
@@ -260,6 +302,7 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
+                                                disabled={!passwordEdit.isEditing}
                                             />
                                             {passwordErrors.password_confirmation && (
                                                 <p className="text-xs text-destructive">
@@ -272,6 +315,20 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                     </CardContent>
 
                                     <CardFooter className="mt-auto justify-end border-t bg-muted/20 py-3">
+                                        {passwordEdit.isEditing && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    passwordEdit.stopEditing();
+                                                    reset();
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        )}
+
                                         <Button
                                             type="submit"
                                             disabled={passwordProcessing}
@@ -279,7 +336,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                             {passwordProcessing && (
                                                 <Loader2 className="mr-2 size-4 animate-spin" />
                                             )}
-                                            Change Password
+                                            {passwordEdit.isEditing
+                                                ? 'Change Password'
+                                                : 'Edit Password'}
                                         </Button>
                                     </CardFooter>
                                 </form>

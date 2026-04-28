@@ -25,12 +25,12 @@ class UpdateController extends Controller
 
     /**
      * POST /admin/settings/updates/check
-     * Returns the cached status as JSON (no force-refresh for tenants).
+     * Clears the cache and returns a fresh JSON status.
      */
     public function check(): JsonResponse
     {
         return response()->json(
-            $this->updateService->status()
+            $this->updateService->forceRefresh()
         );
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -12,12 +11,20 @@ class UpdateService
 
     protected ?string $token;
 
-    protected int $cacheTtl = 300; // 5 minutes
+    protected int $cacheTtl;
+
+    protected string $cachePath;
 
     public function __construct()
     {
         $this->repo = config('services.github.repo', 'lock-josua/Borrowix');
         $this->token = config('services.github.update_token');
+        $this->cacheTtl = (int) config('services.github.cache_ttl', 300);
+        $this->cachePath = storage_path('app/updates');
+
+        if (! is_dir($this->cachePath)) {
+            mkdir($this->cachePath, 0755, true);
+        }
     }
 
     /**
@@ -34,13 +41,10 @@ class UpdateService
      */
     public function latestRelease(): ?array
     {
-        $cacheFile = base_path('storage/framework/cache/github_latest_release.json');
+        $cached = $this->getCached('latest');
 
-        if (file_exists($cacheFile)) {
-            $data = json_decode(file_get_contents($cacheFile), true);
-            if (isset($data['expires_at']) && time() < $data['expires_at']) {
-                return $data['release'];
-            }
+        if ($cached !== null) {
+            return $cached;
         }
 
         try {
@@ -51,7 +55,7 @@ class UpdateService
             if ($response->failed()) {
                 Log::warning('UpdateService: GitHub API returned non-2xx', [
                     'status' => $response->status(),
-                    'repo'   => $this->repo,
+                    'repo' => $this->repo,
                 ]);
 
                 return null;
@@ -60,19 +64,16 @@ class UpdateService
             $data = $response->json();
 
             $release = [
-                'version'      => ltrim($data['tag_name'] ?? '0.0.0', 'v'),
-                'tag_name'     => $data['tag_name'] ?? '',
-                'name'         => $data['name'] ?? '',
-                'body'         => $data['body'] ?? '',
+                'version' => ltrim($data['tag_name'] ?? '0.0.0', 'v'),
+                'tag_name' => $data['tag_name'] ?? '',
+                'name' => $data['name'] ?? '',
+                'body' => $data['body'] ?? '',
                 'published_at' => $data['published_at'] ?? null,
-                'html_url'     => $data['html_url'] ?? '',
-                'prerelease'   => $data['prerelease'] ?? false,
+                'html_url' => $data['html_url'] ?? '',
+                'prerelease' => $data['prerelease'] ?? false,
             ];
 
-            file_put_contents($cacheFile, json_encode([
-                'expires_at' => time() + $this->cacheTtl,
-                'release' => $release,
-            ]));
+            $this->putCached('latest', $release);
 
             return $release;
         } catch (\Exception $e) {
@@ -81,6 +82,48 @@ class UpdateService
             ]);
 
             return null;
+        }
+    }
+
+    /**
+     * Fetch all GitHub releases, cached for $cacheTtl seconds.
+     * Returns an empty array on failure.
+     */
+    public function allReleases(): array
+    {
+        $cached = $this->getCached('all');
+
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        try {
+            $response = Http::withHeaders($this->buildHeaders())
+                ->timeout(8)
+                ->get("https://api.github.com/repos/{$this->repo}/releases");
+
+            if ($response->failed()) {
+                return [];
+            }
+
+            $data = $response->json();
+            $releases = array_map(function ($item) {
+                return [
+                    'version' => ltrim($item['tag_name'] ?? '0.0.0', 'v'),
+                    'tag_name' => $item['tag_name'] ?? '',
+                    'name' => $item['name'] ?? '',
+                    'body' => $item['body'] ?? '',
+                    'published_at' => $item['published_at'] ?? null,
+                    'html_url' => $item['html_url'] ?? '',
+                    'prerelease' => $item['prerelease'] ?? false,
+                ];
+            }, $data);
+
+            $this->putCached('all', $releases);
+
+            return $releases;
+        } catch (\Exception $e) {
+            return [];
         }
     }
 
@@ -111,21 +154,18 @@ class UpdateService
             'published_at' => $latest['published_at'] ?? null,
             'release_url' => $latest['html_url'] ?? null,
             'prerelease' => $latest['prerelease'] ?? false,
+            'all_releases' => $this->allReleases(),
             'checked_at' => now()->toIso8601String(),
         ];
     }
 
     /**
-     * Bust the cache and return a fresh status.
-     * Only SuperAdmin should call this.
+     * Bust the GitHub release cache and return a fresh status.
      */
     public function forceRefresh(): array
     {
-        $cacheFile = base_path('storage/framework/cache/github_latest_release.json');
-        
-        if (file_exists($cacheFile)) {
-            @unlink($cacheFile);
-        }
+        @unlink("{$this->cachePath}/latest.json");
+        @unlink("{$this->cachePath}/all.json");
 
         return $this->status();
     }
@@ -143,5 +183,28 @@ class UpdateService
         }
 
         return $headers;
+    }
+
+    protected function getCached(string $key): ?array
+    {
+        $file = "{$this->cachePath}/{$key}.json";
+
+        if (! file_exists($file)) {
+            return null;
+        }
+
+        if (time() - filemtime($file) > $this->cacheTtl) {
+            return null;
+        }
+
+        return json_decode(file_get_contents($file), true);
+    }
+
+    protected function putCached(string $key, array $data): void
+    {
+        file_put_contents(
+            "{$this->cachePath}/{$key}.json",
+            json_encode($data)
+        );
     }
 }

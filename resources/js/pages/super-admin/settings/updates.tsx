@@ -1,8 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { check as checkRoute, install as installRoute } from '@/actions/App/Http/Controllers/SuperAdmin/UpdateController';
 import {
     ArrowUpCircle,
+    Calendar,
     CheckCircle2,
     ExternalLink,
+    Info,
     Loader2,
     RefreshCw,
     Tag,
@@ -18,8 +21,34 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import type { BreadcrumbItem } from '@/types';
+
+interface Release {
+    version: string;
+    tag_name: string;
+    name: string;
+    body: string;
+    published_at: string | null;
+    html_url: string;
+    prerelease: boolean;
+}
 
 interface UpdateStatus {
     current_version: string;
@@ -30,6 +59,7 @@ interface UpdateStatus {
     published_at: string | null;
     release_url: string | null;
     prerelease: boolean;
+    all_releases: Release[];
     checked_at: string;
 }
 
@@ -56,6 +86,9 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
     const [status, setStatus] = useState<UpdateStatus>(updateStatus);
     const [checking, setChecking] = useState(false);
     const [installing, setInstalling] = useState(false);
+    const [selectedRelease, setSelectedRelease] = useState<Release | null>(
+        null,
+    );
 
     function handleInstall() {
         if (
@@ -64,7 +97,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
             )
         ) {
             router.post(
-                '/super-admin/settings/updates/install',
+                installRoute.url(),
                 {},
                 {
                     onStart: () => setInstalling(true),
@@ -84,7 +117,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                     ) as HTMLMetaElement
                 )?.content ?? '';
 
-            const res = await fetch('/super-admin/settings/updates/check', {
+            const res = await fetch(checkRoute.url(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -188,49 +221,181 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                     </Card>
                 </div>
 
-                {/* Update banner — only shown when update is available */}
-                {status.has_update && (
-                    <Card className="border-amber-400 bg-amber-50 dark:bg-amber-950/20">
-                        <CardHeader className="border-b border-amber-200 pb-3 dark:border-amber-800">
-                            <CardTitle className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                                🚀{' '}
-                                {status.latest_name ??
-                                    `v${status.latest_version}`}{' '}
-                                is available
-                            </CardTitle>
-                            <CardDescription className="text-xs text-amber-700 dark:text-amber-400">
-                                You are running v{status.current_version}.
-                                Deploy the latest tag to update.
-                            </CardDescription>
-                        </CardHeader>
-                        {status.changelog && (
-                            <CardContent className="pt-4">
-                                <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                                    Changelog
-                                </p>
-                                <pre className="rounded-md bg-muted/50 p-3 text-xs leading-relaxed whitespace-pre-wrap text-foreground">
-                                    {status.changelog}
-                                </pre>
-                            </CardContent>
-                        )}
-                    </Card>
-                )}
+                {/* All Versions History */}
+                <Card className="mt-6 overflow-hidden border-none shadow-sm ring-1 ring-border">
+                    <CardHeader className="bg-muted/30 pb-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="text-lg font-bold tracking-tight">
+                                    Version History
+                                </CardTitle>
+                                <CardDescription className="text-sm">
+                                    Track all previous and upcoming releases for Borrowix.
+                                </CardDescription>
+                            </div>
+                            <Badge variant="outline" className="font-mono">
+                                Total: {status.all_releases.length}
+                            </Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader className="bg-muted/10">
+                                <TableRow className="hover:bg-transparent">
+                                    <TableHead className="py-3 px-6 font-semibold text-foreground">
+                                        Release
+                                    </TableHead>
+                                    <TableHead className="py-3 px-6 font-semibold text-foreground">
+                                        Published Date
+                                    </TableHead>
+                                    <TableHead className="py-3 px-6 text-right font-semibold text-foreground">
+                                        Type
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {status.all_releases.length > 0 ? (
+                                    status.all_releases.map((rel) => (
+                                        <TableRow
+                                            key={rel.version}
+                                            className="group transition-colors hover:bg-muted/40"
+                                        >
+                                            <TableCell className="py-4 px-6">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-base font-bold tracking-tight text-foreground">
+                                                            v{rel.version}
+                                                        </span>
+                                                        {rel.version ===
+                                                            status.current_version && (
+                                                            <Badge className="border-none bg-emerald-100 px-2 py-0 text-[10px] font-bold uppercase tracking-wider text-emerald-700 hover:bg-emerald-100/80">
+                                                                Installed
+                                                            </Badge>
+                                                        )}
+                                                        <button
+                                                            onClick={() =>
+                                                                setSelectedRelease(
+                                                                    rel,
+                                                                )
+                                                            }
+                                                            className="inline-flex size-6 items-center justify-center rounded-full bg-muted/50 text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary"
+                                                            title="View Release Notes"
+                                                        >
+                                                            <Info className="size-3.5" />
+                                                        </button>
+                                                    </div>
+                                                    <span className="text-xs font-medium text-muted-foreground">
+                                                        {rel.name ||
+                                                            rel.tag_name}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-4 px-6">
+                                                <div className="flex items-center gap-2 text-muted-foreground">
+                                                    <Calendar className="size-3.5" />
+                                                    <span className="text-sm font-medium">
+                                                        {formatDate(
+                                                            rel.published_at,
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-4 px-6 text-right">
+                                                {rel.prerelease ? (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="rounded-full border-amber-200 bg-amber-50 px-3 text-amber-600 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400"
+                                                    >
+                                                        Pre-release
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="rounded-full border-blue-200 bg-blue-50 px-3 text-blue-600 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                                                    >
+                                                        Stable
+                                                    </Badge>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={3}
+                                            className="h-32 text-center text-muted-foreground"
+                                        >
+                                            <div className="flex flex-col items-center justify-center gap-2">
+                                                <Loader2 className="size-6 animate-spin text-muted-foreground/30" />
+                                                <p className="text-sm font-medium">
+                                                    No releases found.
+                                                </p>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
 
-                {/* Release notes when up to date */}
-                {!status.has_update && status.changelog && (
-                    <Card>
-                        <CardHeader className="border-b">
-                            <CardTitle className="text-sm font-semibold">
-                                Latest Release Notes
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-4">
-                            <pre className="rounded-md bg-muted/50 p-3 text-xs leading-relaxed whitespace-pre-wrap text-foreground">
-                                {status.changelog}
-                            </pre>
-                        </CardContent>
-                    </Card>
-                )}
+                {/* Release Notes Modal */}
+                <Dialog
+                    open={!!selectedRelease}
+                    onOpenChange={(open) => !open && setSelectedRelease(null)}
+                >
+                    <DialogContent className="max-w-2xl gap-0 p-0 overflow-hidden border-none shadow-2xl ring-1 ring-border">
+                        <DialogHeader className="bg-muted/30 p-6 pb-4">
+                            <div className="flex flex-col gap-1">
+                                <DialogTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
+                                    v{selectedRelease?.version}
+                                    <span className="text-muted-foreground font-normal">
+                                        —
+                                    </span>
+                                    {selectedRelease?.name ||
+                                        selectedRelease?.tag_name}
+                                </DialogTitle>
+                                <DialogDescription className="flex items-center gap-2 text-sm">
+                                    <Calendar className="size-3.5" />
+                                    Released on{' '}
+                                    {formatDate(
+                                        selectedRelease?.published_at ?? '',
+                                    )}
+                                </DialogDescription>
+                            </div>
+                        </DialogHeader>
+                        <ScrollArea className="max-h-[65vh]">
+                            <div className="p-6 pt-2">
+                                <div className="rounded-xl border bg-muted/20 p-5">
+                                    <pre className="whitespace-pre-wrap text-sm leading-relaxed tracking-tight text-foreground/90 font-sans">
+                                        {selectedRelease?.body ||
+                                            'No release notes provided for this version.'}
+                                    </pre>
+                                </div>
+                                {selectedRelease?.html_url && (
+                                    <div className="mt-4 flex justify-end">
+                                        <Button
+                                            variant="link"
+                                            size="sm"
+                                            className="text-muted-foreground hover:text-foreground h-auto p-0"
+                                            asChild
+                                        >
+                                            <a
+                                                href={selectedRelease.html_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-2"
+                                            >
+                                                View on GitHub
+                                                <ExternalLink className="size-3" />
+                                            </a>
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </ScrollArea>
+                    </DialogContent>
+                </Dialog>
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-3">
