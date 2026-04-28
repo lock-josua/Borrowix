@@ -31,6 +31,10 @@ return new class extends Migration
             $table->json('metadata')->nullable();
 
             $table->timestamps();
+
+            $table->index('event_type');
+            $table->index('created_at');
+            $table->index('tenant_id');
         });
     }
 

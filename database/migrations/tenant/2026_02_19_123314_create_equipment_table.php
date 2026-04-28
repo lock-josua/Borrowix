@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('qr_code')->nullable()->unique();
             $table->text('condition_notes')->nullable();
             $table->string('damage_photo')->nullable();
+            // image        — primary display photo (Cloudinary URL, uploaded via equipment form)
+            // damage_photo — photo captured during return when damage is reported (Cloudinary URL)
+            $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

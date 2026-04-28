@@ -23,6 +23,8 @@ return new class extends Migration
             $table->decimal('fine_amount', 10, 2)->default(0);
             $table->text('fine_reason')->nullable();
             $table->text('return_condition_notes')->nullable();
+            $table->timestamp('reminder_sent_at')->nullable();
+            $table->timestamp('overdue_notification_sent_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

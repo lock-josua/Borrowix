@@ -16,6 +16,17 @@ class Equipment extends Model
 
     protected $appends = ['image_url'];
 
+    /**
+     * NOTE on image columns:
+     *   image        — primary display photo for the equipment listing (Cloudinary URL).
+     *                  Set when equipment is created or updated via the equipment form.
+     *   damage_photo — photo taken at time of return when the borrower reports damage.
+     *                  Set during the return flow, not at equipment creation.
+     *
+     * Both store Cloudinary secure URLs (https://res.cloudinary.com/...).
+     * The imageUrl accessor wraps `image` for frontend consumption.
+     * damage_photo is accessed directly — no accessor defined.
+     */
     protected $fillable = [
         // school_id REMOVED
         'category_id',

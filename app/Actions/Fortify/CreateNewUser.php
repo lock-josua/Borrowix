@@ -50,8 +50,6 @@ class CreateNewUser implements CreatesNewUsers
             // These attributes have no dedicated column, so they are automatically
             // stored in the `data` JSON column by the package:
             'school_name' => $input['school_name'],
-            'plan' => 'free',
-            'status' => 'active',
         ]);
 
         // Step 2: Register the subdomain for this tenant.
@@ -65,9 +63,9 @@ class CreateNewUser implements CreatesNewUsers
 
         Subscription::create([
             'tenant_id' => $tenant->id,
-            'plan' => 'free',
-            'status' => 'active',
-            'billing_cycle' => 'monthly',
+            'plan' => 'monthly',
+            'status' => 'trialing',
+            'trial_ends_at' => now()->addDays(config('subscription.trial_days', 14)),
             'current_period_start' => now(),
             'current_period_end' => now()->addMonth(),
         ]);
