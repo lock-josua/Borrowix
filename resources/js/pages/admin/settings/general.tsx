@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,7 +40,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/admin/settings/general' },
 ];
 
+import { useEditMode } from '@/hooks/use-edit-mode';
+
 export default function GeneralSettingsPage({ general }: Props) {
+    const editMode = useEditMode();
+
     const { data, setData, patch, processing, errors } = useForm<FormData>({
         name: general.name,
         email: general.email,
@@ -49,7 +54,16 @@ export default function GeneralSettingsPage({ general }: Props) {
 
     function handleSubmit(event: React.FormEvent) {
         event.preventDefault();
-        patch('/admin/settings/general');
+
+        if (!editMode.isEditing) {
+            editMode.startEditing();
+            return;
+        }
+
+        patch('/admin/settings/general', {
+            preserveScroll: true,
+            onSuccess: () => editMode.stopEditing(),
+        });
     }
 
     return (
@@ -79,6 +93,7 @@ export default function GeneralSettingsPage({ general }: Props) {
                                         onChange={(event) =>
                                             setData('name', event.target.value)
                                         }
+                                        disabled={!editMode.isEditing}
                                     />
                                     {errors.name && (
                                         <p className="text-xs text-destructive">
@@ -96,6 +111,7 @@ export default function GeneralSettingsPage({ general }: Props) {
                                         onChange={(event) =>
                                             setData('email', event.target.value)
                                         }
+                                        disabled={!editMode.isEditing}
                                     />
                                     {errors.email && (
                                         <p className="text-xs text-destructive">
@@ -117,6 +133,7 @@ export default function GeneralSettingsPage({ general }: Props) {
                                                 event.target.value,
                                             )
                                         }
+                                        disabled={!editMode.isEditing}
                                     />
                                     {errors.contact_number && (
                                         <p className="text-xs text-destructive">
@@ -136,6 +153,7 @@ export default function GeneralSettingsPage({ general }: Props) {
                                                 event.target.value,
                                             )
                                         }
+                                        disabled={!isEditing}
                                     />
                                     {errors.address && (
                                         <p className="text-xs text-destructive">
@@ -146,12 +164,33 @@ export default function GeneralSettingsPage({ general }: Props) {
                             </CardContent>
 
                             <CardFooter className="justify-end border-t bg-muted/20 py-3">
-                                <Button type="submit" disabled={processing}>
-                                    {processing && (
-                                        <Loader2 className="mr-2 size-4 animate-spin" />
+                                <div className="flex items-center gap-4">
+                                    {editMode.isEditing && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                                editMode.stopEditing();
+                                                setData({
+                                                    name: general.name,
+                                                    email: general.email,
+                                                    contact_number:
+                                                        general.contact_number,
+                                                    address: general.address,
+                                                });
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
                                     )}
-                                    Save
-                                </Button>
+                                    <Button type="submit" disabled={processing}>
+                                        {processing && (
+                                            <Loader2 className="mr-2 size-4 animate-spin" />
+                                        )}
+                                        {editMode.isEditing ? 'Save' : 'Edit'}
+                                    </Button>
+                                </div>
                             </CardFooter>
                         </form>
                     </Card>

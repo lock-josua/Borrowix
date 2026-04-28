@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { CheckCircle, Loader2 } from 'lucide-react';
@@ -28,7 +29,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/admin/settings/school' },
 ];
 
+import { useEditMode } from '@/hooks/use-edit-mode';
+
 export default function SchoolSettingsPage({ admin }: Props) {
+    const profileEdit = useEditMode();
+    const passwordEdit = useEditMode();
+
     const { data, setData, patch, processing, errors, recentlySuccessful } =
         useForm({
             name: admin.name,
@@ -50,16 +56,32 @@ export default function SchoolSettingsPage({ admin }: Props) {
 
     function handleProfileSubmit(event: React.FormEvent) {
         event.preventDefault();
+
+        if (!profileEdit.isEditing) {
+            profileEdit.startEditing();
+            return;
+        }
+
         patch('/admin/settings/school', {
             preserveScroll: true,
+            onSuccess: () => profileEdit.stopEditing(),
         });
     }
 
     function handlePasswordSubmit(event: React.FormEvent) {
         event.preventDefault();
+
+        if (!passwordEdit.isEditing) {
+            passwordEdit.startEditing();
+            return;
+        }
+
         put('/admin/settings/password', {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                reset();
+                passwordEdit.stopEditing();
+            },
         });
     }
 
@@ -93,6 +115,7 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                                     event.target.value,
                                                 )
                                             }
+                                            disabled={!profileEdit.isEditing}
                                         />
                                         {errors.name && (
                                             <p className="text-xs text-destructive">
@@ -115,6 +138,7 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                                     event.target.value,
                                                 )
                                             }
+                                            disabled={!profileEdit.isEditing}
                                         />
                                         {errors.email && (
                                             <p className="text-xs text-destructive">
@@ -125,24 +149,45 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                 </CardContent>
 
                                 <CardFooter className="flex items-center justify-between border-t bg-muted/20 py-3">
-                                    <Transition
-                                        show={recentlySuccessful}
-                                        enter="transition ease-in-out"
-                                        enterFrom="opacity-0"
-                                        leave="transition ease-in-out"
-                                        leaveTo="opacity-0"
-                                    >
-                                        <p className="flex items-center gap-1 text-xs text-emerald-600">
-                                            <CheckCircle className="size-3" />{' '}
-                                            Saved
-                                        </p>
-                                    </Transition>
+                                    <div className="flex items-center gap-4">
+                                        <Transition
+                                            show={recentlySuccessful}
+                                            enter="transition ease-in-out"
+                                            enterFrom="opacity-0"
+                                            leave="transition ease-in-out"
+                                            leaveTo="opacity-0"
+                                        >
+                                            <p className="flex items-center gap-1 text-xs text-emerald-600">
+                                                <CheckCircle className="size-3" />{' '}
+                                                Saved
+                                            </p>
+                                        </Transition>
+
+                                        {profileEdit.isEditing && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    profileEdit.stopEditing();
+                                                    setData({
+                                                        name: admin.name,
+                                                        email: admin.email,
+                                                    });
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        )}
+                                    </div>
 
                                     <Button type="submit" disabled={processing}>
                                         {processing && (
                                             <Loader2 className="mr-2 size-4 animate-spin" />
                                         )}
-                                        Save Profile
+                                        {profileEdit.isEditing
+                                            ? 'Save Profile'
+                                            : 'Edit Profile'}
                                     </Button>
                                 </CardFooter>
                             </form>
@@ -177,6 +222,7 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                                     event.target.value,
                                                 )
                                             }
+                                            disabled={!passwordEdit.isEditing}
                                         />
                                         {passwordErrors.current_password && (
                                             <p className="text-xs text-destructive">
@@ -201,6 +247,7 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                                     event.target.value,
                                                 )
                                             }
+                                            disabled={!passwordEdit.isEditing}
                                         />
                                         {passwordErrors.password && (
                                             <p className="text-xs text-destructive">
@@ -225,6 +272,7 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                                     event.target.value,
                                                 )
                                             }
+                                            disabled={!passwordEdit.isEditing}
                                         />
                                         {passwordErrors.password_confirmation && (
                                             <p className="text-xs text-destructive">
@@ -236,7 +284,21 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                     </div>
                                 </CardContent>
 
-                                <CardFooter className="justify-end border-t bg-muted/20 py-3">
+                                <CardFooter className="flex items-center justify-between border-t bg-muted/20 py-3">
+                                    {passwordEdit.isEditing && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                                passwordEdit.stopEditing();
+                                                reset();
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    )}
+                                    <div className="flex-1" />
                                     <Button
                                         type="submit"
                                         disabled={passwordProcessing}
@@ -244,7 +306,9 @@ export default function SchoolSettingsPage({ admin }: Props) {
                                         {passwordProcessing && (
                                             <Loader2 className="mr-2 size-4 animate-spin" />
                                         )}
-                                        Change Password
+                                        {passwordEdit.isEditing
+                                            ? 'Change Password'
+                                            : 'Edit Password'}
                                     </Button>
                                 </CardFooter>
                             </form>

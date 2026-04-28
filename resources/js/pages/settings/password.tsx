@@ -1,6 +1,7 @@
 import { Transition } from '@headlessui/react';
 import { Form, Head } from '@inertiajs/react';
 import { CheckCircle } from 'lucide-react';
+import * as React from 'react';
 import { useRef } from 'react';
 import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 import { Button } from '@/components/ui/button';
@@ -16,9 +17,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import SettingsLayout from '@/layouts/settings/layout';
 
+import { useEditMode } from '@/hooks/use-edit-mode';
+
 export default function Password() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
+    const editMode = useEditMode();
 
     return (
         <SettingsLayout>
@@ -36,7 +40,10 @@ export default function Password() {
                 </CardHeader>
                 <Form
                     {...PasswordController.update.form()}
-                    options={{ preserveScroll: true }}
+                    options={{
+                        preserveScroll: true,
+                        onSuccess: () => editMode.stopEditing(),
+                    }}
                     resetOnError={[
                         'password',
                         'password_confirmation',
@@ -55,8 +62,16 @@ export default function Password() {
                         recentlySuccessful,
                         data,
                         setData,
+                        reset,
                     }) => (
-                        <>
+                        <form
+                            onSubmit={(e) => {
+                                if (!editMode.isEditing) {
+                                    e.preventDefault();
+                                    editMode.startEditing();
+                                }
+                            }}
+                        >
                             <CardContent className="space-y-5 pt-6 pb-6">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="current_password">
@@ -74,6 +89,7 @@ export default function Password() {
                                             )
                                         }
                                         autoComplete="current-password"
+                                        disabled={!editMode.isEditing}
                                     />
                                     {errors.current_password && (
                                         <p className="text-xs text-destructive">
@@ -95,6 +111,7 @@ export default function Password() {
                                             setData('password', e.target.value)
                                         }
                                         autoComplete="new-password"
+                                        disabled={!editMode.isEditing}
                                     />
                                     {errors.password && (
                                         <p className="text-xs text-destructive">
@@ -118,6 +135,7 @@ export default function Password() {
                                             )
                                         }
                                         autoComplete="new-password"
+                                        disabled={!editMode.isEditing}
                                     />
                                     {errors.password_confirmation && (
                                         <p className="text-xs text-destructive">
@@ -127,7 +145,7 @@ export default function Password() {
                                 </div>
                             </CardContent>
                             <CardFooter className="flex items-center justify-between border-t bg-muted/30 py-3">
-                                <div>
+                                <div className="flex items-center gap-4">
                                     <Transition
                                         show={recentlySuccessful}
                                         enter="transition ease-in-out"
@@ -140,14 +158,40 @@ export default function Password() {
                                             Updated
                                         </p>
                                     </Transition>
+
+                                    {editMode.isEditing && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                                editMode.stopEditing();
+                                                reset();
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    )}
                                 </div>
-                                <Button disabled={processing} size="sm">
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    size="sm"
+                                    onClick={(e) => {
+                                        if (!editMode.isEditing) {
+                                            e.preventDefault();
+                                            editMode.startEditing();
+                                        }
+                                    }}
+                                >
                                     {processing
                                         ? 'Saving...'
-                                        : 'Update Password'}
+                                        : editMode.isEditing
+                                          ? 'Update Password'
+                                          : 'Edit Password'}
                                 </Button>
                             </CardFooter>
-                        </>
+                        </form>
                     )}
                 </Form>
             </Card>

@@ -1,6 +1,8 @@
+import * as React from 'react';
 import { Transition } from '@headlessui/react';
 import { Form, Head, Link, usePage } from '@inertiajs/react';
 import { CheckCircle } from 'lucide-react';
+import { useEditMode } from '@/hooks/use-edit-mode';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import { Button } from '@/components/ui/button';
@@ -49,6 +51,8 @@ export default function Profile({
         { title: 'Profile', href: '/settings/profile' },
     ];
 
+    const editMode = useEditMode();
+
     return (
         <Layout breadcrumbs={breadcrumbs}>
             <Head title="Profile" />
@@ -66,7 +70,10 @@ export default function Profile({
                     </CardHeader>
                     <Form
                         {...ProfileController.update.form()}
-                        options={{ preserveScroll: true }}
+                        options={{
+                            preserveScroll: true,
+                            onSuccess: () => editMode.stopEditing(),
+                        }}
                     >
                         {({
                             processing,
@@ -74,8 +81,17 @@ export default function Profile({
                             errors,
                             data,
                             setData,
+                            reset,
                         }) => (
-                            <>
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    if (!editMode.isEditing) {
+                                        editMode.startEditing();
+                                        return;
+                                    }
+                                }}
+                            >
                                 <CardContent className="space-y-5 pt-6 pb-6">
                                     <div className="space-y-1.5">
                                         <Label htmlFor="name">Full Name</Label>
@@ -87,6 +103,7 @@ export default function Profile({
                                             }
                                             required
                                             autoComplete="name"
+                                            disabled={!editMode.isEditing}
                                         />
                                         {errors.name && (
                                             <p className="text-xs text-destructive">
@@ -108,6 +125,7 @@ export default function Profile({
                                             }
                                             required
                                             autoComplete="username"
+                                            disabled={!editMode.isEditing}
                                         />
                                         {errors.email && (
                                             <p className="text-xs text-destructive">
@@ -134,7 +152,7 @@ export default function Profile({
                                         )}
                                 </CardContent>
                                 <CardFooter className="flex items-center justify-between border-t bg-muted/30 py-3">
-                                    <div>
+                                    <div className="flex items-center gap-4">
                                         <Transition
                                             show={recentlySuccessful}
                                             enter="transition ease-in-out"
@@ -147,14 +165,40 @@ export default function Profile({
                                                 Saved
                                             </p>
                                         </Transition>
+
+                                        {editMode.isEditing && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    editMode.stopEditing();
+                                                    reset();
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        )}
                                     </div>
-                                    <Button disabled={processing} size="sm">
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        size="sm"
+                                        onClick={(e) => {
+                                            if (!editMode.isEditing) {
+                                                e.preventDefault();
+                                                editMode.startEditing();
+                                            }
+                                        }}
+                                    >
                                         {processing
                                             ? 'Saving...'
-                                            : 'Save Profile'}
+                                            : editMode.isEditing
+                                              ? 'Save Profile'
+                                              : 'Edit Profile'}
                                     </Button>
                                 </CardFooter>
-                            </>
+                            </form>
                         )}
                     </Form>
                 </Card>
