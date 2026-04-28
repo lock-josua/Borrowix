@@ -1,20 +1,18 @@
-import * as React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { ImageIcon, Loader2, Palette, Upload, X } from 'lucide-react';
+import * as React from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Separator } from '@/components/ui/separator';
+import { useEditMode } from '@/hooks/use-edit-mode';
 import AdminSettingsLayout from '@/layouts/admin/AdminSettingsLayout';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -43,8 +41,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/admin/dashboard' },
     { title: 'Settings', href: '/admin/settings/customization' },
 ];
-
-import { useEditMode } from '@/hooks/use-edit-mode';
 
 export default function CustomizationSettingsPage({
     customization,

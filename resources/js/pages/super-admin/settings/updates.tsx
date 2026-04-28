@@ -1,5 +1,4 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { check as checkRoute, install as installRoute } from '@/actions/App/Http/Controllers/SuperAdmin/UpdateController';
 import {
     ArrowUpCircle,
     Calendar,
@@ -11,6 +10,7 @@ import {
     Tag,
 } from 'lucide-react';
 import { useState } from 'react';
+import { check as checkRoute, install as installRoute } from '@/actions/App/Http/Controllers/SuperAdmin/UpdateController';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

@@ -15,9 +15,9 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useEditMode } from '@/hooks/use-edit-mode';
 import SettingsLayout from '@/layouts/settings/layout';
 
-import { useEditMode } from '@/hooks/use-edit-mode';
 
 export default function Password() {
     const passwordInput = useRef<HTMLInputElement>(null);

@@ -10,7 +10,6 @@ import {
     Tag,
     Settings,
     ShieldCheck,
-    RefreshCw,
 } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { AppContent } from '@/components/app-content';
@@ -30,7 +29,7 @@ import {
     SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, PageProps } from '@/types';
 
 interface NavItem {
     title: string;
@@ -55,38 +54,9 @@ interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-function VersionBadge({ version }: { version: string }) {
-    const props = usePage().props as { updateStatus?: { has_update: boolean } };
-    const hasUpdate = props.updateStatus?.has_update ?? false;
-
-    return (
-        <div className="flex items-center gap-1.5 px-3 py-2">
-            <span className="text-xs text-muted-foreground">v{version}</span>
-            {hasUpdate && (
-                <span
-                    className="inline-flex size-2 animate-pulse rounded-full bg-amber-400"
-                    title="A new version is available"
-                />
-            )}
-        </div>
-    );
-}
-
 export default function AdminLayout({ children, breadcrumbs = [] }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
-    const { can, version, tenantSubscription, tenant } = usePage().props as {
-        can: Record<string, boolean>;
-        version: string;
-        tenantSubscription?: {
-            status: string;
-            plan: string | null;
-            trial_ends_at: string | null;
-            trial_days_remaining: number;
-        } | null;
-        tenant: {
-            logo_url: string | null;
-        } | null;
-    };
+    const { can, tenantSubscription, tenant } = usePage<PageProps>().props;
 
     const insightsNav: NavItem[] = [
         { title: 'Reports', href: '/admin/reports', icon: BarChart3 },

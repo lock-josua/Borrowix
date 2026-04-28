@@ -1,7 +1,7 @@
-import * as React from 'react';
 import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { CheckCircle, Loader2 } from 'lucide-react';
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useEditMode } from '@/hooks/use-edit-mode';
 import AdminSettingsLayout from '@/layouts/admin/AdminSettingsLayout';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -29,7 +30,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/admin/settings/school' },
 ];
 
-import { useEditMode } from '@/hooks/use-edit-mode';
 
 export default function SchoolSettingsPage({ admin }: Props) {
     const profileEdit = useEditMode();

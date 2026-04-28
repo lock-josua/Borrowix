@@ -1,7 +1,7 @@
-import * as React from 'react';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { CreditCard, School, TrendingUp } from 'lucide-react';
+import * as React from 'react';
 import {
     Area,
     AreaChart,
@@ -22,13 +22,14 @@ import {
     CardTitle,
     CardDescription,
 } from '@/components/ui/card';
+import type {
+    ChartConfig} from '@/components/ui/chart';
 import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
     ChartLegend,
-    ChartLegendContent,
-    ChartConfig,
+    ChartLegendContent
 } from '@/components/ui/chart';
 import {
     Select,
@@ -55,7 +56,6 @@ interface Props {
     schoolsGrowth: GrowthData[];
     totals: { schools: number };
     subscriptionStats: Record<string, number>;
-    statusBreakdown: Record<string, number>;
     revenue: {
         monthly_recurring: number; // MRR
         annual_recurring: number;  // ARR
@@ -68,7 +68,6 @@ export default function Analytics({
     schoolsGrowth,
     totals,
     subscriptionStats,
-    statusBreakdown,
     revenue,
 }: Props) {
     const [timeRange, setTimeRange] = React.useState('90d');

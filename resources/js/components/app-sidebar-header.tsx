@@ -4,14 +4,14 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { NotificationBell } from '@/components/notification-bell';
 import { SuperAdminAppearanceToggle } from '@/components/super-admin-appearance-toggle';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
+import type { BreadcrumbItem as BreadcrumbItemType, PageProps } from '@/types';
 
 export function AppSidebarHeader({
     breadcrumbs = [],
 }: {
     breadcrumbs?: BreadcrumbItemType[];
 }) {
-    const { tenant } = usePage().props as any;
+    const { tenant } = usePage<PageProps>().props;
     const isSuperAdmin = !tenant;
 
     return (
@@ -27,4 +27,3 @@ export function AppSidebarHeader({
         </header>
     );
 }
-

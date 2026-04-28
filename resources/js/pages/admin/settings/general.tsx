@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+import { useEditMode } from '@/hooks/use-edit-mode';
 import AdminSettingsLayout from '@/layouts/admin/AdminSettingsLayout';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { BreadcrumbItem } from '@/types';
@@ -40,7 +41,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/admin/settings/general' },
 ];
 
-import { useEditMode } from '@/hooks/use-edit-mode';
 
 export default function GeneralSettingsPage({ general }: Props) {
     const editMode = useEditMode();

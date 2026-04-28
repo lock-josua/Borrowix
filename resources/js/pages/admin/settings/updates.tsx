@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { updatesCheck } from '@/pages/admin/settings/routes';
 import {
     ArrowUpCircle,
     Calendar,
@@ -36,8 +35,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import AdminLayout from '@/layouts/AdminLayout';
 import AdminSettingsLayout from '@/layouts/admin/AdminSettingsLayout';
+import AdminLayout from '@/layouts/AdminLayout';
+import { updatesCheck } from '@/pages/admin/settings/routes';
 import type { BreadcrumbItem } from '@/types';
 
 interface Release {

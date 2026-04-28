@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Moon, Sun, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
+import { FeedbackDialog } from '@/components/feedback-dialog';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -8,11 +9,10 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
-import { FeedbackDialog } from '@/components/feedback-dialog';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { logout } from '@/routes';
-import { edit } from '@/routes/profile';
+
 import type { User } from '@/types';
 
 type Props = {

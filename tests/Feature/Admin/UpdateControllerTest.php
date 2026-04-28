@@ -3,12 +3,18 @@
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Services\UpdateService;
+use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 
 use function Pest\Laravel\mock;
 
 beforeEach(function () {
+    // Manually register tenant routes for testing on localhost
+    if (! Route::has('admin.settings.updates')) {
+        Route::middleware('web')->group(base_path('routes/Admin.php'));
+    }
+
     Role::findOrCreate(UserRole::Admin->value);
     Role::findOrCreate(UserRole::Student->value);
 });

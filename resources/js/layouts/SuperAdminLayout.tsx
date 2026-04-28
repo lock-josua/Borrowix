@@ -5,7 +5,6 @@ import {
     BarChart3,
     CreditCard,
     Settings,
-    RefreshCw,
     MessageSquare,
 } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
@@ -25,7 +24,7 @@ import {
     SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, PageProps } from '@/types';
 
 const platformNav = [
     {
@@ -52,30 +51,12 @@ interface Props extends PropsWithChildren {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-function VersionBadge({ version }: { version: string }) {
-    // updateStatus is only present on the updates page; on all other pages has_update will be undefined
-    const props = usePage().props as { updateStatus?: { has_update: boolean } };
-    const hasUpdate = props.updateStatus?.has_update ?? false;
-
-    return (
-        <div className="flex items-center gap-1.5 px-3 py-2">
-            <span className="text-xs text-muted-foreground">v{version}</span>
-            {hasUpdate && (
-                <span
-                    className="inline-flex size-2 animate-pulse rounded-full bg-amber-400"
-                    title="A new version is available"
-                />
-            )}
-        </div>
-    );
-}
-
 export default function SuperAdminLayout({
     children,
     breadcrumbs = [],
 }: Props) {
     const { isCurrentUrl } = useCurrentUrl();
-    const { version } = usePage().props;
+    usePage<PageProps>(); // Ensure version is available via props if needed, but not used here
 
     return (
         <AppShell variant="sidebar">

@@ -20,13 +20,11 @@ interface Plan {
 interface Props {
     schoolName: string;
     plans: Record<string, Plan>;
-    subscription: { status: string; trial_ends_at: string | null } | null;
 }
 
 export default function TrialExpiredAdmin({
     schoolName,
     plans,
-    subscription,
 }: Props) {
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 

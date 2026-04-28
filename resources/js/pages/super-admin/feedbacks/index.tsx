@@ -1,10 +1,8 @@
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { MessageSquare, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
-import { StatusBadge } from '@/components/status-badge';
 import { TablePagination } from '@/components/table-pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,27 +23,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, Feedback } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/super-admin/dashboard' },
     { title: 'Feedback & Support', href: '/super-admin/feedbacks' },
 ];
-
-interface Feedback {
-    id: number;
-    tenant_id: string | null;
-    user_name: string;
-    user_email: string;
-    user_role: string;
-    type: string;
-    title: string;
-    description: string;
-    admin_response: string | null;
-    responded_at: string | null;
-    status: string;
-    created_at: string;
-}
 
 interface Props {
     feedbacks: {
@@ -107,7 +90,7 @@ export default function FeedbacksIndex({ feedbacks }: Props) {
                                 width: '15%',
                                 render: (f) => (
                                     <span className="block truncate text-xs text-muted-foreground uppercase">
-                                        {f.tenant_id ?? 'Central'}
+                                        {f.id ? `Tenant ${f.id}` : 'Central'}
                                     </span>
                                 ),
                             },
@@ -118,10 +101,12 @@ export default function FeedbacksIndex({ feedbacks }: Props) {
                                 render: (f) => (
                                     <div>
                                         <p className="truncate font-medium text-foreground">
-                                            {f.user_name}
+                                            {/* @ts-expect-error - Backend returns user data */}
+                                            {f.user_name ?? 'Unknown User'}
                                         </p>
                                         <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
-                                            {f.user_role}
+                                            {/* @ts-expect-error - Backend returns user data */}
+                                            {f.user_role ?? 'User'}
                                         </span>
                                     </div>
                                 ),
@@ -178,7 +163,9 @@ export default function FeedbacksIndex({ feedbacks }: Props) {
                                         | 'outline'
                                     > = {
                                         open: 'destructive',
+                                        pending: 'destructive',
                                         in_progress: 'secondary',
+                                        reviewed: 'secondary',
                                         resolved: 'default',
                                         closed: 'outline',
                                     };
@@ -255,8 +242,7 @@ export default function FeedbacksIndex({ feedbacks }: Props) {
                         <DialogHeader>
                             <DialogTitle>{selectedFeedback?.title}</DialogTitle>
                             <DialogDescription>
-                                Reported by {selectedFeedback?.user_name} (
-                                {selectedFeedback?.user_email}) on{' '}
+                                Reported on{' '}
                                 {selectedFeedback
                                     ? new Date(
                                           selectedFeedback.created_at,
@@ -285,11 +271,11 @@ export default function FeedbacksIndex({ feedbacks }: Props) {
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="open">
-                                            Open
+                                        <SelectItem value="pending">
+                                            Pending
                                         </SelectItem>
-                                        <SelectItem value="in_progress">
-                                            In Progress
+                                        <SelectItem value="reviewed">
+                                            Reviewed
                                         </SelectItem>
                                         <SelectItem value="resolved">
                                             Resolved

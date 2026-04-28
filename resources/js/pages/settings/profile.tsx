@@ -1,8 +1,7 @@
-import * as React from 'react';
 import { Transition } from '@headlessui/react';
 import { Form, Head, Link, usePage } from '@inertiajs/react';
 import { CheckCircle } from 'lucide-react';
-import { useEditMode } from '@/hooks/use-edit-mode';
+import * as React from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useEditMode } from '@/hooks/use-edit-mode';
 import AdminLayout from '@/layouts/AdminLayout';
 import SettingsLayout from '@/layouts/settings/layout';
 import StaffLayout from '@/layouts/StaffLayout';

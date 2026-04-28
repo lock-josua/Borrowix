@@ -6,14 +6,12 @@ import { Card, CardContent } from '@/components/ui/card';
 
 interface Props {
     schoolName: string;
-    plan: string;
     planLabel: string;
     amount: number;
 }
 
 export default function SubscriptionSuccess({
     schoolName,
-    plan,
     planLabel,
     amount,
 }: Props) {

@@ -45,14 +45,12 @@ interface Props {
     };
     filters: { search?: string; status?: string; plan?: string };
     statusBreakdown: Record<string, number>;
-    planBreakdown: Record<string, number>;
 }
 
 export default function SubscriptionsIndex({
     subscriptions,
     filters,
     statusBreakdown,
-    planBreakdown,
 }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
 

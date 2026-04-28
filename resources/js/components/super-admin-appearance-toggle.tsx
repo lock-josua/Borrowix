@@ -7,10 +7,6 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    DropdownMenuSub,
-    DropdownMenuSubTrigger,
-    DropdownMenuSubContent,
-    DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { useAppearance } from '@/hooks/use-appearance';
 import type { Theme, Appearance } from '@/hooks/use-appearance';
@@ -18,15 +14,6 @@ import { cn } from '@/lib/utils';
 
 export function SuperAdminAppearanceToggle() {
     const { appearance, updateAppearance, theme, updateTheme } = useAppearance();
-
-    const appearanceIcon =
-        appearance === 'dark' ? (
-            <Moon className="size-4" />
-        ) : appearance === 'light' ? (
-            <Sun className="size-4" />
-        ) : (
-            <Monitor className="size-4" />
-        );
 
     const themes: { value: Theme; label: string }[] = [
         { value: 'default', label: 'Default' },
