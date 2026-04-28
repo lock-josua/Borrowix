@@ -10,7 +10,6 @@ import {
     Tag,
 } from 'lucide-react';
 import { useState } from 'react';
-import { check as checkRoute, install as installRoute } from '@/actions/App/Http/Controllers/SuperAdmin/UpdateController';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -97,7 +96,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
             )
         ) {
             router.post(
-                installRoute.url(),
+                '/super-admin/settings/updates/install',
                 {},
                 {
                     onStart: () => setInstalling(true),
@@ -117,7 +116,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                     ) as HTMLMetaElement
                 )?.content ?? '';
 
-            const res = await fetch(checkRoute.url(), {
+            const res = await fetch('/super-admin/settings/updates/check', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
