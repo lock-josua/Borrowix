@@ -76,16 +76,21 @@ export function initializeTheme(): void {
     }
 
     currentAppearance = getStoredAppearance();
-    
+
     // Check if the server already set a theme (e.g., via Blade for tenants)
-    const serverTheme = document.documentElement.getAttribute('data-theme') as Theme | null;
-    if (serverTheme && ['default', 'sandstone', 'sesi', 'whatsapp'].includes(serverTheme)) {
+    const serverTheme = document.documentElement.getAttribute(
+        'data-theme',
+    ) as Theme | null;
+    if (
+        serverTheme &&
+        ['default', 'sandstone', 'sesi', 'whatsapp'].includes(serverTheme)
+    ) {
         currentTheme = serverTheme;
     } else {
         currentTheme = getStoredTheme();
         applyTheme(currentTheme);
     }
-    
+
     applyAppearance(currentAppearance);
 
     window
@@ -129,12 +134,11 @@ export function useAppearance(): UseAppearanceReturn {
         notify();
     }, []);
 
-    return { 
-        appearance, 
-        resolvedAppearance, 
+    return {
+        appearance,
+        resolvedAppearance,
         updateAppearance,
         theme,
-        updateTheme
+        updateTheme,
     } as const;
 }
-

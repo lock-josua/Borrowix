@@ -30,3 +30,4 @@ borrowix_db
 /database/tenant_test-*
 /.kilo
 /.kombai
+/.cursor

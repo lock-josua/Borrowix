@@ -14,7 +14,7 @@ class Equipment extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'damage_photo_url'];
 
     /**
      * NOTE on image columns:
@@ -85,7 +85,45 @@ class Equipment extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->image ? asset('storage/'.$this->image) : null,
+            get: function () {
+                if (! $this->image) {
+                    return null;
+                }
+
+                // If it's already a full URL (Cloudinary or external), return it as-is
+                if (str_starts_with($this->image, 'http')) {
+                    return $this->image;
+                }
+
+                // Already a /storage/... URL (legacy records)
+                if (str_starts_with($this->image, '/storage/')) {
+                    return $this->image;
+                }
+
+                // Raw storage path — convert to URL using the Storage facade
+                return \Illuminate\Support\Facades\Storage::url($this->image);
+            }
+        );
+    }
+
+    protected function damagePhotoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (! $this->damage_photo) {
+                    return null;
+                }
+
+                if (str_starts_with($this->damage_photo, 'http')) {
+                    return $this->damage_photo;
+                }
+
+                if (str_starts_with($this->damage_photo, '/storage/')) {
+                    return $this->damage_photo;
+                }
+
+                return \Illuminate\Support\Facades\Storage::url($this->damage_photo);
+            }
         );
     }
 }
