@@ -23,6 +23,7 @@ class AnalyticsController extends Controller
             'subscriptionStats' => $subscriptionStats,
             'statusBreakdown' => $statusBreakdown,
             'revenue' => $revenue,
+            'revenueTrend' => $this->getRevenueTrend(),
         ]);
     }
 
@@ -108,5 +109,24 @@ class AnalyticsController extends Controller
             'monthly_cash_flow' => (float) $monthlyCashFlow,
             'total' => (float) $totalRevenue,
         ];
+    }
+
+    private function getRevenueTrend(): array
+    {
+        return SubscriptionPayment::where('subscription_payments.status', 'completed')
+            ->leftJoin('subscriptions', 'subscription_payments.subscription_id', '=', 'subscriptions.id')
+            ->selectRaw('DATE_FORMAT(subscription_payments.paid_at, "%Y-%m-%d") as date')
+            ->selectRaw('SUM(CASE WHEN subscriptions.plan = "annually" THEN subscription_payments.amount ELSE 0 END) as annual')
+            ->selectRaw('SUM(CASE WHEN subscriptions.plan = "monthly" OR subscriptions.plan IS NULL THEN subscription_payments.amount ELSE 0 END) as monthly')
+            ->where('subscription_payments.paid_at', '>=', now()->subMonths(12))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(fn ($item) => [
+                'date' => $item->date,
+                'annual' => (float) $item->annual,
+                'monthly' => (float) $item->monthly,
+            ])
+            ->toArray();
     }
 }

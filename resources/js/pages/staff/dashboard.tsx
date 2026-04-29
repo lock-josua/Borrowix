@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
 import StaffLayout from '@/layouts/StaffLayout';
-import { formatDate } from '@/lib/utils';
+import { formatDateOnly } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -234,7 +234,7 @@ export default function StaffDashboard({
                                 hideOnMobile: true,
                                 render: (t) => (
                                     <span className="text-xs font-medium text-destructive">
-                                        {formatDate(t.due_date)}
+                                        {formatDateOnly(t.due_date)}
                                     </span>
                                 ),
                             },

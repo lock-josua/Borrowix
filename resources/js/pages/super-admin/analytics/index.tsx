@@ -5,16 +5,19 @@ import * as React from 'react';
 import {
     Area,
     AreaChart,
-    Cell,
     Pie,
     PieChart,
     XAxis,
     YAxis,
     CartesianGrid,
+    Line,
+    LineChart,
+    Bar,
+    BarChart,
+    Label,
 } from 'recharts';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
-import { StatusBadge } from '@/components/status-badge';
 import {
     Card,
     CardContent,
@@ -61,6 +64,11 @@ interface Props {
         monthly_cash_flow: number;
         total: number;
     };
+    revenueTrend: {
+        date: string;
+        annual: number;
+        monthly: number;
+    }[];
 }
 
 export default function Analytics({
@@ -68,13 +76,9 @@ export default function Analytics({
     totals,
     subscriptionStats,
     revenue,
+    revenueTrend,
 }: Props) {
     const [timeRange, setTimeRange] = React.useState('90d');
-
-    const revenueData = [
-        { month: 'This Month', revenue: revenue.monthly_recurring },
-        { month: 'This Year', revenue: revenue.annual_recurring },
-    ];
 
     const filteredSchoolsGrowth = React.useMemo(() => {
         const referenceDate = new Date();
@@ -94,6 +98,7 @@ export default function Analytics({
     const chartConfig = {
         growth: {
             label: 'Growth',
+            color: 'transparent',
         },
         annual: {
             label: 'Annual Plan',
@@ -103,12 +108,52 @@ export default function Analytics({
             label: 'Monthly Plan',
             color: 'var(--chart-2)',
         },
+        subscribed: {
+            label: 'Subscribed',
+            color: 'hsl(142.1 76.2% 36.3%)', // Green
+        },
+        trialing: {
+            label: 'Trialing',
+            color: 'hsl(47.9 95.8% 53.1%)', // Amber
+        },
+        trial_expired: {
+            label: 'Expired',
+            color: 'hsl(0 84.2% 60.2%)', // Red
+        },
+        suspended: {
+            label: 'Suspended',
+            color: 'hsl(215.4 16.3% 46.9%)', // Gray
+        },
     } satisfies ChartConfig;
 
+    const revenueConfig = {
+        monthly: {
+            label: 'Monthly Payments',
+            color: 'var(--chart-2)',
+        },
+        annual: {
+            label: 'Annual Payments',
+            color: 'var(--chart-1)',
+        },
+    } satisfies ChartConfig;
+
+    const totalRevenueTrend = React.useMemo(
+        () => ({
+            monthly: revenueTrend.reduce((acc, curr) => acc + curr.monthly, 0),
+            annual: revenueTrend.reduce((acc, curr) => acc + curr.annual, 0),
+        }),
+        [revenueTrend]
+    );
+
     const pieData = Object.entries(subscriptionStats).map(([name, value]) => ({
-        name,
+        status: name,
         value,
+        fill: `var(--color-${name})`,
     }));
+
+    const totalSubscriptions = React.useMemo(() => {
+        return pieData.reduce((acc, curr) => acc + curr.value, 0);
+    }, [pieData]);
 
     return (
         <SuperAdminLayout breadcrumbs={breadcrumbs}>
@@ -157,95 +202,157 @@ export default function Analytics({
 
                 {/* Subscription Status Distribution */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Subscription Status
-                            </CardTitle>
+                    <Card className="flex flex-col">
+                        <CardHeader className="items-center pb-0">
+                            <CardTitle className="text-base">Subscription Status</CardTitle>
                             <CardDescription>
                                 Current subscription distribution
                             </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-wrap gap-4">
-                                <StatusBadge status="trialing" />
-                                <span className="text-xl font-bold">
-                                    {subscriptionStats.trialing ?? 0}
-                                </span>
-                                <StatusBadge status="subscribed" />
-                                <span className="text-xl font-bold">
-                                    {subscriptionStats.subscribed ?? 0}
-                                </span>
-                                <StatusBadge status="trial_expired" />
-                                <span className="text-xl font-bold">
-                                    {subscriptionStats.trial_expired ?? 0}
-                                </span>
-                                <StatusBadge status="suspended" />
-                                <span className="text-xl font-bold">
-                                    {subscriptionStats.suspended ?? 0}
-                                </span>
-                            </div>
-                            {pieData.length > 0 && (
-                                <ChartContainer
-                                    config={{}}
-                                    className="mt-4 h-[200px]"
-                                >
-                                    <PieChart>
-                                        <Pie
-                                            data={pieData}
-                                            dataKey="value"
-                                            nameKey="name"
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={80}
-                                            label
-                                        >
-                                            {pieData.map((entry, index) => (
-                                                <Cell
-                                                    key={entry.name}
-                                                    fill={
-                                                        [
-                                                            '#f59e0b',
-                                                            '#22c55e',
-                                                            '#ef4444',
-                                                            '#6b7280',
-                                                        ][index % 4]
-                                                    }
-                                                />
-                                            ))}
-                                        </Pie>
-                                        <ChartTooltip
-                                            content={<ChartTooltipContent />}
+                        <CardContent className="flex-1 pb-0">
+                            <ChartContainer
+                                config={chartConfig}
+                                className="mx-auto aspect-square max-h-[250px]"
+                            >
+                                <PieChart>
+                                    <ChartTooltip
+                                        cursor={false}
+                                        content={<ChartTooltipContent hideLabel />}
+                                    />
+                                    <Pie
+                                        data={pieData}
+                                        dataKey="value"
+                                        nameKey="status"
+                                        innerRadius={60}
+                                        strokeWidth={5}
+                                    >
+                                        <Label
+                                            content={({ viewBox }) => {
+                                                if (
+                                                    viewBox &&
+                                                    'cx' in viewBox &&
+                                                    'cy' in viewBox
+                                                ) {
+                                                    return (
+                                                        <text
+                                                            x={viewBox.cx}
+                                                            y={viewBox.cy}
+                                                            textAnchor="middle"
+                                                            dominantBaseline="middle"
+                                                        >
+                                                            <tspan
+                                                                x={viewBox.cx}
+                                                                y={viewBox.cy}
+                                                                className="fill-foreground text-3xl font-bold"
+                                                            >
+                                                                {totalSubscriptions.toLocaleString()}
+                                                            </tspan>
+                                                            <tspan
+                                                                x={viewBox.cx}
+                                                                y={(viewBox.cy || 0) + 24}
+                                                                className="fill-muted-foreground"
+                                                            >
+                                                                Schools
+                                                            </tspan>
+                                                        </text>
+                                                    );
+                                                }
+                                            }}
                                         />
-                                    </PieChart>
-                                </ChartContainer>
-                            )}
+                                    </Pie>
+                                </PieChart>
+                            </ChartContainer>
+                            <div className="mt-4 flex flex-wrap justify-center gap-4 pb-4">
+                                {Object.keys(subscriptionStats).map((status) => (
+                                    <div
+                                        key={status}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <div
+                                            className="h-3 w-3 rounded-full"
+                                            style={{
+                                                backgroundColor:
+                                                    (
+                                                        chartConfig[
+                                                            status as keyof typeof chartConfig
+                                                        ] as { color: string }
+                                                    ).color,
+                                            }}
+                                        />
+                                        <span className="text-xs font-medium capitalize">
+                                            {status.replace('_', ' ')}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">
-                                Revenue Trend
-                            </CardTitle>
-                            <CardDescription>Revenue over time</CardDescription>
+                            <CardTitle className="text-base">Revenue Trend</CardTitle>
+                            <CardDescription>
+                                Stacked monthly and annual payment collection
+                            </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <ChartContainer config={{}} className="h-[200px]">
-                                <AreaChart data={revenueData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="month" />
-                                    <YAxis />
+                        <CardContent className="px-2 sm:p-6">
+                            <ChartContainer
+                                config={revenueConfig}
+                                className="aspect-auto h-[300px] w-full"
+                            >
+                                <BarChart
+                                    data={revenueTrend}
+                                    margin={{
+                                        top: 20,
+                                        right: 30,
+                                        left: 20,
+                                        bottom: 5,
+                                    }}
+                                >
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis
+                                        dataKey="date"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickMargin={8}
+                                        minTickGap={32}
+                                        tickFormatter={(value) => {
+                                            const date = new Date(value);
+                                            return date.toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                            });
+                                        }}
+                                    />
                                     <ChartTooltip
-                                        content={<ChartTooltipContent />}
+                                        cursor={false}
+                                        content={
+                                            <ChartTooltipContent
+                                                labelFormatter={(value) => {
+                                                    return new Date(value).toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        year: 'numeric',
+                                                    });
+                                                }}
+                                                indicator="dot"
+                                            />
+                                        }
                                     />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="revenue"
-                                        stroke="hsl(var(--chart-1))"
-                                        fill="hsl(var(--chart-1))"
+                                    <Bar
+                                        dataKey="monthly"
+                                        stackId="a"
+                                        fill="var(--color-monthly)"
+                                        radius={[0, 0, 4, 4]}
                                     />
-                                </AreaChart>
+                                    <Bar
+                                        dataKey="annual"
+                                        stackId="a"
+                                        fill="var(--color-annual)"
+                                        radius={[4, 4, 0, 0]}
+                                    />
+                                    <ChartLegend content={<ChartLegendContent />} />
+                                </BarChart>
                             </ChartContainer>
                         </CardContent>
                     </Card>
