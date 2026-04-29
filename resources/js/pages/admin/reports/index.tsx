@@ -7,6 +7,7 @@ import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { StatusBadge } from '@/components/status-badge';
+import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -353,13 +354,13 @@ export default function ReportsIndex({
                                     key: 'issued',
                                     label: 'Issued',
                                     width: '15%',
-                                    render: (t) => t.issued_at,
+                                    render: (t) => formatDate(t.issued_at),
                                 },
                                 {
                                     key: 'returned',
                                     label: 'Returned',
                                     width: '15%',
-                                    render: (t) => t.returned_at || '—',
+                                    render: (t) => formatDate(t.returned_at),
                                 },
                                 {
                                     key: 'status',

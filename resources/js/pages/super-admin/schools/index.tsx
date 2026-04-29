@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
+import { formatDateOnly } from '@/lib/utils';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -143,7 +144,7 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                             handleFilterChange('plan', v === 'all' ? '' : v)
                         }
                     >
-                        <SelectTrigger className="h-9 w-[160px] bg-muted/20 text-sm">
+                        <SelectTrigger className="h-9 w-[180px] bg-muted/20 text-sm">
                             <SelectValue placeholder="Subscription" />
                         </SelectTrigger>
                         <SelectContent>
@@ -225,7 +226,7 @@ export default function SchoolsIndex({ schools, filters }: Props) {
                                 width: '13%',
                                 render: (s) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {s.created_at}
+                                        {formatDateOnly(s.created_at)}
                                     </span>
                                 ),
                             },

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { DataTable } from '@/components/data-table';
 import { PageHeader } from '@/components/page-header';
 import { StatusBadge } from '@/components/status-badge';
+import { formatDateOnly } from '@/lib/utils';
 import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -184,7 +185,7 @@ export default function UsersIndex({ users, filters }: Props) {
                                 width: '12%',
                                 render: (u) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {u.created_at}
+                                        {formatDateOnly(u.created_at)}
                                     </span>
                                 ),
                             },

@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import StaffLayout from '@/layouts/StaffLayout';
 import type { BreadcrumbItem } from '@/types';
+import { formatDateOnly } from '@/lib/utils';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/staff/dashboard' },
@@ -144,7 +145,7 @@ export default function StaffTransactionsIndex({
                                 width: '15%',
                                 render: (t) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {t.due_date}
+                                        {formatDateOnly(t.due_date)}
                                     </span>
                                 ),
                             },

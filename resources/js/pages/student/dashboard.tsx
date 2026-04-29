@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import StudentLayout from '@/layouts/StudentLayout';
 import type { BreadcrumbItem } from '@/types';
+import { formatDateOnly } from '@/lib/utils';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Home', href: '/student/dashboard' },
@@ -50,8 +51,8 @@ export default function StudentDashboard({
         hour < 12
             ? 'Good morning'
             : hour < 18
-              ? 'Good afternoon'
-              : 'Good evening';
+                ? 'Good afternoon'
+                : 'Good evening';
     const firstName = user.name.split(' ')[0];
 
     return (
@@ -131,7 +132,7 @@ export default function StudentDashboard({
                                     width: '30%',
                                     render: (l) => (
                                         <span className="text-xs text-muted-foreground">
-                                            {l.due_date}
+                                            {formatDateOnly(l.due_date)}
                                         </span>
                                     ),
                                 },
@@ -175,7 +176,7 @@ export default function StudentDashboard({
                                     width: '45%',
                                     render: (r) => (
                                         <span className="text-xs text-muted-foreground">
-                                            {r.borrow_date}
+                                            {formatDateOnly(r.borrow_date)}
                                         </span>
                                     ),
                                 },
