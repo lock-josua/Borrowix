@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
 import AdminLayout from '@/layouts/AdminLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -73,14 +74,20 @@ interface Props {
 const transactionChartConfig = {
     count: {
         label: 'Transactions',
-        color: 'hsl(var(--chart-1))',
+        theme: {
+            light: 'var(--chart-1)',
+            dark: 'var(--chart-2)',
+        },
     },
 } satisfies ChartConfig;
 
 const equipmentChartConfig = {
     count: {
         label: 'Count',
-        color: 'hsl(var(--chart-1))',
+        theme: {
+            light: 'var(--chart-3)',
+            dark: 'var(--chart-4)',
+        },
     },
 } satisfies ChartConfig;
 
@@ -137,7 +144,7 @@ export default function AdminDashboard({
                         title="Pending"
                         value={stats.pending_requests}
                         sub="Awaiting approval"
-                        valueColor="hsl(var(--chart-4))"
+                        valueColor="var(--chart-4)"
                         icon={<ClipboardList />}
                         delay={0.05}
                     />
@@ -152,7 +159,7 @@ export default function AdminDashboard({
                         title="Overdue"
                         value={stats.overdue_loans}
                         sub="Needs action"
-                        valueColor="hsl(var(--destructive))"
+                        valueColor="var(--destructive)"
                         trend="down"
                         icon={<AlertTriangle />}
                         delay={0.15}
@@ -299,7 +306,7 @@ export default function AdminDashboard({
                                         width: '20%',
                                         render: (r) => (
                                             <span className="text-xs text-muted-foreground">
-                                                {r.borrow_date}
+                                                {formatDate(r.borrow_date)}
                                             </span>
                                         ),
                                     },
@@ -361,7 +368,7 @@ export default function AdminDashboard({
                                         align: 'right',
                                         render: (r) => (
                                             <span className="text-xs font-medium text-destructive">
-                                                {r.due_date}
+                                                {formatDate(r.due_date)}
                                             </span>
                                         ),
                                     },

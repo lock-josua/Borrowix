@@ -26,6 +26,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AdminLayout from '@/layouts/AdminLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -150,7 +151,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                                 width: '14%',
                                 render: (t) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {t.issued_at}
+                                        {formatDate(t.issued_at)}
                                     </span>
                                 ),
                             },
@@ -161,7 +162,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                                 render: (t) => (
                                     <div className="flex flex-col">
                                         <span className="text-xs text-muted-foreground">
-                                            {t.due_date}
+                                            {formatDate(t.due_date)}
                                         </span>
                                         {t.fine_amount > 0 && (
                                             <span className="text-[10px] font-bold text-destructive">

@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import {
     ArrowUpCircle,
     Calendar,
@@ -37,7 +37,8 @@ import {
 } from '@/components/ui/table';
 import AdminSettingsLayout from '@/layouts/admin/AdminSettingsLayout';
 import AdminLayout from '@/layouts/AdminLayout';
-import { updatesCheck } from '@/pages/admin/settings/routes';
+import { formatDateOnly } from '@/lib/utils';
+import { updatesCheck, updatesInstall } from '@/pages/admin/settings/routes';
 import type { BreadcrumbItem } from '@/types';
 
 interface Release {
@@ -73,21 +74,30 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Updates', href: '/admin/settings/updates' },
 ];
 
-function formatDate(iso: string | null): string {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-}
-
 export default function AdminUpdates({ updateStatus }: Props) {
     const [status, setStatus] = useState<UpdateStatus>(updateStatus);
     const [checking, setChecking] = useState(false);
+    const [installing, setInstalling] = useState(false);
     const [selectedRelease, setSelectedRelease] = useState<Release | null>(
         null,
     );
+
+    function handleInstall() {
+        if (
+            confirm(
+                `Are you sure you want to install v${status.latest_version}? This may take a moment.`,
+            )
+        ) {
+            router.post(
+                updatesInstall,
+                {},
+                {
+                    onStart: () => setInstalling(true),
+                    onFinish: () => setInstalling(false),
+                },
+            );
+        }
+    }
 
     async function handleCheck() {
         setChecking(true);
@@ -138,9 +148,10 @@ export default function AdminUpdates({ updateStatus }: Props) {
                                 {status.has_update ? (
                                     <Badge
                                         variant="destructive"
-                                        className="text-xs"
+                                        className="cursor-pointer text-xs transition-colors hover:bg-destructive/80"
+                                        onClick={handleInstall}
                                     >
-                                        Newer version available
+                                        Update available (Click to Install)
                                     </Badge>
                                 ) : (
                                     <Badge
@@ -170,7 +181,7 @@ export default function AdminUpdates({ updateStatus }: Props) {
                                 {status.published_at && (
                                     <span className="text-xs text-muted-foreground">
                                         Released{' '}
-                                        {formatDate(status.published_at)}
+                                        {formatDateOnly(status.published_at)}
                                     </span>
                                 )}
                             </CardContent>
@@ -186,8 +197,8 @@ export default function AdminUpdates({ updateStatus }: Props) {
                                         Version History
                                     </CardTitle>
                                     <CardDescription className="text-sm">
-                                        Track all previous and upcoming
-                                        releases for Borrowix.
+                                        Track all previous and upcoming releases
+                                        for Borrowix.
                                     </CardDescription>
                                 </div>
                                 <Badge variant="outline" className="font-mono">
@@ -199,13 +210,13 @@ export default function AdminUpdates({ updateStatus }: Props) {
                             <Table>
                                 <TableHeader className="bg-muted/10">
                                     <TableRow className="hover:bg-transparent">
-                                        <TableHead className="py-3 px-6 font-semibold text-foreground">
+                                        <TableHead className="px-6 py-3 font-semibold text-foreground">
                                             Release
                                         </TableHead>
-                                        <TableHead className="py-3 px-6 font-semibold text-foreground">
+                                        <TableHead className="px-6 py-3 font-semibold text-foreground">
                                             Published Date
                                         </TableHead>
-                                        <TableHead className="py-3 px-6 text-right font-semibold text-foreground">
+                                        <TableHead className="px-6 py-3 text-right font-semibold text-foreground">
                                             Type
                                         </TableHead>
                                     </TableRow>
@@ -217,7 +228,7 @@ export default function AdminUpdates({ updateStatus }: Props) {
                                                 key={rel.version}
                                                 className="group transition-colors hover:bg-muted/40"
                                             >
-                                                <TableCell className="py-4 px-6">
+                                                <TableCell className="px-6 py-4">
                                                     <div className="flex flex-col gap-1">
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-base font-bold tracking-tight text-foreground">
@@ -225,7 +236,7 @@ export default function AdminUpdates({ updateStatus }: Props) {
                                                             </span>
                                                             {rel.version ===
                                                                 status.current_version && (
-                                                                <Badge className="border-none bg-emerald-100 px-2 py-0 text-[10px] font-bold uppercase tracking-wider text-emerald-700 hover:bg-emerald-100/80">
+                                                                <Badge className="border-none bg-emerald-100 px-2 py-0 text-[10px] font-bold tracking-wider text-emerald-700 uppercase hover:bg-emerald-100/80">
                                                                     Installed
                                                                 </Badge>
                                                             )}
@@ -247,17 +258,17 @@ export default function AdminUpdates({ updateStatus }: Props) {
                                                         </span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="py-4 px-6">
+                                                <TableCell className="px-6 py-4">
                                                     <div className="flex items-center gap-2 text-muted-foreground">
                                                         <Calendar className="size-3.5" />
                                                         <span className="text-sm font-medium">
-                                                            {formatDate(
+                                                            {formatDateOnly(
                                                                 rel.published_at,
                                                             )}
                                                         </span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="py-4 px-6 text-right">
+                                                <TableCell className="px-6 py-4 text-right">
                                                     {rel.prerelease ? (
                                                         <Badge
                                                             variant="outline"
@@ -303,12 +314,12 @@ export default function AdminUpdates({ updateStatus }: Props) {
                             !open && setSelectedRelease(null)
                         }
                     >
-                        <DialogContent className="max-w-2xl gap-0 p-0 overflow-hidden border-none shadow-2xl ring-1 ring-border">
+                        <DialogContent className="max-w-2xl gap-0 overflow-hidden border-none p-0 shadow-2xl ring-1 ring-border">
                             <DialogHeader className="bg-muted/30 p-6 pb-4">
                                 <div className="flex flex-col gap-1">
                                     <DialogTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
                                         v{selectedRelease?.version}
-                                        <span className="text-muted-foreground font-normal">
+                                        <span className="font-normal text-muted-foreground">
                                             —
                                         </span>
                                         {selectedRelease?.name ||
@@ -317,7 +328,7 @@ export default function AdminUpdates({ updateStatus }: Props) {
                                     <DialogDescription className="flex items-center gap-2 text-sm">
                                         <Calendar className="size-3.5" />
                                         Released on{' '}
-                                        {formatDate(
+                                        {formatDateOnly(
                                             selectedRelease?.published_at ?? '',
                                         )}
                                     </DialogDescription>
@@ -326,7 +337,7 @@ export default function AdminUpdates({ updateStatus }: Props) {
                             <ScrollArea className="max-h-[65vh]">
                                 <div className="p-6 pt-2">
                                     <div className="rounded-xl border bg-muted/20 p-5">
-                                        <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed tracking-tight text-foreground/90">
+                                        <pre className="font-sans text-sm leading-relaxed tracking-tight whitespace-pre-wrap text-foreground/90">
                                             {selectedRelease?.body ||
                                                 'No release notes provided for this version.'}
                                         </pre>
@@ -363,7 +374,7 @@ export default function AdminUpdates({ updateStatus }: Props) {
                         <Button
                             variant="outline"
                             size="sm"
-                            disabled={checking}
+                            disabled={checking || installing}
                             onClick={handleCheck}
                         >
                             {checking ? (
@@ -373,6 +384,22 @@ export default function AdminUpdates({ updateStatus }: Props) {
                             )}
                             Check for updates
                         </Button>
+
+                        {status.has_update && (
+                            <Button
+                                variant="default"
+                                size="sm"
+                                disabled={checking || installing}
+                                onClick={handleInstall}
+                            >
+                                {installing ? (
+                                    <Loader2 className="mr-2 size-4 animate-spin" />
+                                ) : (
+                                    <ArrowUpCircle className="mr-2 size-4" />
+                                )}
+                                Install Update
+                            </Button>
+                        )}
 
                         {status.release_url && (
                             <Button variant="ghost" size="sm" asChild>
@@ -389,7 +416,7 @@ export default function AdminUpdates({ updateStatus }: Props) {
                     </div>
 
                     <p className="text-xs text-muted-foreground">
-                        Last checked: {formatDate(status.checked_at)}
+                        Last checked: {formatDateOnly(status.checked_at)}
                     </p>
                 </AdminSettingsLayout>
             </div>

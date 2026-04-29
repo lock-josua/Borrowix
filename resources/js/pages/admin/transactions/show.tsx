@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface Transaction {
@@ -89,7 +90,7 @@ export default function TransactionShow({ transaction: t }: Props) {
             >
                 <PageHeader
                     title={`Transaction #${t.id}`}
-                    description={`Issued on ${t.issued_at}`}
+                    description={`Issued on ${formatDate(t.issued_at)}`}
                     actions={
                         <div className="flex gap-2">
                             <Button variant="outline" size="sm" asChild>
@@ -124,8 +125,11 @@ export default function TransactionShow({ transaction: t }: Props) {
                                     {[
                                         ['Borrower', t.borrower.name],
                                         ['Equipment', t.equipment.name],
-                                        ['Issued Date', t.issued_at],
-                                        ['Due Date', t.due_date],
+                                        [
+                                            'Issued Date',
+                                            formatDate(t.issued_at),
+                                        ],
+                                        ['Due Date', formatDate(t.due_date)],
                                     ].map(([label, value]) => (
                                         <div
                                             key={label}
@@ -201,7 +205,7 @@ export default function TransactionShow({ transaction: t }: Props) {
                                     <div className="text-[10px] font-bold text-muted-foreground uppercase">
                                         Issued
                                     </div>
-                                    <div>{t.issued_at}</div>
+                                    <div>{formatDate(t.issued_at)}</div>
                                     {t.issuedBy && (
                                         <div className="italic">
                                             By {t.issuedBy.name}
@@ -213,7 +217,7 @@ export default function TransactionShow({ transaction: t }: Props) {
                                         <div className="text-[10px] font-bold text-muted-foreground uppercase">
                                             Returned
                                         </div>
-                                        <div>{t.returned_at}</div>
+                                        <div>{formatDate(t.returned_at)}</div>
                                         {t.returnedTo && (
                                             <div className="italic">
                                                 To {t.returnedTo.name}

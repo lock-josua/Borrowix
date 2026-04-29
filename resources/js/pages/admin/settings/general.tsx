@@ -41,7 +41,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/admin/settings/general' },
 ];
 
-
 export default function GeneralSettingsPage({ general }: Props) {
     const editMode = useEditMode();
 
@@ -153,7 +152,7 @@ export default function GeneralSettingsPage({ general }: Props) {
                                                 event.target.value,
                                             )
                                         }
-                                        disabled={!isEditing}
+                                        disabled={!editMode.isEditing}
                                     />
                                     {errors.address && (
                                         <p className="text-xs text-destructive">

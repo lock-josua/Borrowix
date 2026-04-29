@@ -104,6 +104,8 @@ Route::prefix('admin')
             ->name('settings.updates');
         Route::post('/settings/updates/check', [UpdateController::class, 'check'])
             ->name('settings.updates.check');
+        Route::post('/settings/updates/install', [UpdateController::class, 'install'])
+            ->name('settings.updates.install');
 
         // RBAC — role permissions matrix
         Route::get('/rbac', [RbacController::class, 'index'])->name('rbac.index');

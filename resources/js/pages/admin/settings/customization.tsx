@@ -48,19 +48,20 @@ export default function CustomizationSettingsPage({
 }: Props) {
     const editMode = useEditMode();
 
-    const { data, setData, post, transform, processing, errors, reset } = useForm({
-        logo: null as File | null,
-        login_bg_image: null as File | null,
-        login_bg_mode: customization.login_bg_mode,
-        login_bg_color: customization.login_bg_color,
-        primary_color: customization.primary_color,
-        active_theme: customization.active_theme ?? 'default',
-        school_tagline: customization.school_tagline,
-        allowed_proof_types: customization.allowed_proof_types,
-        max_daily_requests: customization.max_daily_requests,
-        public_browse_enabled: customization.public_browse_enabled,
-        maintenance_message: customization.maintenance_message,
-    });
+    const { data, setData, post, transform, processing, errors, reset } =
+        useForm({
+            logo: null as File | null,
+            login_bg_image: null as File | null,
+            login_bg_mode: customization.login_bg_mode,
+            login_bg_color: customization.login_bg_color,
+            primary_color: customization.primary_color,
+            active_theme: customization.active_theme ?? 'default',
+            school_tagline: customization.school_tagline,
+            allowed_proof_types: customization.allowed_proof_types,
+            max_daily_requests: customization.max_daily_requests,
+            public_browse_enabled: customization.public_browse_enabled,
+            maintenance_message: customization.maintenance_message,
+        });
 
     const [logoPreview, setLogoPreview] = useState<string | null>(
         customization.logo_url,
@@ -197,7 +198,9 @@ export default function CustomizationSettingsPage({
                                                     size="sm"
                                                     onClick={removeLogo}
                                                     className="flex items-center gap-2 text-destructive hover:bg-destructive/5 hover:text-destructive"
-                                                    disabled={!editMode.isEditing}
+                                                    disabled={
+                                                        !editMode.isEditing
+                                                    }
                                                 >
                                                     <X className="size-3.5" />
                                                     Remove

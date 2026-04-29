@@ -26,6 +26,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AdminLayout from '@/layouts/AdminLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -177,7 +178,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 width: '14%',
                                 render: (r) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {r.borrow_date}
+                                        {formatDate(r.borrow_date)}
                                     </span>
                                 ),
                             },
@@ -187,7 +188,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 width: '14%',
                                 render: (r) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {r.expected_return_date}
+                                        {formatDate(r.expected_return_date)}
                                     </span>
                                 ),
                             },

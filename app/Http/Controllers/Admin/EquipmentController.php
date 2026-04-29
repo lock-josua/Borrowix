@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Equipment;
 use App\Services\QrCodeService;
+use Cloudinary\Cloudinary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -134,10 +135,16 @@ class EquipmentController extends Controller
         $disk = config('filesystems.default');
 
         if ($disk === 'cloudinary') {
-            // Upload to Cloudinary
-            $result = $file->store('', 'cloudinary');
+            // Upload to Cloudinary using the API directly to get the secure URL
+            // and avoid the "invalid public_id" error caused by empty path in store()
+            $folder = 'tenants/'.tenant()->id.'/equipment';
 
-            return $result;
+            $cloudinary = app(Cloudinary::class);
+            $result = $cloudinary->uploadApi()->upload($file->getRealPath(), [
+                'folder' => $folder,
+            ]);
+
+            return $result['secure_url'];
         } else {
             // Upload to local storage (public disk) — store the raw path, not the URL
             return $file->store('equipment/images', 'public');

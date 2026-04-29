@@ -13,8 +13,8 @@ interface Props {
 }
 
 const tabs = [
-    { title: 'General', href: school },
-    { title: 'School', href: general },
+    { title: 'Profile', href: school },
+    { title: 'General', href: general },
     { title: 'Customization', href: customization },
     { title: 'Updates', href: updates },
 ];

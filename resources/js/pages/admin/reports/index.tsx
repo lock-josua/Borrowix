@@ -95,7 +95,8 @@ export default function ReportsIndex({
                                     href={`/admin/reports/export?type=excel&from=${from}&to=${to}`}
                                     className="gap-1.5"
                                 >
-                                    <Download className="size-3.5" /> Export Excel
+                                    <Download className="size-3.5" /> Export
+                                    Excel
                                 </a>
                             </Button>
                             <Button variant="outline" size="sm" asChild>
@@ -169,19 +170,19 @@ export default function ReportsIndex({
                     <StatCard
                         title="Active Loans"
                         value={summary.active}
-                        valueColor="hsl(var(--chart-2))"
+                        valueColor="var(--chart-2)"
                         delay={0.05}
                     />
                     <StatCard
                         title="Returned"
                         value={summary.returned}
-                        valueColor="hsl(var(--primary))"
+                        valueColor="var(--primary)"
                         delay={0.1}
                     />
                     <StatCard
                         title="Overdue"
                         value={summary.overdue}
-                        valueColor="hsl(var(--destructive))"
+                        valueColor="var(--destructive)"
                         delay={0.15}
                     />
                 </div>
@@ -202,11 +203,17 @@ export default function ReportsIndex({
                                 config={{
                                     borrowed: {
                                         label: 'Borrowed',
-                                        color: 'hsl(var(--chart-1))',
+                                        theme: {
+                                            light: 'var(--chart-1)',
+                                            dark: 'var(--chart-2)',
+                                        },
                                     },
                                     returned: {
                                         label: 'Returned',
-                                        color: 'hsl(var(--chart-2))',
+                                        theme: {
+                                            light: 'var(--chart-3)',
+                                            dark: 'var(--chart-4)',
+                                        },
                                     },
                                 }}
                                 className="h-[280px] w-full"

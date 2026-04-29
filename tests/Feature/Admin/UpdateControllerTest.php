@@ -93,3 +93,49 @@ test('admin check for updates is forbidden for non-admin users', function () {
 
     $response->assertForbidden();
 });
+
+test('admin install update redirects when already up to date', function () {
+    mock(UpdateService::class)
+        ->shouldReceive('status')
+        ->once()
+        ->andReturn([
+            'current_version' => '1.1.0',
+            'latest_version' => '1.1.0',
+            'has_update' => false,
+        ]);
+
+    $user = User::factory()->admin()->create();
+
+    $response = $this->actingAs($user)
+        ->post('/admin/settings/updates/install');
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error', 'You are already on the latest version.');
+});
+
+test('admin install update validates version format', function () {
+    mock(UpdateService::class)
+        ->shouldReceive('status')
+        ->andReturn([
+            'current_version' => '1.0.0',
+            'latest_version' => '1.1.0; rm -rf /',
+            'has_update' => true,
+        ]);
+
+    $user = User::factory()->admin()->create();
+
+    $response = $this->actingAs($user)
+        ->post('/admin/settings/updates/install');
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error', 'Invalid version format detected.');
+});
+
+test('admin install update is forbidden for non-admin users', function () {
+    $user = User::factory()->student()->create();
+
+    $response = $this->actingAs($user)
+        ->post('/admin/settings/updates/install');
+
+    $response->assertForbidden();
+});

@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/AdminLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface BorrowRequest {
@@ -102,7 +103,7 @@ export default function RequestShow({ borrowRequest: r }: Props) {
             >
                 <PageHeader
                     title={`Request #${r.id}`}
-                    description={`Submitted on ${r.borrow_date}`}
+                    description={`Submitted on ${formatDate(r.borrow_date)}`}
                     actions={
                         <div className="flex gap-2">
                             <Button variant="outline" size="sm" asChild>
@@ -149,8 +150,14 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                                         ['Requester', r.requester.name],
                                         ['Equipment', r.equipment.name],
                                         ['Purpose', r.purpose],
-                                        ['Borrow Date', r.borrow_date],
-                                        ['Return Date', r.expected_return_date],
+                                        [
+                                            'Borrow Date',
+                                            formatDate(r.borrow_date),
+                                        ],
+                                        [
+                                            'Return Date',
+                                            formatDate(r.expected_return_date),
+                                        ],
                                     ].map(([label, value]) => (
                                         <div
                                             key={label}
@@ -225,7 +232,7 @@ export default function RequestShow({ borrowRequest: r }: Props) {
                                             Processed by {r.processedBy.name}
                                         </div>
                                         <div className="text-muted-foreground">
-                                            {r.processed_at}
+                                            {formatDate(r.processed_at)}
                                         </div>
                                     </div>
                                 </CardContent>
