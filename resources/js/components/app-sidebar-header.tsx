@@ -22,7 +22,11 @@ export function AppSidebarHeader({
             </div>
             <div className="flex items-center gap-2">
                 <NotificationBell />
-                {isSuperAdmin ? <SuperAdminAppearanceToggle /> : <AppearanceToggle />}
+                {isSuperAdmin ? (
+                    <SuperAdminAppearanceToggle />
+                ) : (
+                    <AppearanceToggle />
+                )}
             </div>
         </header>
     );

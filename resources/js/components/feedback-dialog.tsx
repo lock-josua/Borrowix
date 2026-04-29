@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { History, Clock, CheckCircle2 } from 'lucide-react';
-import type { FormEventHandler} from 'react';
+import type { FormEventHandler } from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -23,12 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import type { Feedback } from '@/types';
 
@@ -99,11 +94,14 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                             </DialogTitle>
                             <TabsList className="grid w-[200px] grid-cols-2">
                                 <TabsTrigger value="report">Report</TabsTrigger>
-                                <TabsTrigger value="history">History</TabsTrigger>
+                                <TabsTrigger value="history">
+                                    History
+                                </TabsTrigger>
                             </TabsList>
                         </div>
                         <DialogDescription className="mt-1.5">
-                            Need help? Report a bug or share your thoughts with us.
+                            Need help? Report a bug or share your thoughts with
+                            us.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -113,12 +111,16 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                                 <Label htmlFor="type">Type of Issue</Label>
                                 <Select
                                     value={data.type}
-                                    onValueChange={(value) => setData('type', value)}
+                                    onValueChange={(value) =>
+                                        setData('type', value)
+                                    }
                                 >
                                     <SelectTrigger
                                         id="type"
                                         className={
-                                            errors.type ? 'border-destructive' : ''
+                                            errors.type
+                                                ? 'border-destructive'
+                                                : ''
                                         }
                                     >
                                         <SelectValue placeholder="Select type" />
@@ -144,9 +146,13 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                                 <Input
                                     id="title"
                                     value={data.title}
-                                    onChange={(e) => setData('title', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('title', e.target.value)
+                                    }
                                     placeholder="Brief summary of the issue"
-                                    className={errors.title ? 'border-destructive' : ''}
+                                    className={
+                                        errors.title ? 'border-destructive' : ''
+                                    }
                                 />
                                 {errors.title && (
                                     <p className="text-xs text-destructive">
@@ -166,7 +172,9 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                                     placeholder="Please provide as much detail as possible..."
                                     rows={4}
                                     className={
-                                        errors.description ? 'border-destructive' : ''
+                                        errors.description
+                                            ? 'border-destructive'
+                                            : ''
                                     }
                                 />
                                 {errors.description && (
@@ -217,8 +225,8 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                                         No feedback yet
                                     </h3>
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                        Your reported bugs and concerns will appear
-                                        here.
+                                        Your reported bugs and concerns will
+                                        appear here.
                                     </p>
                                 </div>
                             ) : (
@@ -233,11 +241,12 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                                                     <div className="flex items-center gap-2">
                                                         <Badge
                                                             variant={
-                                                                item.type === 'bug'
+                                                                item.type ===
+                                                                'bug'
                                                                     ? 'destructive'
                                                                     : 'secondary'
                                                             }
-                                                            className="h-5 px-1.5 text-[10px] uppercase tracking-wider"
+                                                            className="h-5 px-1.5 text-[10px] tracking-wider uppercase"
                                                         >
                                                             {item.type}
                                                         </Badge>
@@ -247,7 +256,7 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                                                             ).toLocaleDateString()}
                                                         </span>
                                                     </div>
-                                                    <h4 className="text-sm font-bold leading-none">
+                                                    <h4 className="text-sm leading-none font-bold">
                                                         {item.title}
                                                     </h4>
                                                 </div>
@@ -255,7 +264,10 @@ export function FeedbackDialog({ open, onOpenChange }: Props) {
                                                     variant="outline"
                                                     className="capitalize"
                                                 >
-                                                    {item.status.replace('_', ' ')}
+                                                    {item.status.replace(
+                                                        '_',
+                                                        ' ',
+                                                    )}
                                                 </Badge>
                                             </div>
                                             <p className="mt-2.5 line-clamp-3 text-xs text-muted-foreground">

@@ -11,7 +11,7 @@ export default function AppLogo() {
 
     return (
         <div className="flex items-center gap-2 group-data-[collapsible=icon]:gap-0">
-            <div className="flex h-8 w-8 shrink-0 flex-none items-center justify-center overflow-hidden rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+            <div className="flex h-8 w-8 flex-none shrink-0 items-center justify-center overflow-hidden rounded-full bg-sidebar-primary text-sidebar-primary-foreground">
                 {tenant?.logo_url ? (
                     <img
                         src={tenant.logo_url}

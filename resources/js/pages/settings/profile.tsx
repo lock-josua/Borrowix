@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react';
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { CheckCircle } from 'lucide-react';
-import * as React from 'react';
+import React from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import { Button } from '@/components/ui/button';
@@ -22,14 +22,14 @@ import StaffLayout from '@/layouts/StaffLayout';
 import StudentLayout from '@/layouts/StudentLayout';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
 import { send } from '@/routes/verification';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, PageProps } from '@/types';
 
 export default function Profile({
     mustVerifyEmail,
 }: {
     mustVerifyEmail: boolean;
 }) {
-    const { auth } = usePage().props;
+    const { auth } = usePage<PageProps>().props;
 
     const Layout = (() => {
         switch (auth.user.role) {
@@ -53,6 +53,26 @@ export default function Profile({
 
     const editMode = useEditMode();
 
+    const { data, setData, patch, processing, errors, reset, recentlySuccessful } =
+        useForm({
+            name: auth.user.name,
+            email: auth.user.email,
+        });
+
+    const updateProfile = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!editMode.isEditing) {
+            editMode.startEditing();
+            return;
+        }
+
+        patch(ProfileController.update.url(), {
+            preserveScroll: true,
+            onSuccess: () => editMode.stopEditing(),
+        });
+    };
+
     return (
         <Layout breadcrumbs={breadcrumbs}>
             <Head title="Profile" />
@@ -68,139 +88,104 @@ export default function Profile({
                             address.
                         </CardDescription>
                     </CardHeader>
-                    <Form
-                        {...ProfileController.update.form()}
-                        options={{
-                            preserveScroll: true,
-                            onSuccess: () => editMode.stopEditing(),
-                        }}
-                    >
-                        {({
-                            processing,
-                            recentlySuccessful,
-                            errors,
-                            data,
-                            setData,
-                            reset,
-                        }) => (
-                            <form
-                                onSubmit={(e) => {
-                                    e.preventDefault();
-                                    if (!editMode.isEditing) {
-                                        editMode.startEditing();
-                                        return;
+                    <form onSubmit={updateProfile}>
+                        <CardContent className="space-y-5 pt-6 pb-6">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="name">Full Name</Label>
+                                <Input
+                                    id="name"
+                                    value={data.name}
+                                    onChange={(e) =>
+                                        setData('name', e.target.value)
                                     }
-                                }}
-                            >
-                                <CardContent className="space-y-5 pt-6 pb-6">
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="name">Full Name</Label>
-                                        <Input
-                                            id="name"
-                                            value={data.name}
-                                            onChange={(e) =>
-                                                setData('name', e.target.value)
-                                            }
-                                            required
-                                            autoComplete="name"
-                                            disabled={!editMode.isEditing}
-                                        />
-                                        {errors.name && (
-                                            <p className="text-xs text-destructive">
-                                                {errors.name}
-                                            </p>
-                                        )}
-                                    </div>
+                                    required
+                                    autoComplete="name"
+                                    disabled={!editMode.isEditing}
+                                />
+                                {errors.name && (
+                                    <p className="text-xs text-destructive">
+                                        {errors.name}
+                                    </p>
+                                )}
+                            </div>
 
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="email">
-                                            Email Address
-                                        </Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={data.email}
-                                            onChange={(e) =>
-                                                setData('email', e.target.value)
-                                            }
-                                            required
-                                            autoComplete="username"
-                                            disabled={!editMode.isEditing}
-                                        />
-                                        {errors.email && (
-                                            <p className="text-xs text-destructive">
-                                                {errors.email}
-                                            </p>
-                                        )}
-                                    </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="email">Email Address</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) =>
+                                        setData('email', e.target.value)
+                                    }
+                                    required
+                                    autoComplete="username"
+                                    disabled={!editMode.isEditing}
+                                />
+                                {errors.email && (
+                                    <p className="text-xs text-destructive">
+                                        {errors.email}
+                                    </p>
+                                )}
+                            </div>
 
-                                    {mustVerifyEmail &&
-                                        auth.user.email_verified_at ===
-                                            null && (
-                                            <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
-                                                <p className="text-xs text-amber-700">
-                                                    Your email is unverified.{' '}
-                                                    <Link
-                                                        href={send()}
-                                                        as="button"
-                                                        className="font-bold underline"
-                                                    >
-                                                        Resend verification
-                                                    </Link>
-                                                </p>
-                                            </div>
-                                        )}
-                                </CardContent>
-                                <CardFooter className="flex items-center justify-between border-t bg-muted/30 py-3">
-                                    <div className="flex items-center gap-4">
-                                        <Transition
-                                            show={recentlySuccessful}
-                                            enter="transition ease-in-out"
-                                            enterFrom="opacity-0"
-                                            leave="transition ease-in-out"
-                                            leaveTo="opacity-0"
-                                        >
-                                            <p className="flex items-center gap-1 text-xs text-emerald-600">
-                                                <CheckCircle className="size-3" />{' '}
-                                                Saved
-                                            </p>
-                                        </Transition>
-
-                                        {editMode.isEditing && (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => {
-                                                    editMode.stopEditing();
-                                                    reset();
-                                                }}
+                            {mustVerifyEmail &&
+                                auth.user.email_verified_at === null && (
+                                    <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+                                        <p className="text-xs text-amber-700">
+                                            Your email is unverified.{' '}
+                                            <Link
+                                                href={send()}
+                                                as="button"
+                                                className="font-bold underline"
                                             >
-                                                Cancel
-                                            </Button>
-                                        )}
+                                                Resend verification
+                                            </Link>
+                                        </p>
                                     </div>
+                                )}
+                        </CardContent>
+                        <CardFooter className="flex items-center justify-between border-t bg-muted/30 py-3">
+                            <div className="flex items-center gap-4">
+                                <Transition
+                                    show={recentlySuccessful}
+                                    enter="transition ease-in-out"
+                                    enterFrom="opacity-0"
+                                    leave="transition ease-in-out"
+                                    leaveTo="opacity-0"
+                                >
+                                    <p className="flex items-center gap-1 text-xs text-emerald-600">
+                                        <CheckCircle className="size-3" /> Saved
+                                    </p>
+                                </Transition>
+
+                                {editMode.isEditing && (
                                     <Button
-                                        type="submit"
-                                        disabled={processing}
+                                        type="button"
+                                        variant="ghost"
                                         size="sm"
-                                        onClick={(e) => {
-                                            if (!editMode.isEditing) {
-                                                e.preventDefault();
-                                                editMode.startEditing();
-                                            }
+                                        onClick={() => {
+                                            editMode.stopEditing();
+                                            reset();
                                         }}
                                     >
-                                        {processing
-                                            ? 'Saving...'
-                                            : editMode.isEditing
-                                              ? 'Save Profile'
-                                              : 'Edit Profile'}
+                                        Cancel
                                     </Button>
-                                </CardFooter>
-                            </form>
-                        )}
-                    </Form>
+                                )}
+                            </div>
+                            <Button
+                                type="submit"
+                                disabled={processing}
+                                size="sm"
+                            >
+                                {processing
+                                    ? 'Saving...'
+                                    : editMode.isEditing
+                                      ? 'Save Profile'
+                                      : 'Edit Profile'}
+                            </Button>
+                        </CardFooter>
+                    </form>
                 </Card>
 
                 <Card className="border-destructive/20">

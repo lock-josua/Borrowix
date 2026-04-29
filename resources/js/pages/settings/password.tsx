@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react';
-import { Form, Head } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { CheckCircle } from 'lucide-react';
 import * as React from 'react';
 import { useRef } from 'react';
@@ -18,11 +18,43 @@ import { Label } from '@/components/ui/label';
 import { useEditMode } from '@/hooks/use-edit-mode';
 import SettingsLayout from '@/layouts/settings/layout';
 
-
 export default function Password() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
     const editMode = useEditMode();
+
+    const { data, setData, put, processing, errors, reset, recentlySuccessful } =
+        useForm({
+            current_password: '',
+            password: '',
+            password_confirmation: '',
+        });
+
+    const updatePassword = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!editMode.isEditing) {
+            editMode.startEditing();
+            return;
+        }
+
+        put(PasswordController.update.url(), {
+            preserveScroll: true,
+            onSuccess: () => {
+                editMode.stopEditing();
+                reset();
+            },
+            onError: (errors) => {
+                if (errors.password) {
+                    passwordInput.current?.focus();
+                }
+
+                if (errors.current_password) {
+                    currentPasswordInput.current?.focus();
+                }
+            },
+        });
+    };
 
     return (
         <SettingsLayout>
@@ -38,162 +70,115 @@ export default function Password() {
                         stay secure.
                     </CardDescription>
                 </CardHeader>
-                <Form
-                    {...PasswordController.update.form()}
-                    options={{
-                        preserveScroll: true,
-                        onSuccess: () => editMode.stopEditing(),
-                    }}
-                    resetOnError={[
-                        'password',
-                        'password_confirmation',
-                        'current_password',
-                    ]}
-                    resetOnSuccess
-                    onError={(errors) => {
-                        if (errors.password) passwordInput.current?.focus();
-                        if (errors.current_password)
-                            currentPasswordInput.current?.focus();
-                    }}
-                >
-                    {({
-                        errors,
-                        processing,
-                        recentlySuccessful,
-                        data,
-                        setData,
-                        reset,
-                    }) => (
-                        <form
-                            onSubmit={(e) => {
-                                if (!editMode.isEditing) {
-                                    e.preventDefault();
-                                    editMode.startEditing();
+                <form onSubmit={updatePassword}>
+                    <CardContent className="space-y-5 pt-6 pb-6">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="current_password">
+                                Current Password
+                            </Label>
+                            <Input
+                                id="current_password"
+                                ref={currentPasswordInput}
+                                type="password"
+                                value={data.current_password}
+                                onChange={(e) =>
+                                    setData('current_password', e.target.value)
                                 }
-                            }}
-                        >
-                            <CardContent className="space-y-5 pt-6 pb-6">
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="current_password">
-                                        Current Password
-                                    </Label>
-                                    <Input
-                                        id="current_password"
-                                        ref={currentPasswordInput}
-                                        type="password"
-                                        value={data.current_password}
-                                        onChange={(e) =>
-                                            setData(
-                                                'current_password',
-                                                e.target.value,
-                                            )
-                                        }
-                                        autoComplete="current-password"
-                                        disabled={!editMode.isEditing}
-                                    />
-                                    {errors.current_password && (
-                                        <p className="text-xs text-destructive">
-                                            {errors.current_password}
-                                        </p>
-                                    )}
-                                </div>
+                                autoComplete="current-password"
+                                disabled={!editMode.isEditing}
+                            />
+                            {errors.current_password && (
+                                <p className="text-xs text-destructive">
+                                    {errors.current_password}
+                                </p>
+                            )}
+                        </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="password">
-                                        New Password
-                                    </Label>
-                                    <Input
-                                        id="password"
-                                        ref={passwordInput}
-                                        type="password"
-                                        value={data.password}
-                                        onChange={(e) =>
-                                            setData('password', e.target.value)
-                                        }
-                                        autoComplete="new-password"
-                                        disabled={!editMode.isEditing}
-                                    />
-                                    {errors.password && (
-                                        <p className="text-xs text-destructive">
-                                            {errors.password}
-                                        </p>
-                                    )}
-                                </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="password">New Password</Label>
+                            <Input
+                                id="password"
+                                ref={passwordInput}
+                                type="password"
+                                value={data.password}
+                                onChange={(e) =>
+                                    setData('password', e.target.value)
+                                }
+                                autoComplete="new-password"
+                                disabled={!editMode.isEditing}
+                            />
+                            {errors.password && (
+                                <p className="text-xs text-destructive">
+                                    {errors.password}
+                                </p>
+                            )}
+                        </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="password_confirmation">
-                                        Confirm Password
-                                    </Label>
-                                    <Input
-                                        id="password_confirmation"
-                                        type="password"
-                                        value={data.password_confirmation}
-                                        onChange={(e) =>
-                                            setData(
-                                                'password_confirmation',
-                                                e.target.value,
-                                            )
-                                        }
-                                        autoComplete="new-password"
-                                        disabled={!editMode.isEditing}
-                                    />
-                                    {errors.password_confirmation && (
-                                        <p className="text-xs text-destructive">
-                                            {errors.password_confirmation}
-                                        </p>
-                                    )}
-                                </div>
-                            </CardContent>
-                            <CardFooter className="flex items-center justify-between border-t bg-muted/30 py-3">
-                                <div className="flex items-center gap-4">
-                                    <Transition
-                                        show={recentlySuccessful}
-                                        enter="transition ease-in-out"
-                                        enterFrom="opacity-0"
-                                        leave="transition ease-in-out"
-                                        leaveTo="opacity-0"
-                                    >
-                                        <p className="flex items-center gap-1 text-xs text-emerald-600">
-                                            <CheckCircle className="size-3" />{' '}
-                                            Updated
-                                        </p>
-                                    </Transition>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="password_confirmation">
+                                Confirm Password
+                            </Label>
+                            <Input
+                                id="password_confirmation"
+                                type="password"
+                                value={data.password_confirmation}
+                                onChange={(e) =>
+                                    setData(
+                                        'password_confirmation',
+                                        e.target.value,
+                                    )
+                                }
+                                autoComplete="new-password"
+                                disabled={!editMode.isEditing}
+                            />
+                            {errors.password_confirmation && (
+                                <p className="text-xs text-destructive">
+                                    {errors.password_confirmation}
+                                </p>
+                            )}
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex items-center justify-between border-t bg-muted/30 py-3">
+                        <div className="flex items-center gap-4">
+                            <Transition
+                                show={recentlySuccessful}
+                                enter="transition ease-in-out"
+                                enterFrom="opacity-0"
+                                leave="transition ease-in-out"
+                                leaveTo="opacity-0"
+                            >
+                                <p className="flex items-center gap-1 text-xs text-emerald-600">
+                                    <CheckCircle className="size-3" /> Updated
+                                </p>
+                            </Transition>
 
-                                    {editMode.isEditing && (
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => {
-                                                editMode.stopEditing();
-                                                reset();
-                                            }}
-                                        >
-                                            Cancel
-                                        </Button>
-                                    )}
-                                </div>
+                            {editMode.isEditing && (
                                 <Button
-                                    type="submit"
-                                    disabled={processing}
+                                    type="button"
+                                    variant="ghost"
                                     size="sm"
-                                    onClick={(e) => {
-                                        if (!editMode.isEditing) {
-                                            e.preventDefault();
-                                            editMode.startEditing();
-                                        }
+                                    onClick={() => {
+                                        editMode.stopEditing();
+                                        reset();
                                     }}
                                 >
-                                    {processing
-                                        ? 'Saving...'
-                                        : editMode.isEditing
-                                          ? 'Update Password'
-                                          : 'Edit Password'}
+                                    Cancel
                                 </Button>
-                            </CardFooter>
-                        </form>
-                    )}
-                </Form>
+                            )}
+                        </div>
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            size="sm"
+                        >
+                            {processing
+                                ? 'Saving...'
+                                : editMode.isEditing
+                                  ? 'Update Password'
+                                  : 'Edit Password'}
+                        </Button>
+                    </CardFooter>
+                </form>
             </Card>
         </SettingsLayout>
     );

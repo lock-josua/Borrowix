@@ -13,7 +13,8 @@ import type { Theme, Appearance } from '@/hooks/use-appearance';
 import { cn } from '@/lib/utils';
 
 export function SuperAdminAppearanceToggle() {
-    const { appearance, updateAppearance, theme, updateTheme } = useAppearance();
+    const { appearance, updateAppearance, theme, updateTheme } =
+        useAppearance();
 
     const themes: { value: Theme; label: string }[] = [
         { value: 'default', label: 'Default' },
@@ -22,7 +23,11 @@ export function SuperAdminAppearanceToggle() {
         { value: 'whatsapp', label: 'Whatsapp' },
     ];
 
-    const appearances: { value: Appearance; label: string; icon: typeof Sun }[] = [
+    const appearances: {
+        value: Appearance;
+        label: string;
+        icon: typeof Sun;
+    }[] = [
         { value: 'light', label: 'Light', icon: Sun },
         { value: 'dark', label: 'Dark', icon: Moon },
         { value: 'system', label: 'System', icon: Monitor },
@@ -44,26 +49,28 @@ export function SuperAdminAppearanceToggle() {
                 <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
                     Customize
                 </DropdownMenuLabel>
-                
+
                 <DropdownMenuSeparator />
-                
-                <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 px-2 py-1.5">
+
+                <DropdownMenuLabel className="px-2 py-1.5 text-[10px] font-bold tracking-wider text-muted-foreground/70 uppercase">
                     Theme
                 </DropdownMenuLabel>
                 {themes.map((t) => (
                     <DropdownMenuItem
                         key={t.value}
                         onClick={() => updateTheme(t.value)}
-                        className="cursor-pointer flex items-center justify-between"
+                        className="flex cursor-pointer items-center justify-between"
                     >
                         <span>{t.label}</span>
-                        {theme === t.value && <Check className="size-3.5 text-primary" />}
+                        {theme === t.value && (
+                            <Check className="size-3.5 text-primary" />
+                        )}
                     </DropdownMenuItem>
                 ))}
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 px-2 py-1.5">
+                <DropdownMenuLabel className="px-2 py-1.5 text-[10px] font-bold tracking-wider text-muted-foreground/70 uppercase">
                     Appearance
                 </DropdownMenuLabel>
                 {appearances.map((a) => (
@@ -71,15 +78,17 @@ export function SuperAdminAppearanceToggle() {
                         key={a.value}
                         onClick={() => updateAppearance(a.value)}
                         className={cn(
-                            'cursor-pointer flex items-center justify-between',
-                            appearance === a.value && 'bg-accent/50'
+                            'flex cursor-pointer items-center justify-between',
+                            appearance === a.value && 'bg-accent/50',
                         )}
                     >
                         <div className="flex items-center">
                             <a.icon className="mr-2 size-4" />
                             {a.label}
                         </div>
-                        {appearance === a.value && <Check className="size-3.5 text-primary" />}
+                        {appearance === a.value && (
+                            <Check className="size-3.5 text-primary" />
+                        )}
                     </DropdownMenuItem>
                 ))}
             </DropdownMenuContent>

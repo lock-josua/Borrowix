@@ -48,7 +48,6 @@ export default function BorrowRequestModal({
             onSuccess: () => {
                 onClose();
                 reset();
-                toast.success('Borrow request submitted successfully.');
             },
             onError: (errors) => {
                 if (errors.message) {
