@@ -75,17 +75,21 @@ export function UserMenuContent({ user }: Props) {
                 </div>
             </DropdownMenuGroup>
 
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-                className="cursor-pointer"
-                onSelect={(e) => {
-                    e.preventDefault();
-                    setFeedbackOpen(true);
-                }}
-            >
-                <MessageSquare className="mr-2 size-4" />
-                Feedback & Support
-            </DropdownMenuItem>
+            {user.role !== 'super_admin' && (
+                <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        className="cursor-pointer"
+                        onSelect={(e) => {
+                            e.preventDefault();
+                            setFeedbackOpen(true);
+                        }}
+                    >
+                        <MessageSquare className="mr-2 size-4" />
+                        Feedback & Support
+                    </DropdownMenuItem>
+                </>
+            )}
 
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
@@ -101,10 +105,12 @@ export function UserMenuContent({ user }: Props) {
                 </Link>
             </DropdownMenuItem>
 
-            <FeedbackDialog
-                open={feedbackOpen}
-                onOpenChange={setFeedbackOpen}
-            />
+            {user.role !== 'super_admin' && (
+                <FeedbackDialog
+                    open={feedbackOpen}
+                    onOpenChange={setFeedbackOpen}
+                />
+            )}
 
             <DropdownMenuSeparator />
             <div className="px-2 py-1.5 text-[10px] font-medium text-muted-foreground/50">
