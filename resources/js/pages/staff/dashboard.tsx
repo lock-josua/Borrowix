@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
 import StaffLayout from '@/layouts/StaffLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -39,14 +40,20 @@ interface Props {
 const transactionChartConfig = {
     count: {
         label: 'Transactions',
-        color: 'hsl(var(--chart-1))',
+        theme: {
+            light: 'var(--chart-1)',
+            dark: 'var(--chart-2)',
+        },
     },
 } satisfies ChartConfig;
 
 const equipmentChartConfig = {
     count: {
         label: 'Count',
-        color: 'hsl(var(--chart-1))',
+        theme: {
+            light: 'var(--chart-3)',
+            dark: 'var(--chart-4)',
+        },
     },
 } satisfies ChartConfig;
 
@@ -63,7 +70,7 @@ export default function StaffDashboard({
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
-                className="flex flex-col gap-6 p-6"
+                className="flex flex-col gap-6 md:p-6"
             >
                 <PageHeader
                     title="Staff Dashboard"
@@ -80,14 +87,14 @@ export default function StaffDashboard({
                     <StatCard
                         title="Pending Requests"
                         value={0}
-                        valueColor="hsl(var(--chart-4))"
+                        valueColor="var(--chart-4)"
                         delay={0.05}
                         icon={<Package />}
                     />
                     <StatCard
                         title="Overdue"
                         value={stats.overdue_loans}
-                        valueColor="hsl(var(--destructive))"
+                        valueColor="var(--destructive)"
                         trend="down"
                         delay={0.1}
                         icon={<AlertTriangle />}
@@ -213,6 +220,7 @@ export default function StaffDashboard({
                                 key: 'equipment',
                                 label: 'Equipment',
                                 width: '35%',
+                                hideOnMobile: true,
                                 render: (t) => (
                                     <span className="text-muted-foreground">
                                         {t.equipment.name}
@@ -223,9 +231,10 @@ export default function StaffDashboard({
                                 key: 'due',
                                 label: 'Due Date',
                                 width: '15%',
+                                hideOnMobile: true,
                                 render: (t) => (
                                     <span className="text-xs font-medium text-destructive">
-                                        {t.due_date}
+                                        {formatDate(t.due_date)}
                                     </span>
                                 ),
                             },
@@ -237,7 +246,7 @@ export default function StaffDashboard({
                                 render: (t) => (
                                     <Link
                                         href={`/staff/transactions/${t.id}`}
-                                        className="text-xs text-primary hover:underline"
+                                        className="text-xs font-bold text-primary hover:underline"
                                     >
                                         Return
                                     </Link>
@@ -247,6 +256,7 @@ export default function StaffDashboard({
                         data={urgentTransactions}
                         keyExtractor={(t) => t.id}
                         emptyMessage="No urgent items to process"
+                        mobileCards={true}
                     />
                 </Card>
             </motion.div>

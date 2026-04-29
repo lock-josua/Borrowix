@@ -25,6 +25,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import StaffLayout from '@/layouts/StaffLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -106,7 +107,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
-                className="flex flex-col gap-6 p-6"
+                className="flex flex-col gap-6 md:p-6"
             >
                 <PageHeader
                     title="Borrow Requests"
@@ -120,7 +121,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                             handleFilterChange('status', v === 'all' ? '' : v)
                         }
                     >
-                        <SelectTrigger className="h-9 w-[150px] bg-muted/20 text-sm">
+                        <SelectTrigger className="h-9 w-full bg-muted/20 text-sm sm:w-[150px]">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -149,6 +150,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 key: 'equipment',
                                 label: 'Equipment',
                                 width: '25%',
+                                hideOnMobile: true,
                                 render: (r) => (
                                     <span className="block truncate text-muted-foreground">
                                         {r.equipment.name}
@@ -159,9 +161,10 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 key: 'borrow_date',
                                 label: 'Borrow Date',
                                 width: '14%',
+                                hideOnMobile: true,
                                 render: (r) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {r.borrow_date}
+                                        {formatDate(r.borrow_date)}
                                     </span>
                                 ),
                             },
@@ -169,9 +172,10 @@ export default function RequestsIndex({ requests, filters }: Props) {
                                 key: 'return_date',
                                 label: 'Return Date',
                                 width: '14%',
+                                hideOnMobile: true,
                                 render: (r) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {r.expected_return_date}
+                                        {formatDate(r.expected_return_date)}
                                     </span>
                                 ),
                             },
@@ -233,6 +237,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                         ]}
                         data={requests.data}
                         keyExtractor={(r) => r.id}
+                        mobileCards={true}
                     />
                     <TablePagination
                         currentPage={requests.current_page}

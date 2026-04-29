@@ -84,7 +84,7 @@ export default function BrowseEquipment({
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
-                className="flex flex-col gap-6 p-6"
+                className="flex flex-col gap-6 md:p-6"
             >
                 <PageHeader
                     title="Browse Equipment"
@@ -92,7 +92,7 @@ export default function BrowseEquipment({
                 />
 
                 <Card className="mb-2 flex flex-col gap-4 p-4">
-                    <div className="relative max-w-sm">
+                    <div className="relative w-full md:max-w-sm">
                         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search equipment..."
@@ -129,7 +129,7 @@ export default function BrowseEquipment({
                     </div>
                 </Card>
 
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {equipment.data.map((item, i) => (
                         <motion.div
                             key={item.id}

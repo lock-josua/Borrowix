@@ -17,6 +17,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import StudentLayout from '@/layouts/StudentLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -97,6 +98,7 @@ export default function StudentRequestsIndex({ requests }: Props) {
                                 key: 'purpose',
                                 label: 'Purpose',
                                 width: '25%',
+                                hideOnMobile: true,
                                 render: (r) => (
                                     <span className="block truncate text-muted-foreground">
                                         {r.purpose}
@@ -107,9 +109,10 @@ export default function StudentRequestsIndex({ requests }: Props) {
                                 key: 'borrow_date',
                                 label: 'Borrow Date',
                                 width: '15%',
+                                hideOnMobile: true,
                                 render: (r) => (
                                     <span className="text-xs">
-                                        {r.borrow_date}
+                                        {formatDate(r.borrow_date)}
                                     </span>
                                 ),
                             },
@@ -117,9 +120,10 @@ export default function StudentRequestsIndex({ requests }: Props) {
                                 key: 'return_date',
                                 label: 'Return Date',
                                 width: '15%',
+                                hideOnMobile: true,
                                 render: (r) => (
                                     <span className="text-xs">
-                                        {r.expected_return_date}
+                                        {formatDate(r.expected_return_date)}
                                     </span>
                                 ),
                             },
@@ -169,6 +173,7 @@ export default function StudentRequestsIndex({ requests }: Props) {
                         ]}
                         data={requests.data}
                         keyExtractor={(r) => r.id}
+                        mobileCards={true}
                     />
                     <TablePagination
                         currentPage={requests.current_page}

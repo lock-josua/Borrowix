@@ -8,6 +8,7 @@ import { TablePagination } from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import StudentLayout from '@/layouts/StudentLayout';
+import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -68,9 +69,10 @@ export default function StudentHistory({ history }: Props) {
                                 key: 'borrowed',
                                 label: 'Borrowed',
                                 width: '18%',
+                                hideOnMobile: true,
                                 render: (t) => (
                                     <span className="text-xs">
-                                        {t.issued_at}
+                                        {formatDate(t.issued_at)}
                                     </span>
                                 ),
                             },
@@ -78,9 +80,10 @@ export default function StudentHistory({ history }: Props) {
                                 key: 'returned',
                                 label: 'Returned',
                                 width: '18%',
+                                hideOnMobile: true,
                                 render: (t) => (
                                     <span className="text-xs">
-                                        {t.returned_at || '—'}
+                                        {formatDate(t.returned_at)}
                                     </span>
                                 ),
                             },
@@ -88,9 +91,10 @@ export default function StudentHistory({ history }: Props) {
                                 key: 'duration',
                                 label: 'Due',
                                 width: '14%',
+                                hideOnMobile: true,
                                 render: (t) => (
                                     <span className="text-xs">
-                                        {t.due_date}
+                                        {formatDate(t.due_date)}
                                     </span>
                                 ),
                             },
@@ -115,9 +119,7 @@ export default function StudentHistory({ history }: Props) {
                                         className="size-7"
                                         asChild
                                     >
-                                        <Link
-                                            href={`/student/transactions/${t.id}`}
-                                        >
+                                        <Link href={`/student/history/${t.id}`}>
                                             <Eye className="size-3.5" />
                                         </Link>
                                     </Button>
@@ -126,6 +128,7 @@ export default function StudentHistory({ history }: Props) {
                         ]}
                         data={history.data}
                         keyExtractor={(t) => t.id}
+                        mobileCards={true}
                     />
                     <TablePagination
                         currentPage={history.current_page}
