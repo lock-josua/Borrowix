@@ -42,4 +42,12 @@ Route::prefix('student')
         Route::post('/scan/resolve', [ScanController::class, 'resolve'])
             ->middleware('throttle:10,1')
             ->name('scan.resolve');
+
+        // Settings
+        Route::get('/settings', [\App\Http\Controllers\Student\SettingsController::class, 'index'])->name('settings.index');
+        Route::get('/settings/profile', [\App\Http\Controllers\Student\SettingsController::class, 'profile'])->name('settings.profile');
+        Route::patch('/settings/profile', [\App\Http\Controllers\Student\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+        Route::put('/settings/password', [\App\Http\Controllers\Student\SettingsController::class, 'updatePassword'])->name('settings.password.update');
+        Route::get('/settings/updates', [\App\Http\Controllers\Student\SettingsController::class, 'updates'])->name('settings.updates');
+        Route::post('/settings/updates/check', [\App\Http\Controllers\Student\SettingsController::class, 'checkUpdates'])->name('settings.updates.check');
     });

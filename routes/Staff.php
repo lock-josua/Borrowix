@@ -38,4 +38,12 @@ Route::prefix('staff')
             ->name('transactions.show');
         Route::post('/transactions/{borrowTransaction}/return', [BorrowTransactionController::class, 'markReturned'])
             ->name('transactions.return');
+
+        // Settings
+        Route::get('/settings', [\App\Http\Controllers\Staff\SettingsController::class, 'index'])->name('settings.index');
+        Route::get('/settings/profile', [\App\Http\Controllers\Staff\SettingsController::class, 'profile'])->name('settings.profile');
+        Route::patch('/settings/profile', [\App\Http\Controllers\Staff\SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+        Route::put('/settings/password', [\App\Http\Controllers\Staff\SettingsController::class, 'updatePassword'])->name('settings.password.update');
+        Route::get('/settings/updates', [\App\Http\Controllers\Staff\SettingsController::class, 'updates'])->name('settings.updates');
+        Route::post('/settings/updates/check', [\App\Http\Controllers\Staff\SettingsController::class, 'checkUpdates'])->name('settings.updates.check');
     });
