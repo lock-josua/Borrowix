@@ -77,11 +77,11 @@ export default function Login({
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="w-full max-w-sm"
+                    className="w-full max-w-md"
                 >
                     <Card className="border-0 shadow-none sm:border sm:shadow-sm">
                         <CardHeader className="space-y-1 px-0 sm:px-6">
-                            <div className="mb-4 flex size-12 items-center justify-center overflow-hidden rounded-md bg-primary text-primary-foreground">
+                            <div className="mb-4 flex size-12 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground">
                                 {tenant?.logo_url ? (
                                     <img
                                         src={tenant.logo_url}
@@ -115,8 +115,8 @@ export default function Login({
                                         required
                                         autoFocus
                                         autoComplete="email"
-                                        placeholder="m@example.com"
-                                        className="h-10"
+                                        placeholder="Enter your email address"
+                                        className="h-[2.5rem]"
                                     />
                                     {errors.email && (
                                         <p className="mt-1 text-xs font-medium text-destructive">
@@ -150,7 +150,7 @@ export default function Login({
                                         required
                                         autoComplete="current-password"
                                         placeholder="••••••••"
-                                        className="h-10"
+                                        className="h-[2.5rem]"
                                     />
                                     {errors.password && (
                                         <p className="mt-1 text-xs font-medium text-destructive">
@@ -177,7 +177,7 @@ export default function Login({
 
                                 <Button
                                     type="submit"
-                                    className="h-10 w-full font-medium"
+                                    className="h-[2.5rem] w-full font-medium"
                                     disabled={processing}
                                 >
                                     {processing && (
@@ -188,19 +188,7 @@ export default function Login({
                             </form>
                         </CardContent>
 
-                        <CardFooter className="flex flex-col gap-4 px-0 sm:px-6">
-                            {canRegister && (
-                                <div className="w-full text-center text-sm text-muted-foreground">
-                                    Don't have an account?{' '}
-                                    <Link
-                                        href="/register"
-                                        className="font-medium text-primary hover:underline"
-                                    >
-                                        Sign up
-                                    </Link>
-                                </div>
-                            )}
-                        </CardFooter>
+
                     </Card>
 
                     {status && (
