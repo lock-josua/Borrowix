@@ -271,11 +271,11 @@ export default function FeedbacksIndex({ feedbacks }: Props) {
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="pending">
-                                            Pending
+                                        <SelectItem value="open">
+                                            Open
                                         </SelectItem>
-                                        <SelectItem value="reviewed">
-                                            Reviewed
+                                        <SelectItem value="in_progress">
+                                            In Progress
                                         </SelectItem>
                                         <SelectItem value="resolved">
                                             Resolved
@@ -292,7 +292,7 @@ export default function FeedbacksIndex({ feedbacks }: Props) {
                                     Admin Response
                                 </label>
                                 <textarea
-                                    className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                                     placeholder="Write your response to the user here..."
                                     value={adminResponse}
                                     onChange={(e) =>

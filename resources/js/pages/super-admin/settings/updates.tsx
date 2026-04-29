@@ -37,6 +37,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import SuperAdminLayout from '@/layouts/SuperAdminLayout';
+import { formatDateOnly } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface Release {
@@ -71,15 +72,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Settings', href: '/super-admin/settings' },
     { title: 'Updates', href: '/super-admin/settings/updates' },
 ];
-
-function formatDate(iso: string | null): string {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-}
 
 export default function SuperAdminUpdates({ updateStatus }: Props) {
     const [status, setStatus] = useState<UpdateStatus>(updateStatus);
@@ -208,7 +200,8 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                         <CardContent className="flex items-center gap-2">
                             {status.published_at && (
                                 <span className="text-xs text-muted-foreground">
-                                    Released {formatDate(status.published_at)}
+                                    Released{' '}
+                                    {formatDateOnly(status.published_at)}
                                 </span>
                             )}
                             {status.prerelease && (
@@ -229,7 +222,8 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                                     Version History
                                 </CardTitle>
                                 <CardDescription className="text-sm">
-                                    Track all previous and upcoming releases for Borrowix.
+                                    Track all previous and upcoming releases for
+                                    Borrowix.
                                 </CardDescription>
                             </div>
                             <Badge variant="outline" className="font-mono">
@@ -241,13 +235,13 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                         <Table>
                             <TableHeader className="bg-muted/10">
                                 <TableRow className="hover:bg-transparent">
-                                    <TableHead className="py-3 px-6 font-semibold text-foreground">
+                                    <TableHead className="px-6 py-3 font-semibold text-foreground">
                                         Release
                                     </TableHead>
-                                    <TableHead className="py-3 px-6 font-semibold text-foreground">
+                                    <TableHead className="px-6 py-3 font-semibold text-foreground">
                                         Published Date
                                     </TableHead>
-                                    <TableHead className="py-3 px-6 text-right font-semibold text-foreground">
+                                    <TableHead className="px-6 py-3 text-right font-semibold text-foreground">
                                         Type
                                     </TableHead>
                                 </TableRow>
@@ -259,7 +253,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                                             key={rel.version}
                                             className="group transition-colors hover:bg-muted/40"
                                         >
-                                            <TableCell className="py-4 px-6">
+                                            <TableCell className="px-6 py-4">
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-base font-bold tracking-tight text-foreground">
@@ -267,7 +261,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                                                         </span>
                                                         {rel.version ===
                                                             status.current_version && (
-                                                            <Badge className="border-none bg-emerald-100 px-2 py-0 text-[10px] font-bold uppercase tracking-wider text-emerald-700 hover:bg-emerald-100/80">
+                                                            <Badge className="border-none bg-emerald-100 px-2 py-0 text-[10px] font-bold tracking-wider text-emerald-700 uppercase hover:bg-emerald-100/80">
                                                                 Installed
                                                             </Badge>
                                                         )}
@@ -289,17 +283,17 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                                                     </span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="py-4 px-6">
+                                            <TableCell className="px-6 py-4">
                                                 <div className="flex items-center gap-2 text-muted-foreground">
                                                     <Calendar className="size-3.5" />
                                                     <span className="text-sm font-medium">
-                                                        {formatDate(
+                                                        {formatDateOnly(
                                                             rel.published_at,
                                                         )}
                                                     </span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="py-4 px-6 text-right">
+                                            <TableCell className="px-6 py-4 text-right">
                                                 {rel.prerelease ? (
                                                     <Badge
                                                         variant="outline"
@@ -343,12 +337,12 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                     open={!!selectedRelease}
                     onOpenChange={(open) => !open && setSelectedRelease(null)}
                 >
-                    <DialogContent className="max-w-2xl gap-0 p-0 overflow-hidden border-none shadow-2xl ring-1 ring-border">
+                    <DialogContent className="max-w-2xl gap-0 overflow-hidden border-none p-0 shadow-2xl ring-1 ring-border">
                         <DialogHeader className="bg-muted/30 p-6 pb-4">
                             <div className="flex flex-col gap-1">
                                 <DialogTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
                                     v{selectedRelease?.version}
-                                    <span className="text-muted-foreground font-normal">
+                                    <span className="font-normal text-muted-foreground">
                                         —
                                     </span>
                                     {selectedRelease?.name ||
@@ -357,7 +351,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                                 <DialogDescription className="flex items-center gap-2 text-sm">
                                     <Calendar className="size-3.5" />
                                     Released on{' '}
-                                    {formatDate(
+                                    {formatDateOnly(
                                         selectedRelease?.published_at ?? '',
                                     )}
                                 </DialogDescription>
@@ -366,7 +360,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                         <ScrollArea className="max-h-[65vh]">
                             <div className="p-6 pt-2">
                                 <div className="rounded-xl border bg-muted/20 p-5">
-                                    <pre className="whitespace-pre-wrap text-sm leading-relaxed tracking-tight text-foreground/90 font-sans">
+                                    <pre className="font-sans text-sm leading-relaxed tracking-tight whitespace-pre-wrap text-foreground/90">
                                         {selectedRelease?.body ||
                                             'No release notes provided for this version.'}
                                     </pre>
@@ -376,7 +370,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                                         <Button
                                             variant="link"
                                             size="sm"
-                                            className="text-muted-foreground hover:text-foreground h-auto p-0"
+                                            className="h-auto p-0 text-muted-foreground hover:text-foreground"
                                             asChild
                                         >
                                             <a
@@ -443,7 +437,7 @@ export default function SuperAdminUpdates({ updateStatus }: Props) {
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                    Last checked: {formatDate(status.checked_at)}
+                    Last checked: {formatDateOnly(status.checked_at)}
                 </p>
             </div>
         </SuperAdminLayout>

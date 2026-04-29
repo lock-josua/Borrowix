@@ -22,10 +22,7 @@ interface Props {
     plans: Record<string, Plan>;
 }
 
-export default function TrialExpiredAdmin({
-    schoolName,
-    plans,
-}: Props) {
+export default function TrialExpiredAdmin({ schoolName, plans }: Props) {
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
     // Native form refs — same fix as subscription/index.tsx.

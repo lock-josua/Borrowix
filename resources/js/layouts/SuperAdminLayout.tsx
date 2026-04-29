@@ -66,7 +66,7 @@ export default function SuperAdminLayout({
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" asChild>
                                 <Link href="/super-admin/dashboard">
-                                    <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                                    <div className="flex aspect-square size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                                         <LayoutDashboard className="size-4" />
                                     </div>
                                     <div className="grid flex-1 text-left text-sm leading-tight">

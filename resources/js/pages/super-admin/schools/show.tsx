@@ -1,11 +1,10 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import {
     ArrowLeftRight,
     Check,
     Copy,
     Loader2,
-
     RefreshCw,
     ShieldAlert,
     ShieldCheck,

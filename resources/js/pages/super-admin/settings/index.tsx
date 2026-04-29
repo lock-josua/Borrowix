@@ -142,7 +142,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
-                                                disabled={!profileEdit.isEditing}
+                                                disabled={
+                                                    !profileEdit.isEditing
+                                                }
                                             />
                                             {errors.name && (
                                                 <p className="text-xs text-destructive">
@@ -165,7 +167,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
-                                                disabled={!profileEdit.isEditing}
+                                                disabled={
+                                                    !profileEdit.isEditing
+                                                }
                                             />
                                             {errors.email && (
                                                 <p className="text-xs text-destructive">
@@ -213,7 +217,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                             {processing && (
                                                 <Loader2 className="mr-2 size-4 animate-spin" />
                                             )}
-                                            {profileEdit.isEditing ? 'Save' : 'Edit'}
+                                            {profileEdit.isEditing
+                                                ? 'Save'
+                                                : 'Edit'}
                                         </Button>
                                     </CardFooter>
                                 </form>
@@ -252,7 +258,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
-                                                disabled={!passwordEdit.isEditing}
+                                                disabled={
+                                                    !passwordEdit.isEditing
+                                                }
                                             />
                                             {passwordErrors.current_password && (
                                                 <p className="text-xs text-destructive">
@@ -277,7 +285,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
-                                                disabled={!passwordEdit.isEditing}
+                                                disabled={
+                                                    !passwordEdit.isEditing
+                                                }
                                             />
                                             {passwordErrors.password && (
                                                 <p className="text-xs text-destructive">
@@ -302,7 +312,9 @@ export default function SuperAdminSettingsIndex({ user }: Props) {
                                                         event.target.value,
                                                     )
                                                 }
-                                                disabled={!passwordEdit.isEditing}
+                                                disabled={
+                                                    !passwordEdit.isEditing
+                                                }
                                             />
                                             {passwordErrors.password_confirmation && (
                                                 <p className="text-xs text-destructive">

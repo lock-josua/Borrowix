@@ -22,14 +22,13 @@ import {
     CardTitle,
     CardDescription,
 } from '@/components/ui/card';
-import type {
-    ChartConfig} from '@/components/ui/chart';
+import type { ChartConfig } from '@/components/ui/chart';
 import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
     ChartLegend,
-    ChartLegendContent
+    ChartLegendContent,
 } from '@/components/ui/chart';
 import {
     Select,
@@ -58,7 +57,7 @@ interface Props {
     subscriptionStats: Record<string, number>;
     revenue: {
         monthly_recurring: number; // MRR
-        annual_recurring: number;  // ARR
+        annual_recurring: number; // ARR
         monthly_cash_flow: number;
         total: number;
     };
@@ -336,10 +335,13 @@ export default function Analytics({
                                     minTickGap={32}
                                     tickFormatter={(value) => {
                                         const date = new Date(value);
-                                        return date.toLocaleDateString('en-US', {
-                                            month: 'short',
-                                            day: 'numeric',
-                                        });
+                                        return date.toLocaleDateString(
+                                            'en-US',
+                                            {
+                                                month: 'short',
+                                                day: 'numeric',
+                                            },
+                                        );
                                     }}
                                 />
                                 <ChartTooltip
@@ -372,9 +374,7 @@ export default function Analytics({
                                     stroke="var(--color-annual)"
                                     stackId="a"
                                 />
-                                <ChartLegend
-                                    content={<ChartLegendContent />}
-                                />
+                                <ChartLegend content={<ChartLegendContent />} />
                             </AreaChart>
                         </ChartContainer>
                     </CardContent>

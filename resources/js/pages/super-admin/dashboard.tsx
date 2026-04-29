@@ -268,10 +268,16 @@ export default function SuperAdminDashboard({
                         </CardHeader>
                         <div className="divide-y divide-border">
                             {activityLog &&
-                            activityLog.filter((l) => getEventCategory(l.event_type) === 'system')
-                                .length > 0 ? (
+                            activityLog.filter(
+                                (l) =>
+                                    getEventCategory(l.event_type) === 'system',
+                            ).length > 0 ? (
                                 activityLog
-                                    .filter((l) => getEventCategory(l.event_type) === 'system')
+                                    .filter(
+                                        (l) =>
+                                            getEventCategory(l.event_type) ===
+                                            'system',
+                                    )
                                     .slice(0, 8)
                                     .map((log) => (
                                         <div
@@ -302,7 +308,9 @@ export default function SuperAdminDashboard({
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                                     <Activity className="mb-2 size-8 opacity-20" />
-                                    <p className="text-sm">No system activity yet</p>
+                                    <p className="text-sm">
+                                        No system activity yet
+                                    </p>
                                 </div>
                             )}
                         </div>
@@ -312,15 +320,23 @@ export default function SuperAdminDashboard({
                     <Card className="overflow-hidden border-border/60 p-0">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3">
                             <CardTitle className="flex items-center gap-2 text-sm">
-                                <CreditCard className="size-4" /> Subscription Logs
+                                <CreditCard className="size-4" /> Subscription
+                                Logs
                             </CardTitle>
                         </CardHeader>
                         <div className="divide-y divide-border">
                             {activityLog &&
-                            activityLog.filter((l) => getEventCategory(l.event_type) === 'subscription')
-                                .length > 0 ? (
+                            activityLog.filter(
+                                (l) =>
+                                    getEventCategory(l.event_type) ===
+                                    'subscription',
+                            ).length > 0 ? (
                                 activityLog
-                                    .filter((l) => getEventCategory(l.event_type) === 'subscription')
+                                    .filter(
+                                        (l) =>
+                                            getEventCategory(l.event_type) ===
+                                            'subscription',
+                                    )
                                     .slice(0, 8)
                                     .map((log) => (
                                         <div
@@ -351,7 +367,9 @@ export default function SuperAdminDashboard({
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                                     <CreditCard className="mb-2 size-8 opacity-20" />
-                                    <p className="text-sm">No subscription logs yet</p>
+                                    <p className="text-sm">
+                                        No subscription logs yet
+                                    </p>
                                 </div>
                             )}
                         </div>
