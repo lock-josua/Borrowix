@@ -64,12 +64,12 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
         { title: 'Browse Equipment', href: '/student/browse', icon: Search },
         ...(can?.can_scan
             ? [
-                  {
-                      title: 'Scan Equipment',
-                      href: '/student/scan',
-                      icon: ScanLine,
-                  },
-              ]
+                {
+                    title: 'Scan Equipment',
+                    href: '/student/scan',
+                    icon: ScanLine,
+                },
+            ]
             : []),
         {
             title: 'My Requests',
@@ -133,11 +133,10 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                                 <Link
                                     key={item.href}
                                     href={item.href}
-                                    className={`relative flex flex-1 flex-col items-center justify-center gap-1 transition-all duration-300 ${
-                                        active
+                                    className={`relative flex flex-1 flex-col items-center justify-center gap-1 transition-all duration-300 ${active
                                             ? 'text-primary'
                                             : 'text-muted-foreground hover:text-foreground'
-                                    }`}
+                                        }`}
                                 >
                                     {active && (
                                         <motion.div
@@ -146,11 +145,10 @@ export default function StudentLayout({ children, breadcrumbs = [] }: Props) {
                                         />
                                     )}
                                     <div
-                                        className={`flex size-10 items-center justify-center rounded-xl transition-all duration-300 ${
-                                            active
+                                        className={`flex size-10 items-center justify-center rounded-xl transition-all duration-300 ${active
                                                 ? 'scale-110 bg-primary/10'
                                                 : 'scale-100'
-                                        }`}
+                                            }`}
                                     >
                                         <item.icon
                                             className={`size-[20px] transition-transform ${active ? 'stroke-[2.5px]' : 'stroke-[2px]'}`}

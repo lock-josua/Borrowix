@@ -52,17 +52,23 @@ export function NotificationBell() {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     Accept: 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
                 credentials: 'include',
-            }).then(() => {
-                setUnreadCount((prev) => Math.max(0, prev - 1));
-                setNotifications((prev) =>
-                    prev.map((n) =>
-                        n.id === notification.id
-                            ? { ...n, read_at: new Date().toISOString() }
-                            : n,
-                    ),
-                );
+            }).then((response) => {
+                if (response.ok) {
+                    setUnreadCount((prev) => Math.max(0, prev - 1));
+                    setNotifications((prev) =>
+                        prev.map((n) =>
+                            n.id === notification.id
+                                ? { ...n, read_at: new Date().toISOString() }
+                                : n,
+                        ),
+                    );
+                }
             });
         }
         setSelectedNotification(notification);
@@ -74,13 +80,22 @@ export function NotificationBell() {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 Accept: 'application/json',
+                'X-CSRF-TOKEN':
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') || '',
             },
             credentials: 'include',
-        }).then(() => {
-            setUnreadCount(0);
-            setNotifications((prev) =>
-                prev.map((n) => ({ ...n, read_at: new Date().toISOString() })),
-            );
+        }).then((response) => {
+            if (response.ok) {
+                setUnreadCount(0);
+                setNotifications((prev) =>
+                    prev.map((n) => ({
+                        ...n,
+                        read_at: new Date().toISOString(),
+                    })),
+                );
+            }
         });
     }
 

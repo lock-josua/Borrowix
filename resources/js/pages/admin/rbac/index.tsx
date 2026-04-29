@@ -45,7 +45,7 @@ const ROLE_PERMISSION_GROUPS: Record<string, string[]> = {
         'transaction',
         'user',
     ],
-    staff: ['equipment', 'history', 'request', 'transaction'],
+    staff: ['equipment', 'request', 'transaction'],
     student: ['equipment', 'history', 'request'],
 };
 
@@ -144,14 +144,9 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
                                             <span className="block truncate text-xs text-muted-foreground">
                                                 Staff permission
                                             </span>
-                                        ) : role.name === 'student' &&
-                                          role.permissions.length > 0 ? (
-                                            <span className="block truncate text-xs text-muted-foreground">
-                                                {role.permissions.join(', ')}
-                                            </span>
                                         ) : role.name === 'student' ? (
                                             <span className="block truncate text-xs text-muted-foreground">
-                                                No permissions granted
+                                                Student permission
                                             </span>
                                         ) : (
                                             <span className="block truncate text-xs text-muted-foreground">
@@ -229,13 +224,25 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
                                                     (action) => {
                                                         if (
                                                             selectedRole ===
-                                                                'student' &&
+                                                            'student' &&
                                                             group.resource ===
-                                                                'equipment'
+                                                            'equipment'
                                                         ) {
                                                             return (
                                                                 action !==
                                                                 'qr.generate'
+                                                            );
+                                                        }
+
+                                                        if (
+                                                            selectedRole ===
+                                                            'staff' &&
+                                                            group.resource ===
+                                                            'transaction'
+                                                        ) {
+                                                            return (
+                                                                action !==
+                                                                'view'
                                                             );
                                                         }
 
@@ -286,6 +293,30 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
                                                                                 action,
                                                                             )));
 
+                                                                const isStaff =
+                                                                    currentRole.name ===
+                                                                    'staff';
+                                                                const isLockedForStaff =
+                                                                    isStaff &&
+                                                                    ((group.resource ===
+                                                                        'equipment' &&
+                                                                        [
+                                                                            'create',
+                                                                            'update',
+                                                                            'delete',
+                                                                            'qr.generate',
+                                                                            'scan',
+                                                                        ].includes(
+                                                                            action,
+                                                                        )) ||
+                                                                        (group.resource ===
+                                                                            'request' &&
+                                                                            [
+                                                                                'create',
+                                                                            ].includes(
+                                                                                action,
+                                                                            )));
+
                                                                 return (
                                                                     <div
                                                                         key={
@@ -306,16 +337,18 @@ export default function RbacIndex({ roles, allPermissions }: Props) {
                                                                             disabled={
                                                                                 isPending ||
                                                                                 isAdmin ||
-                                                                                isLockedForStudent
+                                                                                isLockedForStudent ||
+                                                                                isLockedForStaff
                                                                             }
                                                                             onCheckedChange={(
                                                                                 checked,
                                                                             ) => {
                                                                                 if (
-                                                                                    isLockedForStudent
+                                                                                    isLockedForStudent ||
+                                                                                    isLockedForStaff
                                                                                 ) {
                                                                                     toast.error(
-                                                                                        'This permission is locked for students',
+                                                                                        `This permission is locked for ${currentRole.name}s`,
                                                                                     );
                                                                                     return;
                                                                                 }

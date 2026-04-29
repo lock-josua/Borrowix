@@ -42,6 +42,11 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         // Settings (for super_admin profile/password)
         require __DIR__.'/settings.php';
+
+        // Notifications API
+        Route::prefix('api')->group(function () {
+            require __DIR__.'/Api.php';
+        });
     });
 }
 

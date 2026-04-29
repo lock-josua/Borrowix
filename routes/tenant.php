@@ -233,7 +233,9 @@ Route::middleware([
     | Tenant-specific resource routes
     |--------------------------------------------------------------------------
     */
-    require __DIR__.'/Api.php';
+    Route::prefix('api')->group(function () {
+        require __DIR__.'/Api.php';
+    });
     require __DIR__.'/Admin.php';
     require __DIR__.'/Staff.php';
     require __DIR__.'/Student.php';
