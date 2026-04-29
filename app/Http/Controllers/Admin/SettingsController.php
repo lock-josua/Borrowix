@@ -165,8 +165,6 @@ class SettingsController extends Controller
                 'primary_color' => $tenant->primary_color ?? '#EA580C',
                 'active_theme' => $tenant->active_theme ?? 'default',
                 'school_tagline' => $tenant->school_tagline ?? '',
-                'allowed_proof_types' => $tenant->allowed_proof_types ?? 'jpg,png,pdf',
-                'max_daily_requests' => $tenant->max_daily_requests ?? 3,
                 'public_browse_enabled' => (bool) ($tenant->public_browse_enabled ?? false),
                 'maintenance_message' => $tenant->maintenance_message ?? '',
             ],
@@ -184,8 +182,6 @@ class SettingsController extends Controller
             'primary_color' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'active_theme' => ['nullable', 'string', 'in:'.implode(',', \App\Services\TenantThemeService::validSlugs())],
             'school_tagline' => ['nullable', 'string', 'max:150'],
-            'allowed_proof_types' => ['nullable', 'string', 'max:255'],
-            'max_daily_requests' => ['nullable', 'integer', 'min:1', 'max:50'],
             'public_browse_enabled' => ['nullable', 'boolean'],
             'maintenance_message' => ['nullable', 'string', 'max:500'],
         ]);
@@ -202,8 +198,7 @@ class SettingsController extends Controller
 
         $scalar = [
             'login_bg_mode', 'login_bg_color', 'primary_color', 'active_theme',
-            'school_tagline', 'allowed_proof_types', 'max_daily_requests',
-            'public_browse_enabled', 'maintenance_message',
+            'school_tagline', 'public_browse_enabled', 'maintenance_message',
         ];
 
         foreach ($scalar as $key) {

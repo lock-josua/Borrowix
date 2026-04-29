@@ -30,9 +30,6 @@ return new class extends Migration
             $table->string('active_theme', 50)->default('default');
             $table->string('school_tagline')->nullable();
 
-            // Request settings
-            $table->string('allowed_proof_types', 255)->default('jpg,png,pdf');
-            $table->integer('max_daily_requests')->default(3);
 
             // System settings
             $table->boolean('public_browse_enabled')->default(false);
