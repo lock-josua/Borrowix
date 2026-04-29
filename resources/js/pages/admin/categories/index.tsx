@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout';
+import { formatDateOnly } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -140,7 +141,7 @@ export default function CategoriesIndex({ categories }: Props) {
                                 width: '20%',
                                 render: (cat) => (
                                     <span className="text-xs text-muted-foreground">
-                                        {cat.created_at || '—'}
+                                        {formatDateOnly(cat.created_at || '—')}
                                     </span>
                                 ),
                             },
