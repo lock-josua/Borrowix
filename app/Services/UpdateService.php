@@ -49,6 +49,7 @@ class UpdateService
 
         try {
             $response = Http::withHeaders($this->buildHeaders())
+                ->withoutVerifying()
                 ->timeout(8)
                 ->get("https://api.github.com/repos/{$this->repo}/releases/latest");
 
@@ -99,6 +100,7 @@ class UpdateService
 
         try {
             $response = Http::withHeaders($this->buildHeaders())
+                ->withoutVerifying()
                 ->timeout(8)
                 ->get("https://api.github.com/repos/{$this->repo}/releases");
 
