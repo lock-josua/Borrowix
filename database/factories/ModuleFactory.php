@@ -16,11 +16,8 @@ class ModuleFactory extends Factory
      */
     public function definition(): array
     {
-        static $sequence = 1;
-
         return [
             'name' => fake()->sentence(),
-            'plan_id' => $sequence++ <= 50 ? $sequence - 1 : random_int(1, 50),
         ];
     }
 }

@@ -11,6 +11,9 @@ class ModuleSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Module::factory()->count(50)->create();
+        \App\Models\Module::factory()
+            ->count(50)
+            ->sequence(fn ($sequence) => ['plan_id' => $sequence->index + 1])
+            ->create();
     }
 }
