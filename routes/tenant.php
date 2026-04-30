@@ -239,5 +239,6 @@ Route::middleware([
     require __DIR__.'/Admin.php';
     require __DIR__.'/Staff.php';
     require __DIR__.'/Student.php';
+    Route::resource('modules', \App\Http\Controllers\ModuleController::class);
     // settings.php is NOT included here — it is only on the central domain
 });
