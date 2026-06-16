@@ -25,7 +25,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import StaffLayout from '@/layouts/StaffLayout';
-import { formatDate } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -52,6 +51,14 @@ interface Props {
         prev_page_url: string | null;
     };
     filters: { status?: string; search?: string };
+}
+
+function formatDate(value: string) {
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    }).format(new Date(value));
 }
 
 export default function RequestsIndex({ requests, filters }: Props) {
@@ -121,7 +128,7 @@ export default function RequestsIndex({ requests, filters }: Props) {
                             handleFilterChange('status', v === 'all' ? '' : v)
                         }
                     >
-                        <SelectTrigger className="h-9 w-full bg-muted/20 text-sm sm:w-[150px]">
+                        <SelectTrigger className="h-9 w-full sm:w-[150px] bg-muted/20 text-sm">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
