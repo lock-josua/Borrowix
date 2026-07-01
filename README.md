@@ -715,12 +715,6 @@ php artisan migrate:fresh --seed
 
 ---
 
-## License
-
-This project is licensed under the MIT License. See `LICENSE` for details.
-
----
-
 ## Support
 
 For issues, questions, or contributions, please open an issue on [GitHub Issues](https://github.com/lock-josua/Borrowix/issues).
